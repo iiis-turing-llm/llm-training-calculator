@@ -1,0 +1,38 @@
+.body {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  justify-content: flex-start;
+}
+
+.llm-layout-wrapper{
+  height: 100vh;
+  .header-wrapper{
+    display: flex;
+    align-items: center;
+  }
+  .header-logo{
+    padding-right: 10px;
+    div{
+      width: 293px;
+      height: 31px;
+      background-image: url('./../assets/logo.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 100%;
+    }
+  }
+  .header-tabs{
+    padding-left: 10px;
+    padding-top: 10px;
+  }
+  .ant-layout-header{
+    background: transparent;
+    padding: 0 10px;
+  }
+  .ant-tabs-tab-active{ 
+    font-weight: bold;
+  }
+}
