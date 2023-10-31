@@ -63,6 +63,8 @@ class Timeline(BaseModel):
 
 
 class CalculatorResult(BaseModel):
+    parameter: Parameter
+    recommended_config: RecommendedConfig
     memory_usage: MemoryUsage
     computation: Computation
     communication: Communication

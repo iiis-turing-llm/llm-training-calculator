@@ -1,9 +1,11 @@
 import math
+import os
+import uuid
 
 from app.config import settings
 from app.models.calculator_input import GPU, Model, OtherConfig
-from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, CalculatorResult, \
-    Parameter, RecommendedConfig
+from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, CalculatorResult, Parameter, \
+    RecommendedConfig
 import openpyxl
 
 
@@ -48,6 +50,7 @@ class CalculateRepository:
     def calculate(self, gpu: GPU, model: Model, other_config: OtherConfig):
 
         params = self.parameter_metrics(model)
+        recommended_config = self.recommended_config(gpu, model, other_config.optimization_strategy)
 
         memory = MemoryUsage()
         memory.optimizer_states = 12 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
@@ -106,16 +109,17 @@ class CalculateRepository:
         tl.per_iter_training_time = tl.warmup_time + (
                 tl.forward_time + tl.backward_time) * comp.num_microbatches + tl.cooldown_time + tl.allreduce_time
 
-        self.write_timeline_to_file(tl)
-        calculator_result = CalculatorResult(memory_usage=memory, computation=comp, communication=comm, timeline=tl)
+        # self.write_result_to_file(tl)
+        calculator_result = CalculatorResult(parameter=params, recommended_config=recommended_config,
+                                             memory_usage=memory, computation=comp, communication=comm, timeline=tl)
 
         return calculator_result
 
     def read_file_to_timeline(self):
         # 打开Excel文件
-        workbook = openpyxl.load_workbook(settings.CALCULATOR_RESULT_FILE)
+        workbook = openpyxl.load_workbook(settings.CALCULATOR_RESULT_FILE_MODEL)
         # 选择要操作的工作表
-        worksheet = workbook['Sheet1']
+        worksheet = workbook["Output"]
 
         tl = Timeline()
         tl.per_device_layers = worksheet['B1'].value
@@ -135,25 +139,94 @@ class CalculateRepository:
         tl.per_iter_training_time = worksheet['P1'].value
         return tl
 
-    def write_timeline_to_file(self, tl: Timeline):
+    def write_result_to_file(self, gpu: GPU,
+                             model: Model,
+                             other_config: OtherConfig,
+                             parameter: Parameter,
+                             recommended_config: RecommendedConfig,
+                             memory_usage: MemoryUsage,
+                             computation: Computation,
+                             communication: Communication,
+                             timeline: Timeline,):
         # 打开Excel文件
-        workbook = openpyxl.load_workbook(settings.CALCULATOR_RESULT_FILE, data_only=True)
+        workbook = openpyxl.load_workbook(settings.CALCULATOR_RESULT_FILE_MODEL)
         # 选择要操作的工作表
-        worksheet = workbook['Sheet1']
-        worksheet['B1'] = tl.per_device_layers
-        worksheet['D1'] = tl.num_microbatches
-        worksheet['H3'] = tl.per_loop_forward_computation_time
-        worksheet['J4'] = tl.per_loop_backward_computation_time
-        worksheet['H2'] = tl.per_loop_forward_allgather_time
-        worksheet['J2'] = tl.per_loop_backward_allgather_time
-        worksheet['J3'] = tl.per_loop_backward_reduce_scatter_time
-        worksheet['H1'] = tl.forward_time
-        worksheet['H4'] = tl.forward_gpu_usage
-        worksheet['J1'] = tl.backward_time
-        worksheet['J5'] = tl.backward_gpu_usage
-        worksheet['F1'] = tl.warmup_time
-        worksheet['L1'] = tl.cooldown_time
-        worksheet['N1'] = tl.allreduce_time
-        worksheet['P1'] = tl.per_iter_training_time
+        worksheet = workbook["Output"]
+        worksheet["B1"] = timeline.per_device_layers
+        worksheet["D1"] = timeline.num_microbatches
+        worksheet["H3"] = timeline.per_loop_forward_computation_time
+        worksheet["J4"] = timeline.per_loop_backward_computation_time
+        worksheet["H2"] = timeline.per_loop_forward_allgather_time
+        worksheet["J2"] = timeline.per_loop_backward_allgather_time
+        worksheet["J3"] = timeline.per_loop_backward_reduce_scatter_time
+        worksheet["H1"] = timeline.forward_time
+        worksheet["H4"] = timeline.forward_gpu_usage
+        worksheet["J1"] = timeline.backward_time
+        worksheet["J5"] = timeline.backward_gpu_usage
+        worksheet["F1"] = timeline.warmup_time
+        worksheet["L1"] = timeline.cooldown_time
+        worksheet["N1"] = timeline.allreduce_time
+        worksheet["P1"] = timeline.per_iter_training_time
+        worksheet["R1"] = other_config.tensor_parallel_degree
+        worksheet["T1"] = other_config.pipeline_parallel_degree
+
+        worksheet1 = workbook["Input"]
+        worksheet1["A2"] = gpu.name
+        worksheet1["B2"] = gpu.sparse_tensor_fp16_processing_power
+        worksheet1["C2"] = gpu.fp32_processing_power
+        worksheet1["D2"] = gpu.memory
+        worksheet1["E2"] = gpu.memory_bandwidth
+        worksheet1["F2"] = gpu.bus_bandwidth
+        worksheet1["G2"] = gpu.delay
+        worksheet1["H2"] = gpu.launch_msrp
+        worksheet1["A6"] = model.name
+        worksheet1["B6"] = model.token_length
+        worksheet1["C6"] = model.num_attention_heads
+        worksheet1["D6"] = model.hidden_layer_size
+        worksheet1["E6"] = model.num_layers
+        worksheet1["F6"] = model.vocab_size
+        worksheet1["B9"] = model.minibatch_size
+        worksheet1["B12"] = other_config.tensor_parallel_degree
+        worksheet1["D12"] = other_config.pipeline_parallel_degree
+        worksheet1["F12"] = other_config.network_bandwidth
+        worksheet1["H12"] = other_config.microbatch_size
+
+        worksheet2 = workbook["Intermediate"]
+        worksheet2["B1"] = parameter.total_parameters
+        worksheet2["D1"] = parameter.word_embedding
+        worksheet2["F1"] = parameter.self_attention
+        worksheet2["H1"] = parameter.feed_forward
+        worksheet2["J1"] = parameter.position_embedding
+        worksheet2["B4"] = recommended_config.recomended_tensor_parallel_degree
+        worksheet2["D4"] = recommended_config.recomended_pipeline_parallel_degree
+        worksheet2["B7"] = memory_usage.optimizer_states
+        worksheet2["D7"] = memory_usage.weights
+        worksheet2["F7"] = memory_usage.gradients
+        worksheet2["H7"] = memory_usage.activation
+        worksheet2["J7"] = memory_usage.overall_usage
+        worksheet2["B10"] = computation.per_device_layers
+        worksheet2["D10"] = computation.num_microbatches
+        worksheet2["F10"] = computation.total_forward_computation_time
+        worksheet2["H10"] = computation.total_backward_computation_time
+        worksheet2["J10"] = computation.per_loop_forward_computation_time
+        worksheet2["L10"] = computation.per_loop_backward_computation_time
+        worksheet2["B13"] = computation.per_device_layers
+        worksheet2["D13"] = computation.num_microbatches
+        worksheet2["B14"] = communication.total_forward_allgather_time
+        worksheet2["D14"] = communication.per_loop_forward_allgather_time
+        worksheet2["B15"] = communication.total_backward_allgather_time
+        worksheet2["D15"] = communication.per_loop_backward_allgather_time
+        worksheet2["B16"] = communication.total_backward_reduce_scatter_time
+        worksheet2["D16"] = communication.per_loop_backward_reduce_scatter_time
+        worksheet2["B17"] = communication.total_p2p_time
+        worksheet2["D17"] = communication.per_loop_p2p_time
+        worksheet2["B18"] = communication.word_embedding_allreduce_time
+        worksheet2["D18"] = communication.gradient_allreduce_time
+
+        file_name = "calculator_" + str(uuid.uuid4()).replace('-', '') + ".xlsx"
+
+        if not os.path.exists(settings.CALCULATOR_RESULT_FILE_PATH):
+            os.makedirs(settings.CALCULATOR_RESULT_FILE_PATH)
         # 保存修改后的Excel文件
-        workbook.save(settings.CALCULATOR_RESULT_FILE)
+        workbook.save(os.path.join(settings.CALCULATOR_RESULT_FILE_PATH, file_name))
+        return os.path.join(settings.CALCULATOR_RESULT_FILE_PATH, file_name)

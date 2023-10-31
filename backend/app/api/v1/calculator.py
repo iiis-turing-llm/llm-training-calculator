@@ -1,9 +1,12 @@
 import fastapi
 from fastapi import Body
-
+from fastapi.responses import FileResponse
 from app.config import settings
 from app.core.calculate_repository import CalculateRepository
 from app.models.calculator_input import GPU, Model, OtherConfig
+
+from app.models.calculator_result import CalculatorResult, Parameter, RecommendedConfig, MemoryUsage, \
+    Computation, Communication, Timeline
 
 router = fastapi.APIRouter()
 
@@ -47,3 +50,19 @@ def create_calculator(gpu: GPU,
                       other_config: OtherConfig):
     cr = CalculateRepository()
     return cr.calculate(gpu, model, other_config)
+
+
+@router.post("/download")
+def create_calculator(gpu: GPU,
+                      model: Model,
+                      other_config: OtherConfig,
+                      parameter: Parameter,
+                      recommended_config: RecommendedConfig,
+                      memory_usage: MemoryUsage,
+                      computation: Computation,
+                      communication: Communication,
+                      timeline: Timeline,):
+    cr = CalculateRepository()
+    file = cr.write_result_to_file(gpu, model, other_config, parameter, recommended_config, memory_usage, computation,
+                                   communication, timeline)
+    return FileResponse(file, filename="calculator.xlsx")
