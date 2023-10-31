@@ -1,9 +1,9 @@
 import fastapi
 from fastapi import Body
 
-from backend.app.config import settings
-from backend.app.core.calculate_repository import CalculateRepository
-from backend.app.models.calculator_input import GPU, Model, OtherConfig
+from app.config import settings
+from app.core.calculate_repository import CalculateRepository
+from app.models.calculator_input import GPU, Model, OtherConfig
 
 router = fastapi.APIRouter()
 

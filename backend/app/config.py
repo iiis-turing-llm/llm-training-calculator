@@ -1,8 +1,9 @@
+import os
 from typing import List
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings
 
-from backend.app.models.calculator_input import GPU, Model
+from app.models.calculator_input import GPU, Model
 
 
 class Settings(BaseSettings):
@@ -10,7 +11,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
     API_V1_STR: str = "/api/v1"
 
-    CALCULATOR_RESULT_FILE: str = "calculator.xlsx"
+    # 获取当前文件所在目录的绝对路径,并拼接目标文件的路径
+    CALCULATOR_RESULT_FILE: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "calculator.xlsx")
 
     GPU_LIST: List[GPU] = [
         GPU(

@@ -1,8 +1,8 @@
 import math
 
-from backend.app.config import settings
-from backend.app.models.calculator_input import GPU, Model, OtherConfig
-from backend.app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, CalculatorResult, \
+from app.config import settings
+from app.models.calculator_input import GPU, Model, OtherConfig
+from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, CalculatorResult, \
     Parameter, RecommendedConfig
 import openpyxl
 
