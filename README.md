@@ -22,7 +22,7 @@
 
 1. 确保已安装 Node.js 等环境；
 
-2. 进入/frontend 目录，安装依赖包：
+2. 进入/frontend 目录，安装依赖包(使用 npm 安装和启动也是可以的)：
 
    `yarn install`
 
@@ -32,7 +32,7 @@
 
 4. 启动本地前端服务：
 
-   `yarn install`
+   `yarn start`
 
 5. 浏览器中访问
 
