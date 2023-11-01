@@ -1,5 +1,5 @@
 import fastapi
-from fastapi import Body
+from fastapi import Body, UploadFile, File
 from fastapi.responses import FileResponse
 from app.config import settings
 from app.core.calculate_repository import CalculateRepository
@@ -61,8 +61,16 @@ def create_calculator(gpu: GPU,
                       memory_usage: MemoryUsage,
                       computation: Computation,
                       communication: Communication,
-                      timeline: Timeline,):
+                      timeline: Timeline, ):
     cr = CalculateRepository()
     file = cr.write_result_to_file(gpu, model, other_config, parameter, recommended_config, memory_usage, computation,
                                    communication, timeline)
     return FileResponse(file, filename="calculator.xlsx")
+
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    content = await file.read()  # 读取文件内容
+    cr = CalculateRepository()
+    tl = cr.read_file_to_timeline(content)
+    return tl

@@ -1,12 +1,14 @@
 import math
 import os
 import uuid
+from io import BytesIO
 
 from app.config import settings
 from app.models.calculator_input import GPU, Model, OtherConfig
 from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, CalculatorResult, Parameter, \
     RecommendedConfig
 import openpyxl
+from tempfile import NamedTemporaryFile
 
 
 class CalculateRepository:
@@ -108,16 +110,17 @@ class CalculateRepository:
         tl.allreduce_time = comm.gradient_allreduce_time + comm.word_embedding_allreduce_time
         tl.per_iter_training_time = tl.warmup_time + (
                 tl.forward_time + tl.backward_time) * comp.num_microbatches + tl.cooldown_time + tl.allreduce_time
+        tl.tensor_parallel_degree = other_config.tensor_parallel_degree
+        tl.pipeline_parallel_degree = other_config.pipeline_parallel_degree
 
-        # self.write_result_to_file(tl)
         calculator_result = CalculatorResult(parameter=params, recommended_config=recommended_config,
                                              memory_usage=memory, computation=comp, communication=comm, timeline=tl)
 
         return calculator_result
 
-    def read_file_to_timeline(self):
+    def read_file_to_timeline(self, content):
         # 打开Excel文件
-        workbook = openpyxl.load_workbook(settings.CALCULATOR_RESULT_FILE_MODEL)
+        workbook = openpyxl.load_workbook(filename=BytesIO(content), read_only=True)
         # 选择要操作的工作表
         worksheet = workbook["Output"]
 
@@ -137,6 +140,8 @@ class CalculateRepository:
         tl.cooldown_time = worksheet['L1'].value
         tl.allreduce_time = worksheet['N1'].value
         tl.per_iter_training_time = worksheet['P1'].value
+        tl.tensor_parallel_degree = worksheet["R1"].value
+        tl.pipeline_parallel_degree = worksheet["T1"].value
         return tl
 
     def write_result_to_file(self, gpu: GPU,
@@ -147,7 +152,7 @@ class CalculateRepository:
                              memory_usage: MemoryUsage,
                              computation: Computation,
                              communication: Communication,
-                             timeline: Timeline,):
+                             timeline: Timeline, ):
         # 打开Excel文件
         workbook = openpyxl.load_workbook(settings.CALCULATOR_RESULT_FILE_MODEL)
         # 选择要操作的工作表
@@ -167,8 +172,8 @@ class CalculateRepository:
         worksheet["L1"] = timeline.cooldown_time
         worksheet["N1"] = timeline.allreduce_time
         worksheet["P1"] = timeline.per_iter_training_time
-        worksheet["R1"] = other_config.tensor_parallel_degree
-        worksheet["T1"] = other_config.pipeline_parallel_degree
+        worksheet["R1"] = timeline.tensor_parallel_degree
+        worksheet["T1"] = timeline.pipeline_parallel_degree
 
         worksheet1 = workbook["Input"]
         worksheet1["A2"] = gpu.name
@@ -222,11 +227,7 @@ class CalculateRepository:
         worksheet2["D17"] = communication.per_loop_p2p_time
         worksheet2["B18"] = communication.word_embedding_allreduce_time
         worksheet2["D18"] = communication.gradient_allreduce_time
-
-        file_name = "calculator_" + str(uuid.uuid4()).replace('-', '') + ".xlsx"
-
-        if not os.path.exists(settings.CALCULATOR_RESULT_FILE_PATH):
-            os.makedirs(settings.CALCULATOR_RESULT_FILE_PATH)
-        # 保存修改后的Excel文件
-        workbook.save(os.path.join(settings.CALCULATOR_RESULT_FILE_PATH, file_name))
-        return os.path.join(settings.CALCULATOR_RESULT_FILE_PATH, file_name)
+        # 将修改后的文件保存到临时文件中
+        with NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
+            workbook.save(tmp.name)
+        return tmp.name

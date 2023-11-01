@@ -8,14 +8,13 @@ from app.models.calculator_input import GPU, Model
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "llm-training-calculator"
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:8080", "https://localhost:8080", "http://localhost", "https://localhost"]
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:8080", "https://localhost:8080", "http://localhost",
+                                              "https://localhost"]
     API_V1_STR: str = "/api/v1"
 
     # 获取当前文件所在目录的绝对路径,并拼接目标文件的路径
     CALCULATOR_RESULT_FILE_MODEL: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                                      "calculator_model.xlsx")
-    CALCULATOR_RESULT_FILE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                                    "tmp_data")
 
     GPU_LIST: List[GPU] = [
         GPU(
