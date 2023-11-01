@@ -8,7 +8,7 @@ from app.models.calculator_input import GPU, Model
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "llm-training-calculator"
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:8080", "https://localhost:8080", "http://localhost", "https://localhost"]
     API_V1_STR: str = "/api/v1"
 
     # 获取当前文件所在目录的绝对路径,并拼接目标文件的路径

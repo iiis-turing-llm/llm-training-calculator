@@ -19,7 +19,7 @@ def get_application():
         allow_headers=["*"],
     )
 
-    app.include_router(api_router, prefix="/llm_training")
+    app.include_router(api_router, prefix="/llm_training_calculator")
 
     @app.on_event("startup")
     def welcome_message():
