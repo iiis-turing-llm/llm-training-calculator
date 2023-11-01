@@ -6,6 +6,7 @@ const ProjectModel = ({ set, get }: any = {}) => ({
   otherConfig: {
     optimization_strategy: 'No recomputation'
   } as any, // 其他配置
+  recommendConfig: {},
   result: null as any, // 计算结果
   showError: false, //  是否显示错误提示
   errorMsg: '', // 错误信息

@@ -1,14 +1,15 @@
 import { FC, Fragment } from 'react';
-import { Space, Divider, Popover, Tag, Collapse } from 'antd'
-import type { CollapseProps } from 'antd';
+import { Space, Divider, Popover, Tag, Button } from 'antd'
 import { useImmer } from 'use-immer';
 import useModel from 'flooks';
 import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import PopPanel from './pops'
-import { SyncOutlined, CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
+import { SyncOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { keys, sum } from 'lodash';
-import { readFile } from '@/services';
+import Steps from './../../components/steps'
+import FileSaver from 'file-saver'
+import { readFile, exportResult, downloadTemplate } from '@/services';
 const COLOR_MAPPING: any = {
   warmup: {
     label: 'Warmup time',
@@ -39,11 +40,12 @@ const COLOR_MAPPING: any = {
 
 export interface IPanelRightProps { }
 const PanelRight: FC<IPanelRightProps> = (props) => {
-  const { result, curGpu, curMode, setProject } = useModel(ProjectModel);
+  const { result, curGpu, curMode, curModel, otherConfig, setProject } = useModel(ProjectModel);
   const [state, setState] = useImmer({
     memoryCollapse: false,
     computationCollapse: true,
-    communicationCollapse: true
+    communicationCollapse: true,
+    timelineCollapse: false
   });
   const readExcelFile = async () => {
     setProject({
@@ -106,6 +108,13 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
     }
     return false
   }
+  const exportResultFile = () => {
+    exportResult({
+      ...result, gpu: curGpu, model: curModel, other_config: otherConfig
+    }).then((res: any) => {
+      FileSaver.saveAs(res, "llm-training-calculator.xlsx");
+    })
+  }
   const renderTip = (time: number, title: string) => {
     return <div className={styles.pop_tip}>
       <div>{title}(GPU usage)</div>
@@ -115,6 +124,14 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
   }
   const renderDetail = () => {
     return <PopPanel />
+  }
+  if (!result && curMode === 'guide') {
+    return <div className={styles.content}>
+      <div className={styles.empty_steps} >
+        <div><Steps />
+        </div>
+      </div>
+    </div>
   }
   if (!result) {
     return <div className={styles.content}>
@@ -302,12 +319,20 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
           <div className={styles.result_group_header}>
             <div className={styles.result_group_title}>
               Timeline
-              {curMode === 'custom' && <div>
+              {curMode === 'custom' ? <div>
                 <SyncOutlined className={styles.fresh_icon} onClick={readExcelFile} />
-              </div>}
+              </div> :
+                <div className={styles.result_group_collapse}>{!state.timelineCollapse ?
+                  <CaretDownOutlined onClick={() => {
+                    setState({ ...state, timelineCollapse: !state.timelineCollapse })
+                  }} /> :
+                  <CaretRightOutlined onClick={() => {
+                    setState({ ...state, timelineCollapse: !state.timelineCollapse })
+                  }} />}
+                </div>}
             </div>
           </div>
-          <div className={styles.result_group_content}>
+          {!state.timelineCollapse && <div className={styles.result_group_content}>
             <Space wrap split={<Divider type="vertical" />}>
               <div className={styles.result_item_border}>
                 <div>Warmup time</div>
@@ -336,7 +361,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                 <div>{dataParse(result.timeline.allreduce_time)}</div>
               </div>
             </Space>
-          </div>
+          </div>}
         </div>
         <div className={styles.timeline_group_total}>
           {dataParse(totalTime)}s
@@ -384,6 +409,9 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             </Popover>
           })}
         </div>
+        {curMode === 'guide' && <div className={styles.export_btn}>
+          <Button type="primary" icon={<ExportOutlined />} onClick={exportResultFile}>EXPORT</Button>
+        </div>}
       </div>
     </div >
   );

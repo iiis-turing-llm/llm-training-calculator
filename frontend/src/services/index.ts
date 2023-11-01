@@ -1,6 +1,6 @@
 import request from '@/utils/request';
-// const service_base_url = 'http://192.168.211.106:12340'
-const service_base_url = 'http://localhost:8000'
+const service_base_url = 'http://192.168.211.106:12340'
+// const service_base_url = 'http://localhost:8000'
 export async function readFile() {
   return request(`${service_base_url}/llm_training_calculator/calculator/read_file`, {
     method: 'GET',
@@ -43,3 +43,23 @@ export async function calculate(params: any) {
     method: 'POST',
   });
 }
+export async function exportResult(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/download`, {
+    data: {
+      ...params
+    },
+    responseType: 'blob',
+    method: 'POST',
+  });
+}
+
+export async function downloadTemplate(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/download_result_model`, {
+    data: {
+      ...params
+    },
+    responseType: 'blob',
+    method: 'POST',
+  });
+}
+

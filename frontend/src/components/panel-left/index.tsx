@@ -7,7 +7,8 @@ import ProjectModel from '@/models/projectModel';
 import GpuSelection from './gpus';
 import ModelSelection from './models';
 import OtherSetting from './others';
-import { calculate, readFile, getRecommendedConfig } from '@/services';
+import FileSaver from 'file-saver'
+import { calculate, readFile, getRecommendedConfig, downloadTemplate } from '@/services';
 import { CUSTOM_FILENAME, CUSTOM_FILEPATH, CUSTOM_SHEET } from '@/utils/constant'
 import styles from './index.less';
 
@@ -108,6 +109,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         optimization_strategy: otherConfig.optimization_strategy
       })
       setProject({
+        recommendConfig: recommendRes,
         otherConfig: {
           ...otherConfig,
           tensor_parallel_degree: recommendRes.recomended_tensor_parallel_degree,
@@ -115,6 +117,14 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         }
       });
     }
+  }
+  const uploadAndCalcExcelFile = () => {
+
+  }
+  const exportResultFile = () => {
+    downloadTemplate({}).then((res: any) => {
+      FileSaver.saveAs(res, "llm-training-calculator.xlsx");
+    })
   }
 
   useEffect(() => {
@@ -128,14 +138,21 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
           Notice
         </div>
         <div className={styles.notice_content}>
-          Customize the computation process using our excel tool [{CUSTOM_FILENAME}] in [{CUSTOM_FILEPATH}]
-          and provide required intermediate computation results in [{CUSTOM_SHEET}].
+          Customize the computation process using our excel tool [FILE_NAME] in [PATH] and input an Excel file with required computation results in [Output] Sheet.
         </div>
       </div>
-      <Button type="primary" className={styles.gen_btn}
+      {/* <Button type="primary" className={styles.gen_btn}
         onClick={() => {
           readExcelFile()
-        }}>READ EXCEL & CALCULATE</Button>
+        }}>READ EXCEL & CALCULATE</Button> */}
+      <Button type="primary" className={styles.gen_btn}
+        onClick={() => {
+          uploadAndCalcExcelFile()
+        }}>Import</Button>
+      <Button className={styles.gen_btn}
+        onClick={() => {
+          exportResultFile()
+        }}>DOWNLOAD TEMPLATE</Button>
     </div>
   }
 
