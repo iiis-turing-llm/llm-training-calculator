@@ -74,3 +74,7 @@ async def upload_file(file: UploadFile = File(...)):
     cr = CalculateRepository()
     tl = cr.read_file_to_timeline(content)
     return tl
+
+@router.post("/download_result_model")
+def create_calculator():
+    return FileResponse(settings.CALCULATOR_RESULT_FILE_MODEL, filename="calculator.xlsx")
