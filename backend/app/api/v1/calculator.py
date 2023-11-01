@@ -76,5 +76,5 @@ async def upload_file(file: UploadFile = File(...)):
     return tl
 
 @router.post("/download_result_model")
-def create_calculator():
+def download_result_model():
     return FileResponse(settings.CALCULATOR_RESULT_FILE_MODEL, filename="calculator.xlsx")
