@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, Fragment } from 'react';
 import { Space, Divider, Popover, Tag, Collapse } from 'antd'
 import type { CollapseProps } from 'antd';
 import { useImmer } from 'use-immer';
@@ -78,38 +78,39 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
     }
     return `${(time / totalTime) * 98}%`
   }
-  const renderLoopTime = () => {
-    return <>
-      <div className={styles.timeline_inner_block} style={{
+  const renderLoopTime = (index: number) => {
+    return <Fragment key={index}>
+      <div key={index} className={styles.timeline_inner_block} style={{
         width: calcLength(forward_time, true),
         backgroundColor: COLOR_MAPPING['forward'].color
       }}>
       </div>
-      <div className={styles.timeline_inner_block} style={{
+      <div key={`${index}_1`} className={styles.timeline_inner_block} style={{
         width: calcLength(backward_time, true),
         backgroundColor: COLOR_MAPPING['backward'].color
       }}>
-      </div></>
+      </div></Fragment>
   }
   const renderMultiLoopTime = () => {
     const numsArray = []
     for (let i = 0; i < num_microbatches; i++) {
       numsArray.push(i)
     }
-    return numsArray.map(() =>
-      renderLoopTime()
+    return numsArray.map((_, index) =>
+      renderLoopTime(index)
     )
   }
   const checkMemoryOverall = () => {
-    if (result.memory_usage && result.curGpu) {
+    if (result.memory_usage && curGpu) {
       return result.memory_usage.overall_usage >= curGpu.memory * 1e9
     }
     return false
   }
   const renderTip = (time: number, title: string) => {
     return <div className={styles.pop_tip}>
-      <div>{title}</div>
-      <div>{dataParse(time)} ({((time / totalTime) * 100).toFixed(2)}%)</div>
+      <div>{title}(GPU usage)</div>
+      {/* <div>{dataParse(time)} ({((time / totalTime) * 100).toFixed(2)}%)</div> */}
+      <div>{dataParse(time)} (0%)</div>
     </div>
   }
   const renderDetail = () => {
@@ -173,10 +174,11 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                       </span>
                     }
                   </div>
-                  <div>{dataParse(result.memory_usage.overall_usage)}</div>
+                  <div className={checkMemoryOverall() ? styles.warning : ''}>{dataParse(result.memory_usage.overall_usage)}</div>
                 </div>
               </Space>
             </div>}
+            <Divider />
           </>}
           {/* Computation Time */}
           {result.computation && <>
@@ -221,6 +223,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                 </div>
               </Space>
             </div>}
+            <Divider />
           </>}
           {/* Communication Time */}
           {result.communication && <>
@@ -238,7 +241,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             {!state.communicationCollapse && <div className={styles.result_group_content}>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item_border}>
-                  <div>Per-devicelayers</div>
+                  <div>Per-device layers</div>
                   <div>{result.timeline.per_device_layers}</div>
                 </div>
                 <div className={styles.result_item_border}>
@@ -293,6 +296,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                 </div>
               </Space>
             </div>}
+            <Divider />
           </>}
           {/*  Timeline */}
           <div className={styles.result_group_header}>
@@ -368,9 +372,12 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
         <div className={styles.timeline_group_legend}>
           {keys(COLOR_MAPPING).map((key: string) => {
             const item: any = COLOR_MAPPING[key]
+            if (!result.timeline[item.key]) {
+              return
+            }
             return <Popover content={['forward', 'backward'].indexOf(key) > -1 ? renderDetail() : renderTip(result.timeline[item.key], item.label)
             } title="" trigger="hover" key={key}>
-              <div>
+              <div key={key}>
                 <div className={styles.timeline_legend_item} style={{ backgroundColor: item.color }}></div>
                 <span>{item.label}</span>
               </div>

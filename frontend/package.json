@@ -4,7 +4,7 @@
   "description": "LLM Training Calculator",
   "author": "hhxu",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "./",
   "repository": {
     "type": "git",
     "url": ""

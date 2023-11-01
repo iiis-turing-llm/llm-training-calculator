@@ -1,4 +1,4 @@
-const ProjectModel = ({ set, get }: any) => ({
+const ProjectModel = ({ set, get }: any = {}) => ({
   curMode: 'guide', // 当前模式， 默认Guide
   curGpu: null as any, // 当前选择的GPU
   curModel: null as any, // 当前选择的Model
