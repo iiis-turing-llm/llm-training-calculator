@@ -15,16 +15,16 @@ class RecommendedConfig(BaseModel):
 
 
 class MemoryUsage(BaseModel):
-    optimizer_states: int = 0
-    weights: int = 0
-    gradients: int = 0
-    activation: int = 0
-    overall_usage: int = 0
+    optimizer_states: float = 0
+    weights: float = 0
+    gradients: float = 0
+    activation: float = 0
+    overall_usage: float = 0
 
 
 class Computation(BaseModel):
-    per_device_layers: int = 0
-    num_microbatches: int = 0
+    per_device_layers: float = 0
+    num_microbatches: float = 0
     total_forward_computation_time: float = 0
     per_loop_forward_computation_time: float = 0
     total_backward_computation_time: float = 0
