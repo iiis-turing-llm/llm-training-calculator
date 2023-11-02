@@ -30,7 +30,7 @@ export default () => {
     </div>
     <div className={styles.step_item}>
       <div className={styles.step_title}>
-        <AiIcon type='llm-function' style={{ color: '#999' }} />
+        <AiIcon type='llm-function' />
         <div className={styles.step_title_text}>
           Step3.
           <div className={styles.step_desc_text}>
@@ -38,7 +38,7 @@ export default () => {
           </div>
         </div>
       </div >
-      <div className={styles.step_desc}></div>
+      <div className={styles.step_desc_1}></div>
     </div>
     <div className={styles.step_item}>
       <div className={styles.step_title}>
