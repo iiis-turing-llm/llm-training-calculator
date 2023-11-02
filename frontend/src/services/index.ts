@@ -1,23 +1,23 @@
-import request, { Response } from '@/utils/request';
-
+import request from '@/utils/request';
+import { service_base_url } from '@/utils/constant'
 export async function readFile() {
-  return request('/llm_training/calculator/read_file', {
+  return request(`${service_base_url}/llm_training_calculator/calculator/read_file`, {
     method: 'GET',
   });
 }
 export async function getGpuList() {
-  return request('/llm_training/calculator/gpu', {
+  return request(`${service_base_url}/llm_training_calculator/calculator/gpu`, {
     method: 'GET',
   });
 }
 export async function getModelList() {
-  return request('/llm_training/calculator/model', {
+  return request(`${service_base_url}/llm_training_calculator/calculator/model`, {
     method: 'GET',
   });
 }
 
 export async function getParameterMetrics(params: any) {
-  return request('/llm_training/calculator/parameter_metrics', {
+  return request(`${service_base_url}/llm_training_calculator/calculator/parameter_metrics`, {
     data: {
       ...params
     },
@@ -26,7 +26,7 @@ export async function getParameterMetrics(params: any) {
 }
 
 export async function getRecommendedConfig(params: any) {
-  return request('/llm_training/calculator/recommended_config', {
+  return request(`${service_base_url}/llm_training_calculator/calculator/recommended_config`, {
     data: {
       ...params
     },
@@ -35,10 +35,30 @@ export async function getRecommendedConfig(params: any) {
 }
 
 export async function calculate(params: any) {
-  return request('/llm_training/calculator/', {
+  return request(`${service_base_url}/llm_training_calculator/calculator/`, {
     data: {
       ...params
     },
     method: 'POST',
   });
 }
+export async function exportResult(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/download`, {
+    data: {
+      ...params
+    },
+    responseType: 'blob',
+    method: 'POST',
+  });
+}
+
+export async function downloadTemplate(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/download_result_model`, {
+    data: {
+      ...params
+    },
+    responseType: 'blob',
+    method: 'POST',
+  });
+}
+

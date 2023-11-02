@@ -5,15 +5,21 @@ export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
+  history: {
+    type: 'hash'
+  },
+  base: '/',
+  publicPath: '/',
+  hash: true,
   routes: [
     { path: '/', component: '@/pages/index' },
   ],
   fastRefresh: {},
   proxy: {
-    '/llm_training': {
-      target: 'http://localhost:8000',
-      changeOrigin: true,
-      pathRewrite: { '^/api': '/api' },
-    },
+    // '/llm_training': {
+    //   target: 'http://localhost:8000',
+    //   changeOrigin: true,
+    //   pathRewrite: { '^/api': '/api' },
+    // },
   },
 });

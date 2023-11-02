@@ -13,25 +13,25 @@ const PARAMS_LIST = [
     key: 'name'
   },
   {
-    title: 'Sparse Tensor FP16 Processing power',
+    title: 'Sparse Tensor FP16 Processing power(Tflops)',
     key: 'sparse_tensor_fp16_processing_power'
   }, {
-    title: 'FP32 Processing power',
+    title: 'FP32 Processing power(Tflops)',
     key: 'fp32_processing_power'
   },
   {
-    title: 'Memory',
+    title: 'Memory(GB)',
     key: 'memory'
   },
   {
-    title: 'Memory Bandwidth',
+    title: 'Memory Bandwidth(GB/s)',
     key: 'memory_bandwidth'
   },
   {
-    title: 'Bus Bandwidth',
+    title: 'Bus Bandwidth(GB/s)',
     key: 'bus_bandwidth'
   }, {
-    title: 'Delay',
+    title: 'Delay(us)',
     key: 'delay'
   }, {
     title: 'Launch MSRP (USD)',

@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react';
-import { Tooltip, Button, message } from 'antd';
+import { Tooltip, Button, message, Upload } from 'antd';
 import { AiIcon } from '@/components';
 import { useImmer } from 'use-immer';
 import useModel from 'flooks';
@@ -7,8 +7,11 @@ import ProjectModel from '@/models/projectModel';
 import GpuSelection from './gpus';
 import ModelSelection from './models';
 import OtherSetting from './others';
-import { calculate, readFile, getRecommendedConfig } from '@/services';
-import { CUSTOM_FILENAME, CUSTOM_FILEPATH, CUSTOM_SHEET } from '@/utils/constant'
+import FileSaver from 'file-saver'
+import CustomSteps from './../custom-steps'
+import { calculate, readFile, getRecommendedConfig, downloadTemplate } from '@/services';
+import type { UploadProps } from 'antd';
+import { service_base_url } from '@/utils/constant'
 import styles from './index.less';
 
 const itemData = [
@@ -108,6 +111,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         optimization_strategy: otherConfig.optimization_strategy
       })
       setProject({
+        recommendConfig: {
+          ...recommendRes
+        },
         otherConfig: {
           ...otherConfig,
           tensor_parallel_degree: recommendRes.recomended_tensor_parallel_degree,
@@ -116,6 +122,39 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       });
     }
   }
+  const exportResultFile = () => {
+    downloadTemplate({}).then((res: any) => {
+      FileSaver.saveAs(res, "calculator-template.xlsx");
+    })
+  }
+  const upProps: UploadProps = {
+    name: 'file',
+    action: `${service_base_url}/llm_training_calculator/calculator/upload`,
+    headers: {
+      // authorization: 'authorization-text',
+    },
+    showUploadList: false,
+    onChange(info) {
+      if (info.file.status !== 'uploading') {
+        // console.log(info.file, info.fileList);
+      }
+      if (info.file.status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully`);
+        const res = info.file.response
+        setProject({
+          result: {
+            timeline: { ...res }
+          },
+          otherConfig: {
+            tensor_parallel_degree: res.tensor_parallel_degree,
+            pipeline_parallel_degree: res.pipeline_parallel_degree
+          }
+        });
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+  };
 
   useEffect(() => {
     refreshRecommend()
@@ -125,17 +164,26 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     return <div className={styles.notice}>
       <div className={styles.notice_panel}>
         <div className={styles.notice_title}>
-          Notice
+          Customize the computation process
         </div>
         <div className={styles.notice_content}>
-          Customize the computation process using our excel tool [{CUSTOM_FILENAME}] in [{CUSTOM_FILEPATH}]
-          and provide required intermediate computation results in [{CUSTOM_SHEET}].
+          <CustomSteps />
         </div>
       </div>
-      <Button type="primary" className={styles.gen_btn}
+      {/* <Button type="primary" className={styles.gen_btn}
         onClick={() => {
           readExcelFile()
-        }}>READ EXCEL & CALCULATE</Button>
+        }}>READ EXCEL & CALCULATE</Button> */}
+      <Upload {...upProps}>
+        <Button type="primary" className={styles.gen_btn}>
+          IMPORT
+        </Button>
+      </Upload>
+
+      <Button className={styles.gen_btn}
+        onClick={() => {
+          exportResultFile()
+        }}>DOWNLOAD TEMPLATE</Button>
     </div>
   }
 

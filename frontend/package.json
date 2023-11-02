@@ -4,7 +4,7 @@
   "description": "LLM Training Calculator",
   "author": "hhxu",
   "license": "MIT",
-  "homepage": "",
+  "homepage": "./",
   "repository": {
     "type": "git",
     "url": ""
@@ -32,9 +32,11 @@
     "@ant-design/pro-form": "^1.33.1",
     "@ant-design/pro-layout": "^6.5.0",
     "@ant-design/pro-table": "^2.47.1",
+    "@umijs/babel-plugin-lock-core-js-3": "^3.5.41",
     "@umijs/preset-react": "1.x",
     "ahooks": "^2.10.9",
     "axios": "^1.3.5",
+    "file-saver": "^2.0.5",
     "flooks": "^4.0.2",
     "gifuct-js": "^2.1.2",
     "handsontable": "^13.1.0",
@@ -47,6 +49,7 @@
     "use-immer": "^0.6.0"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.6",
     "@types/lodash": "^4.14.191",
     "@types/react": "^17.0.0",
     "@types/react-color": "^3.0.6",

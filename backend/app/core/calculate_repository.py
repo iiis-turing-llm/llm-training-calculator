@@ -30,22 +30,19 @@ class CalculateRepository:
             3 * model.hidden_layer_size / gpu.sparse_tensor_fp16_processing_power * gpu.bus_bandwidth / 2 / 1000)))
 
         recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                   model.token_length * model.minibatch_size * model.hidden_layer_size * (
-                                                                                   34 + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree + 16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / gpu.memory / 1e9)
+                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9                                                                                                                                                                       - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * ( 10 + 24 / recommended_config.recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree))
         if optimization_strategy == "Full recomputation":
             recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                       model.token_length * model.minibatch_size * model.hidden_layer_size * (
-                                                                                       34 + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree + 16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / gpu.memory / 1e9)
+                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9 
+                                                                                                                                                                               - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / recommended_config.recomended_tensor_parallel_degree))
         elif optimization_strategy == "No recomputation":
             recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                       model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * (
-                                                                                       10 + 24 / recommended_config.recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree + 16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / gpu.memory / 1e9)
+                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9
+                                                                                                                                                                               - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * ( 10 + 24 / recommended_config.recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree))
         elif optimization_strategy == "Selective recomputation":
-            recommended_config.recomended_pipeline_parallel_degree = math.ceil(((model.num_layers * model.token_length
-                                                                                 * model.minibatch_size * model.hidden_layer_size * 34) / recommended_config.recomended_tensor_parallel_degree
-                                                                                + 16 *
-                                                                                params.total_parameters / recommended_config.recomended_tensor_parallel_degree) /
-                                                                               gpu.memory / 1e9)
+            recommended_config.recomended_pipeline_parallel_degree = math.ceil((
+                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9
+                                                                                                                                                                               - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / recommended_config.recomended_tensor_parallel_degree))
 
         return recommended_config
 
@@ -59,8 +56,7 @@ class CalculateRepository:
         memory.weights = 2 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
         memory.gradients = 2 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
         if other_config.optimization_strategy == "Full recomputation":
-            memory.activation = model.token_length * model.minibatch_size * model.hidden_layer_size * (
-                    34 + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / other_config.tensor_parallel_degree
+            memory.activation = model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / other_config.tensor_parallel_degree
         elif other_config.optimization_strategy == "No recomputation":
             memory.activation = model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * (
                     10 + 24 / other_config.tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size / other_config.tensor_parallel_degree)
@@ -85,6 +81,16 @@ class CalculateRepository:
         comm.per_loop_backward_reduce_scatter_time = comm.total_backward_reduce_scatter_time / comp.per_device_layers / comp.num_microbatches
         comm.total_p2p_time = 2 * model.hidden_layer_size * model.hidden_layer_size * model.minibatch_size / other_config.tensor_parallel_degree / other_config.network_bandwidth * 8 * 8 / 1e9
         comm.per_loop_p2p_time = comm.total_p2p_time / comp.num_microbatches
+        if other_config.tensor_parallel_degree == 1:
+            comm.total_forward_allgather_time = 0
+            comm.per_loop_forward_allgather_time = 0
+            comm.total_backward_allgather_time = 0
+            comm.per_loop_backward_allgather_time = 0
+            comm.total_backward_reduce_scatter_time = 0
+            comm.per_loop_backward_reduce_scatter_time = 0
+        if other_config.pipeline_parallel_degree == 1:
+            comm.total_p2p_time = 0
+            comm.per_loop_p2p_time = 0
         comm.word_embedding_allreduce_time = 2 * params.word_embedding * 2 * 8 / 1e9 / other_config.tensor_parallel_degree / other_config.network_bandwidth
         comm.gradient_allreduce_time = 2 * 8 * 2 * 8 / 1e9 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / other_config.network_bandwidth
 

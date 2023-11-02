@@ -44,7 +44,7 @@ const PARAMS_LIST = [
 
   },
   {
-    title: 'Per-host network bandwidth',
+    title: 'Per-host network bandwidth(Gb/s)',
     key: 'network_bandwidth',
     min: 1,
     max: 1600,
@@ -53,7 +53,7 @@ const PARAMS_LIST = [
   }
 ]
 const OtherPanel = (props: any) => {
-  const { setProject, setOtherConfig, otherConfig, curModel, curGpu,
+  const { setProject, setOtherConfig, otherConfig, recommendConfig, curModel, curGpu,
     checkSize, checkPipeline, showError, errorMsg } = useModel(ProjectModel);
 
   const setParamValue = (key: string, val: any) => {
@@ -124,7 +124,7 @@ const OtherPanel = (props: any) => {
                 <InputNumber
                   precision={cf.precision || 0}
                   width={100}
-                  min={cf.min}
+                  min={cf.key === 'pipeline_parallel_degree' ? recommendConfig.recomended_pipeline_parallel_degree : cf.min}
                   max={cf.key === 'pipeline_parallel_degree' ? curModel?.num_layers : cf.max}
                   value={otherConfig[cf.key]}
                   onChange={(val) => {
@@ -132,6 +132,16 @@ const OtherPanel = (props: any) => {
                   }}
                 />
               </div>
+              {cf.key === 'tensor_parallel_degree' &&
+                <div className={styles.slider_tip}>
+                  Recommended Tensor parallel degree ({recommendConfig?.recomended_tensor_parallel_degree})</div>}
+              {cf.key === 'pipeline_parallel_degree' &&
+                <div className={styles.slider_tip}>
+                  {recommendConfig.recomended_pipeline_parallel_degree > 0 ?
+                    <span>No smaller than  recommended Pipeline parallel degree ({recommendConfig.recomended_pipeline_parallel_degree})</span>
+                    :
+                    <span style={{ color: '#ff4d4f' }}>Activation out of memory, try to increase Tensor parallel degree or change GPU type</span>
+                  }</div>}
               <Slider
                 min={cf.min}
                 max={cf.key === 'pipeline_parallel_degree' ? curModel?.num_layers : cf.max}

@@ -57,6 +57,7 @@
     padding: 15px;
     border-radius: 4px;
     font-size: 12px;
+    margin-bottom: 20px;
     .gpu_params_item{
       display: flex;
       justify-content: space-between;
@@ -116,7 +117,7 @@
   padding: 0 20px;
   .notice_panel{
     background: #fff;
-    height: calc(100% - 80px);
+    height: calc(100% - 125px);
     padding: 15px;
     border-radius: 10px;
     .notice_title{
@@ -134,12 +135,19 @@
   .gen_btn{
     margin-top: 20px;
     width: 100%;
+    font-size: 14px;
     border-radius: 10px;
   }
 }
 .error_tip{
     color: #ff4d4f;
-  }
+}
+.slider_tip{
+  font-size: 12px;
+  font-weight: 400;
+  color: #909399;
+  line-height: 18px;
+}
 :global{
   .ant-select {
     width: 100%;
@@ -155,5 +163,8 @@
       border-radius: 4px;
       background: #F0F2F5;
       border: none;
+    }
+    .ant-upload{
+      width: 100%;
     }
 }

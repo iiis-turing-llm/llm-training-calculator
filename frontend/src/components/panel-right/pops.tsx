@@ -6,27 +6,27 @@ import ProjectModel from '@/models/projectModel';
 const DETAIL_COLOR_MAPPING: any = {
   forward: {
     category: 'Forward Computation ',
-    label: 'Per-loop forward Computation time',
+    label: 'Per-loop forward Computation time(s)',
     color: '#BBEFB1'
   },
   forward_alltogether: {
     category: 'Allgather Input ',
-    label: 'Per-loop forward allgather time',
+    label: 'Per-loop forward allgather time(s)',
     color: '#5470C6'
   },
   backward: {
     category: 'Backward Computation ',
-    label: 'Per-loop backward Computation time',
+    label: 'Per-loop backward Computation time(s)',
     color: '#73C0DE'
   },
   backward_alltogether: {
     category: 'Allgather Input ',
-    label: 'Per-loop backward allgather time',
+    label: 'Per-loop backward allgather time(s)',
     color: '#FC8452'
   },
   backward_reduce: {
     category: 'ReduceScatter Grad Input ',
-    label: 'Per-loop backward reduce_ scatter time',
+    label: 'Per-loop backward reduce_ scatter time(s)',
     color: '#9A60B4'
   },
 }
@@ -46,6 +46,12 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
     }
     // 小于1的浮点数，保留6位
     return d.toFixed(6)
+  }
+  const noPCIE = () => {
+    if (otherConfig?.tensor_parallel_degree === 1) {
+      return true
+    }
+    return false
   }
   const { forward_time, backward_time, num_microbatches, forward_gpu_usage, backward_gpu_usage,
     per_loop_forward_computation_time, per_loop_backward_computation_time,
@@ -85,15 +91,17 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
       }}></div>
     </div>
     <div className={styles.pop_chart_arrow}></div>
-    <div className={styles.pop_chart}>
-      <div className={styles.pop_chart_label}>PCIE</div>
-      <div className={styles.pop_chart_block} style={{
-        backgroundColor: DETAIL_COLOR_MAPPING['forward_alltogether'].color,
-        width: calcLength(per_loop_forward_allgather_time),
-        left: calcPositionLeft(0)
-      }}></div>
-    </div>
-    <div className={styles.pop_chart_arrow}></div>
+    {!noPCIE() && <>
+      <div className={styles.pop_chart}>
+        <div className={styles.pop_chart_label}>PCIE</div>
+        <div className={styles.pop_chart_block} style={{
+          backgroundColor: DETAIL_COLOR_MAPPING['forward_alltogether'].color,
+          width: calcLength(per_loop_forward_allgather_time),
+          left: calcPositionLeft(0)
+        }}></div>
+      </div>
+      <div className={styles.pop_chart_arrow}></div>
+    </>}
     <div className={styles.pop_chart_legend}>
       <div className={styles.timeline_legend_item} style={{
         backgroundColor: DETAIL_COLOR_MAPPING['forward'].color
@@ -103,7 +111,7 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
         {DETAIL_COLOR_MAPPING['forward'].label}
       </span>
     </div>
-    <div className={styles.pop_chart_legend}>
+    {!noPCIE() && <div className={styles.pop_chart_legend}>
       <div className={styles.timeline_legend_item} style={{
         backgroundColor: DETAIL_COLOR_MAPPING['forward_alltogether'].color
       }}></div>
@@ -111,7 +119,7 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
         <b>{DETAIL_COLOR_MAPPING['forward_alltogether'].category}</b>
         {DETAIL_COLOR_MAPPING['forward_alltogether'].label}
       </span>
-    </div>
+    </div>}
     <div className={styles.blank_space}></div>
     {/* Backward Detail */}
     <div className={styles.pop_info}>
@@ -127,20 +135,22 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
       }}></div>
     </div>
     <div className={styles.pop_chart_arrow}></div>
-    <div className={styles.pop_chart}>
-      <div className={styles.pop_chart_label}>PCIE</div>
-      <div className={styles.pop_chart_block} style={{
-        backgroundColor: DETAIL_COLOR_MAPPING['backward_alltogether'].color,
-        width: calcLength(per_loop_backward_allgather_time),
-        left: calcPositionLeft(0)
-      }}></div>
-      <div className={styles.pop_chart_block} style={{
-        backgroundColor: DETAIL_COLOR_MAPPING['backward_reduce'].color,
-        width: calcLength(per_loop_backward_reduce_scatter_time),
-        left: `calc(${calcPositionLeft(per_loop_backward_allgather_time)} + 1px)`
-      }}></div>
-    </div>
-    <div className={styles.pop_chart_arrow}></div>
+    {!noPCIE() && <>
+      <div className={styles.pop_chart}>
+        <div className={styles.pop_chart_label}>PCIE</div>
+        <div className={styles.pop_chart_block} style={{
+          backgroundColor: DETAIL_COLOR_MAPPING['backward_alltogether'].color,
+          width: calcLength(per_loop_backward_allgather_time),
+          left: calcPositionLeft(0)
+        }}></div>
+        <div className={styles.pop_chart_block} style={{
+          backgroundColor: DETAIL_COLOR_MAPPING['backward_reduce'].color,
+          width: calcLength(per_loop_backward_reduce_scatter_time),
+          left: `calc(${calcPositionLeft(per_loop_backward_allgather_time)} + 1px)`
+        }}></div>
+      </div>
+      <div className={styles.pop_chart_arrow}></div>
+    </>}
     <div className={styles.pop_chart_legend}>
       <div className={styles.timeline_legend_item} style={{
         backgroundColor: DETAIL_COLOR_MAPPING['backward'].color
@@ -150,24 +160,26 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
         {DETAIL_COLOR_MAPPING['backward'].label}
       </span>
     </div>
-    <div className={styles.pop_chart_legend}>
-      <div className={styles.timeline_legend_item} style={{
-        backgroundColor: DETAIL_COLOR_MAPPING['backward_alltogether'].color
-      }}></div>
-      <span>
-        <b>{DETAIL_COLOR_MAPPING['backward_alltogether'].category}</b>
-        {DETAIL_COLOR_MAPPING['backward_alltogether'].label}
-      </span>
-    </div>
-    <div className={styles.pop_chart_legend}>
-      <div className={styles.timeline_legend_item} style={{
-        backgroundColor: DETAIL_COLOR_MAPPING['backward_reduce'].color
-      }}></div>
-      <span>
-        <b>{DETAIL_COLOR_MAPPING['backward_reduce'].category}</b>
-        {DETAIL_COLOR_MAPPING['backward_reduce'].label}
-      </span>
-    </div>
+    {!noPCIE() && <>
+      <div className={styles.pop_chart_legend}>
+        <div className={styles.timeline_legend_item} style={{
+          backgroundColor: DETAIL_COLOR_MAPPING['backward_alltogether'].color
+        }}></div>
+        <span>
+          <b>{DETAIL_COLOR_MAPPING['backward_alltogether'].category}</b>
+          {DETAIL_COLOR_MAPPING['backward_alltogether'].label}
+        </span>
+      </div>
+      <div className={styles.pop_chart_legend}>
+        <div className={styles.timeline_legend_item} style={{
+          backgroundColor: DETAIL_COLOR_MAPPING['backward_reduce'].color
+        }}></div>
+        <span>
+          <b>{DETAIL_COLOR_MAPPING['backward_reduce'].category}</b>
+          {DETAIL_COLOR_MAPPING['backward_reduce'].label}
+        </span>
+      </div>
+    </>}
     <div className={styles.blank_space}></div>
   </div>
 };
