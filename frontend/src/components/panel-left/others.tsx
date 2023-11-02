@@ -134,10 +134,14 @@ const OtherPanel = (props: any) => {
               </div>
               {cf.key === 'tensor_parallel_degree' &&
                 <div className={styles.slider_tip}>
-                  No larger than recommended Tensor parallel degree ({recommendConfig?.recomended_tensor_parallel_degree})</div>}
+                  Recommended Tensor parallel degree ({recommendConfig?.recomended_tensor_parallel_degree})</div>}
               {cf.key === 'pipeline_parallel_degree' &&
                 <div className={styles.slider_tip}>
-                  No smaller than  recommended Pipeline parallel degree ({recommendConfig.recomended_pipeline_parallel_degree})</div>}
+                  {recommendConfig.recomended_pipeline_parallel_degree > 0 ?
+                    `No smaller than  recommended Pipeline parallel degree (${recommendConfig.recomended_pipeline_parallel_degree})`
+                    :
+                    `Activation out of memory, try to increase Tensor parallel degree or change GPU type`
+                  }</div>}
               <Slider
                 min={cf.min}
                 max={cf.key === 'pipeline_parallel_degree' ? curModel?.num_layers : cf.max}
