@@ -6,27 +6,27 @@ import ProjectModel from '@/models/projectModel';
 const DETAIL_COLOR_MAPPING: any = {
   forward: {
     category: 'Forward Computation ',
-    label: 'Per-loop forward Computation time',
+    label: 'Per-loop forward Computation time(s)',
     color: '#BBEFB1'
   },
   forward_alltogether: {
     category: 'Allgather Input ',
-    label: 'Per-loop forward allgather time',
+    label: 'Per-loop forward allgather time(s)',
     color: '#5470C6'
   },
   backward: {
     category: 'Backward Computation ',
-    label: 'Per-loop backward Computation time',
+    label: 'Per-loop backward Computation time(s)',
     color: '#73C0DE'
   },
   backward_alltogether: {
     category: 'Allgather Input ',
-    label: 'Per-loop backward allgather time',
+    label: 'Per-loop backward allgather time(s)',
     color: '#FC8452'
   },
   backward_reduce: {
     category: 'ReduceScatter Grad Input ',
-    label: 'Per-loop backward reduce_ scatter time',
+    label: 'Per-loop backward reduce_ scatter time(s)',
     color: '#9A60B4'
   },
 }

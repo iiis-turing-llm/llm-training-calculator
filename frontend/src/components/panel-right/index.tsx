@@ -58,8 +58,11 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
       }
     });
   }
-  const dataParse = (d: number) => {
+  const dataParse = (d: number, toGB?: boolean) => {
     if (!d) return d
+    if (toGB) {
+      d = d / (1024 * 1024 * 1024)
+    }
     // 整数
     if (d.toString() === d.toFixed(0)) {
       return d
@@ -165,25 +168,25 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             {!state.memoryCollapse && <div className={styles.result_group_content}>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item_border}>
-                  <div>Optimizer States</div>
-                  <div>{dataParse(result.memory_usage.optimizer_states)}</div>
+                  <div>Optimizer States(GB)</div>
+                  <div>{dataParse(result.memory_usage.optimizer_states, true)}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Weights</div>
-                  <div>{dataParse(result.memory_usage.weights)}</div>
+                  <div>Weights(GB)</div>
+                  <div>{dataParse(result.memory_usage.weights, true)}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Gradients</div>
-                  <div>{dataParse(result.memory_usage.gradients)}</div>
+                  <div>Gradients(GB)</div>
+                  <div>{dataParse(result.memory_usage.gradients, true)}</div>
                 </div>
               </Space>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item}>
-                  <div>Activation</div>
-                  <div>{dataParse(result.memory_usage.activation)}</div>
+                  <div>Activation(GB)</div>
+                  <div>{dataParse(result.memory_usage.activation, true)}</div>
                 </div>
                 <div className={styles.result_item}>
-                  <div>Overall Usage
+                  <div>Overall Usage(GB)
                     {curGpu && checkMemoryOverall()
                       &&
                       <span>
@@ -191,7 +194,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                       </span>
                     }
                   </div>
-                  <div className={checkMemoryOverall() ? styles.warning : ''}>{dataParse(result.memory_usage.overall_usage)}</div>
+                  <div className={checkMemoryOverall() ? styles.warning : ''}>{dataParse(result.memory_usage.overall_usage, true)}</div>
                 </div>
               </Space>
             </div>}
@@ -221,21 +224,21 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                   <div>{result.computation.num_microbatches}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Total forward computation time</div>
+                  <div>Total forward computation time(s)</div>
                   <div>{dataParse(result.computation.total_forward_computation_time)}</div>
                 </div>
               </Space>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item}>
-                  <div>Total backward computation time</div>
+                  <div>Total backward computation time(s)</div>
                   <div>{dataParse(result.computation.total_backward_computation_time)}</div>
                 </div>
                 <div className={styles.result_item}>
-                  <div>Per-loop forward computation time</div>
+                  <div>Per-loop forward computation time(s)</div>
                   <div>{dataParse(result.computation.per_loop_forward_computation_time)}</div>
                 </div>
                 <div className={styles.result_item}>
-                  <div>Per-loop backward computation time</div>
+                  <div>Per-loop backward computation time(s)</div>
                   <div>{dataParse(result.computation.per_loop_backward_computation_time)}</div>
                 </div>
               </Space>
@@ -266,49 +269,49 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                   <div>{result.timeline.num_microbatches}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Total forward  allgather time</div>
+                  <div>Total forward  allgather time(s)</div>
                   <div>{dataParse(result.communication.total_forward_allgather_time)}</div>
                 </div>
               </Space>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item_border}>
-                  <div>Per-loop forward  allgather time</div>
+                  <div>Per-loop forward  allgather time(s)</div>
                   <div>{dataParse(result.communication.per_loop_forward_allgather_time)}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Total backward allgather time</div>
+                  <div>Total backward allgather time(s)</div>
                   <div>{dataParse(result.communication.total_backward_allgather_time)}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Per-loop backward allgather time</div>
+                  <div>Per-loop backward allgather time(s)</div>
                   <div>{dataParse(result.communication.per_loop_backward_allgather_time)}</div>
                 </div>
               </Space>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item_border}>
-                  <div>Total backward reduce_scatter time</div>
+                  <div>Total backward reduce_scatter time(s)</div>
                   <div>{dataParse(result.communication.total_backward_reduce_scatter_time)}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Per-loop backward reduce_scatter time</div>
+                  <div>Per-loop backward reduce_scatter time(s)</div>
                   <div>{dataParse(result.communication.per_loop_backward_reduce_scatter_time)}</div>
                 </div>
                 <div className={styles.result_item_border}>
-                  <div>Total p2p time</div>
+                  <div>Total p2p time(s)</div>
                   <div>{dataParse(result.communication.total_p2p_time)}</div>
                 </div>
               </Space>
               <Space wrap split={<Divider type="vertical" />}>
                 <div className={styles.result_item}>
-                  <div>Per-loop p2p time</div>
+                  <div>Per-loop p2p time(s)</div>
                   <div>{dataParse(result.communication.per_loop_p2p_time)}</div>
                 </div>
                 <div className={styles.result_item}>
-                  <div>Word embedding allreduce time</div>
+                  <div>Word embedding allreduce time(s)</div>
                   <div>{dataParse(result.communication.word_embedding_allreduce_time)}</div>
                 </div>
                 <div className={styles.result_item}>
-                  <div>Gradient allreduce time</div>
+                  <div>Gradient allreduce time(s)</div>
                   <div>{dataParse(result.communication.gradient_allreduce_time)}</div>
                 </div>
               </Space>
@@ -335,29 +338,29 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
           {!state.timelineCollapse && <div className={styles.result_group_content}>
             <Space wrap split={<Divider type="vertical" />}>
               <div className={styles.result_item_border}>
-                <div>Warmup time</div>
+                <div>Warmup time(s)</div>
                 <div>{dataParse(result.timeline.warmup_time)}</div>
               </div>
               <div className={styles.result_item_border}>
-                <div>Forward time</div>
+                <div>Forward time(s)</div>
                 <div>{dataParse(result.timeline.forward_time)}</div>
               </div>
               <div className={styles.result_item_border}>
-                <div>Backward time</div>
+                <div>Backward time(s)</div>
                 <div>{dataParse(result.timeline.backward_time)}</div>
               </div>
             </Space>
             <Space wrap split={<Divider type="vertical" />}>
               <div className={styles.result_item}>
-                <div>Cooldown time</div>
+                <div>Cooldown time(s)</div>
                 <div>{dataParse(result.timeline.cooldown_time)}</div>
               </div>
               <div className={styles.result_item}>
-                <div>Per-iter time</div>
+                <div>Per-iter time(s)</div>
                 <div>{dataParse(result.timeline.per_iter_training_time)}</div>
               </div>
               <div className={styles.result_item}>
-                <div>All Reduce time</div>
+                <div>All Reduce time(s)</div>
                 <div>{dataParse(result.timeline.allreduce_time)}</div>
               </div>
             </Space>

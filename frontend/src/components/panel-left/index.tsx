@@ -111,7 +111,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         optimization_strategy: otherConfig.optimization_strategy
       })
       setProject({
-        recommendConfig: recommendRes,
+        recommendConfig: {
+          ...recommendRes
+        },
         otherConfig: {
           ...otherConfig,
           tensor_parallel_degree: recommendRes.recomended_tensor_parallel_degree,
