@@ -16,11 +16,10 @@ export default defineConfig({
   ],
   fastRefresh: {},
   proxy: {
-    '/llm_training': {
-      target: 'http://localhost:8000',
-      // target: 'http://192.168.201.203:8000',
-      changeOrigin: true,
-      pathRewrite: { '^/api': '/api' },
-    },
+    // '/llm_training': {
+    //   target: 'http://localhost:8000',
+    //   changeOrigin: true,
+    //   pathRewrite: { '^/api': '/api' },
+    // },
   },
 });
