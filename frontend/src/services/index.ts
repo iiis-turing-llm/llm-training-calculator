@@ -1,6 +1,5 @@
 import request from '@/utils/request';
-const service_base_url = 'http://192.168.211.106:12340'
-// const service_base_url = 'http://localhost:8000'
+import { service_base_url } from '@/utils/constant'
 export async function readFile() {
   return request(`${service_base_url}/llm_training_calculator/calculator/read_file`, {
     method: 'GET',

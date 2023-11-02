@@ -7,7 +7,7 @@ import ProjectModel from '@/models/projectModel';
 import PopPanel from './pops'
 import { SyncOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { keys, sum } from 'lodash';
-import Steps from './../../components/steps'
+import Steps from '../guide-steps'
 import FileSaver from 'file-saver'
 import { readFile, exportResult, downloadTemplate } from '@/services';
 const COLOR_MAPPING: any = {

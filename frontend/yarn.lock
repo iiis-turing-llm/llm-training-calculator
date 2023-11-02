@@ -1092,6 +1092,14 @@
     "@umijs/utils" "3.5.41"
     core-js "3.6.5"
 
+"@umijs/babel-plugin-lock-core-js-3@^3.5.41":
+  version "3.5.41"
+  resolved "https://registry.npmmirror.com/@umijs/babel-plugin-lock-core-js-3/-/babel-plugin-lock-core-js-3-3.5.41.tgz#55fef308c5114e27c7ae01532fdd725e1d8e676c"
+  integrity sha512-+h47NI5u4YLA46iDv5TMPXtZWactlPgFYeMotrsxyW3R6QiUyX8oMF2UroT4lhbhcrf7GHe4n7jQH3TllgFL6Q==
+  dependencies:
+    "@umijs/utils" "3.5.41"
+    core-js "3.6.5"
+
 "@umijs/babel-plugin-no-anonymous-default-export@3.5.41":
   version "3.5.41"
   resolved "https://registry.npmmirror.com/@umijs/babel-plugin-no-anonymous-default-export/-/babel-plugin-no-anonymous-default-export-3.5.41.tgz"
