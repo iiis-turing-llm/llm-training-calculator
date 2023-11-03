@@ -107,7 +107,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
   }
   const checkMemoryOverall = () => {
     if (result.memory_usage && curGpu) {
-      return result.memory_usage.overall_usage >= curGpu.memory * 1e9
+      return result.memory_usage.overall_usage >= curGpu.memory * 1024 * 1024 * 1024
     }
     return false
   }
