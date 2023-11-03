@@ -2,7 +2,7 @@
 
 本项目基于主流的大语言模型和GPU型号，对大语言模型分布式训练过程中的并行配置需求进行自动分析，并能够模拟给定配置下大模型训练的时间开销、显存开销、资源使用率等核心指标。本项目旨在进一步促进大模型训练的简化与推广，并为用户自定义模型训练计划提供参考。
 
-计算器用到的估算公式和原理见[技术报告](https://arxiv.org/abs/2304.08177)
+计算器用到的估算公式和原理见[技术报告](https://github.com/iiis-turing-llm/llm-training-calculator/blob/main/tech_report.pdf)
 
 
 
@@ -14,7 +14,7 @@
 
 下图是计算器输出使用A100训练LLaMA2-70B的计算结果和可视化界面：
 
-![image](https://github.com/lexsaints/powershell/blob/master/IMG/ps2.png)
+![image](https://github.com/iiis-turing-llm/llm-training-calculator/blob/main/pics/UI.jpg)
 
 
 
