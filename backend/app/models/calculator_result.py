@@ -12,6 +12,7 @@ class Parameter(BaseModel):
 class RecommendedConfig(BaseModel):
     recomended_tensor_parallel_degree: int = 0
     recomended_pipeline_parallel_degree: int = 0
+    recommended_microbatch: int = 0
 
 
 class MemoryUsage(BaseModel):
@@ -64,6 +65,12 @@ class Timeline(BaseModel):
     pipeline_parallel_degree: int = None
 
 
+class TotalTime(BaseModel):
+    global_minibatch_size: float = 0
+    global_number_of_samples: float = 0
+    total_training_time: float = 0
+
+
 class CalculatorResult(BaseModel):
     parameter: Parameter
     recommended_config: RecommendedConfig
@@ -71,3 +78,4 @@ class CalculatorResult(BaseModel):
     computation: Computation
     communication: Communication
     timeline: Timeline
+    total_time: TotalTime

@@ -28,3 +28,9 @@ class OtherConfig(BaseModel):
     network_bandwidth: int = None
     microbatch_size: int = None
     optimization_strategy: str = None
+
+
+class TotalTrainConfig(BaseModel):
+    data_parallel_degree: int = None
+    number_of_input_tokens: int = None
+    epochs: int = None

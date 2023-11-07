@@ -1,14 +1,13 @@
 import math
-import os
-import uuid
 from io import BytesIO
+from tempfile import NamedTemporaryFile
 
+import openpyxl
 from app.config import settings
 from app.models.calculator_input import GPU, Model, OtherConfig
-from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, CalculatorResult, Parameter, \
-    RecommendedConfig
-import openpyxl
-from tempfile import NamedTemporaryFile
+from app.models.calculator_input import TotalTrainConfig
+from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, TotalTime, CalculatorResult, \
+    Parameter, RecommendedConfig
 
 
 class CalculateRepository:
@@ -23,33 +22,32 @@ class CalculateRepository:
                 params.self_attention + params.feed_forward) * model.num_layers
         return params
 
-    def recommended_config(self, gpu: GPU, model: Model, optimization_strategy):
-        params = self.parameter_metrics(model)
-        recommended_config = RecommendedConfig()
-        recommended_config.recomended_tensor_parallel_degree = min(8, max(1, math.floor(
+    def recommended_tensor(self, gpu: GPU, model: Model):
+        return min(8, max(1, math.floor(
             3 * model.hidden_layer_size / gpu.sparse_tensor_fp16_processing_power * gpu.bus_bandwidth / 2 / 1000)))
 
-        recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9                                                                                                                                                                       - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * ( 10 + 24 / recommended_config.recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree))
-        if optimization_strategy == "Full recomputation":
-            recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9 
-                                                                                                                                                                               - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / recommended_config.recomended_tensor_parallel_degree))
-        elif optimization_strategy == "No recomputation":
-            recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9
-                                                                                                                                                                               - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * ( 10 + 24 / recommended_config.recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recommended_config.recomended_tensor_parallel_degree))
-        elif optimization_strategy == "Selective recomputation":
-            recommended_config.recomended_pipeline_parallel_degree = math.ceil((
-                                                                                       16 * params.total_parameters / recommended_config.recomended_tensor_parallel_degree) / (gpu.memory * 1e9
-                                                                                                                                                                               - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / recommended_config.recomended_tensor_parallel_degree))
-
-        return recommended_config
-
-    def calculate(self, gpu: GPU, model: Model, other_config: OtherConfig):
-
+    def recommended_pipeline(self, gpu: GPU, model: Model, optimization_strategy, recomended_tensor_parallel_degree):
         params = self.parameter_metrics(model)
-        recommended_config = self.recommended_config(gpu, model, other_config.optimization_strategy)
+        if optimization_strategy == "Full recomputation":
+            return math.ceil((16 * params.total_parameters / recomended_tensor_parallel_degree) / (
+                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / recomended_tensor_parallel_degree))
+        elif optimization_strategy == "No recomputation":
+            return math.ceil((16 * params.total_parameters / recomended_tensor_parallel_degree) / (
+                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * (
+                    10 + 24 / recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recomended_tensor_parallel_degree))
+        elif optimization_strategy == "Selective recomputation":
+            return math.ceil((16 * params.total_parameters / recomended_tensor_parallel_degree) / (
+                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / recomended_tensor_parallel_degree))
+
+    def recommended_microbatch(self, model: Model, recomended_pipeline_parallel_degree):
+        return max(1, math.floor(model.minibatch_size / 4 / recomended_pipeline_parallel_degree))
+
+    def calculate(self, gpu: GPU, model: Model, other_config: OtherConfig, total_train_config: TotalTrainConfig):
+        params = self.parameter_metrics(model)
+        recomended_tensor_parallel_degree = self.recommended_tensor(gpu, model)
+        recomended_pipeline_parallel_degree = self.recommended_pipeline(gpu, model, other_config.optimization_strategy,
+                                                                        recomended_tensor_parallel_degree)
+        recommended_microbatch = self.recommended_microbatch(model, recomended_pipeline_parallel_degree)
 
         memory = MemoryUsage()
         memory.optimizer_states = 12 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
@@ -119,8 +117,17 @@ class CalculateRepository:
         tl.tensor_parallel_degree = other_config.tensor_parallel_degree
         tl.pipeline_parallel_degree = other_config.pipeline_parallel_degree
 
-        calculator_result = CalculatorResult(parameter=params, recommended_config=recommended_config,
-                                             memory_usage=memory, computation=comp, communication=comm, timeline=tl)
+        tt = self.calculate_total_time(model=model, time_line=tl, total_train_config=total_train_config)
+        calculator_result = CalculatorResult(parameter=params,
+                                             recommended_config=RecommendedConfig(
+                                                 recomended_tensor_parallel_degree=recomended_tensor_parallel_degree,
+                                                 recomended_pipeline_parallel_degree=recomended_pipeline_parallel_degree,
+                                                 recommended_microbatch=recommended_microbatch),
+                                             memory_usage=memory,
+                                             computation=comp,
+                                             communication=comm,
+                                             timeline=tl,
+                                             total_time=tt)
 
         return calculator_result
 
@@ -131,23 +138,21 @@ class CalculateRepository:
         worksheet = workbook["Output"]
 
         tl = Timeline()
-        tl.per_device_layers = worksheet['B1'].value
-        tl.num_microbatches = worksheet['D1'].value
-        tl.per_loop_forward_computation_time = worksheet['H3'].value
-        tl.per_loop_backward_computation_time = worksheet['J4'].value
-        tl.per_loop_forward_allgather_time = worksheet['H2'].value
-        tl.per_loop_backward_allgather_time = worksheet['J2'].value
-        tl.per_loop_backward_reduce_scatter_time = worksheet['J3'].value
-        tl.forward_time = worksheet['H1'].value
-        tl.forward_gpu_usage = worksheet['H4'].value
-        tl.backward_time = worksheet['J1'].value
-        tl.backward_gpu_usage = worksheet['J5'].value
-        tl.warmup_time = worksheet['F1'].value
-        tl.cooldown_time = worksheet['L1'].value
-        tl.allreduce_time = worksheet['N1'].value
-        tl.per_iter_training_time = worksheet['P1'].value
-        tl.tensor_parallel_degree = worksheet["R1"].value
-        tl.pipeline_parallel_degree = worksheet["T1"].value
+        tl.per_device_layers = worksheet['C1'].value
+        tl.num_microbatches = worksheet['E1'].value
+        tl.per_loop_forward_computation_time = worksheet['I3'].value
+        tl.per_loop_backward_computation_time = worksheet['K4'].value
+        tl.per_loop_forward_allgather_time = worksheet['I2'].value
+        tl.per_loop_backward_allgather_time = worksheet['K2'].value
+        tl.per_loop_backward_reduce_scatter_time = worksheet['K3'].value
+        tl.forward_time = worksheet['I1'].value
+        tl.forward_gpu_usage = worksheet['I4'].value
+        tl.backward_time = worksheet['K1'].value
+        tl.backward_gpu_usage = worksheet['K5'].value
+        tl.warmup_time = worksheet['G1'].value
+        tl.cooldown_time = worksheet['M1'].value
+        tl.allreduce_time = worksheet['O1'].value
+        tl.per_iter_training_time = worksheet['Q1'].value
         return tl
 
     def write_result_to_file(self, gpu: GPU,
@@ -178,8 +183,6 @@ class CalculateRepository:
         worksheet["L1"] = timeline.cooldown_time
         worksheet["N1"] = timeline.allreduce_time
         worksheet["P1"] = timeline.per_iter_training_time
-        worksheet["R1"] = timeline.tensor_parallel_degree
-        worksheet["T1"] = timeline.pipeline_parallel_degree
 
         worksheet1 = workbook["Input"]
         worksheet1["A2"] = gpu.name
@@ -210,6 +213,7 @@ class CalculateRepository:
         worksheet2["J1"] = parameter.position_embedding
         worksheet2["B4"] = recommended_config.recomended_tensor_parallel_degree
         worksheet2["D4"] = recommended_config.recomended_pipeline_parallel_degree
+        worksheet2["F4"] = recommended_config.recommended_microbatch
         worksheet2["B7"] = memory_usage.optimizer_states
         worksheet2["D7"] = memory_usage.weights
         worksheet2["F7"] = memory_usage.gradients
@@ -237,3 +241,10 @@ class CalculateRepository:
         with NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
             workbook.save(tmp.name)
         return tmp.name
+
+    def calculate_total_time(self, model: Model, time_line: Timeline, total_train_config: TotalTrainConfig):
+        tt = TotalTime()
+        tt.global_minibatch_size = total_train_config.data_parallel_degree * model.minibatch_size
+        tt.global_number_of_samples = total_train_config.number_of_input_tokens * total_train_config.epochs / model.token_length
+        tt.total_training_time = tt.global_number_of_samples / tt.global_minibatch_size * time_line.per_iter_training_time
+        return tt
