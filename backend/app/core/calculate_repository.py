@@ -46,8 +46,8 @@ class CalculateRepository:
         params = self.parameter_metrics(model)
         recomended_tensor_parallel_degree = self.recommended_tensor(gpu, model)
         recomended_pipeline_parallel_degree = self.recommended_pipeline(gpu, model, other_config.optimization_strategy,
-                                                                        recomended_tensor_parallel_degree)
-        recommended_microbatch = self.recommended_microbatch(model, recomended_pipeline_parallel_degree)
+                                                                        other_config.tensor_parallel_degree)
+        recommended_microbatch = self.recommended_microbatch(model, other_config.pipeline_parallel_degree)
 
         memory = MemoryUsage()
         memory.optimizer_states = 12 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
@@ -114,8 +114,6 @@ class CalculateRepository:
         tl.allreduce_time = comm.gradient_allreduce_time + comm.word_embedding_allreduce_time
         tl.per_iter_training_time = tl.warmup_time + (
                 tl.forward_time + tl.backward_time) * comp.num_microbatches + tl.cooldown_time + tl.allreduce_time
-        tl.tensor_parallel_degree = other_config.tensor_parallel_degree
-        tl.pipeline_parallel_degree = other_config.pipeline_parallel_degree
 
         tt = self.calculate_total_time(model=model, time_line=tl, total_train_config=total_train_config)
         calculator_result = CalculatorResult(parameter=params,
