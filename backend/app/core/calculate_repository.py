@@ -133,7 +133,7 @@ class CalculateRepository:
 
     def read_file_to_timeline(self, content):
         # 打开Excel文件
-        workbook = openpyxl.load_workbook(filename=BytesIO(content), read_only=True)
+        workbook = openpyxl.load_workbook(filename=BytesIO(content), read_only= True, data_only=True)
         # 选择要操作的工作表
         worksheet = workbook["Output"]
 
