@@ -5,6 +5,7 @@ import useModel from 'flooks';
 import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import PopPanel from './pops'
+import BenchPanel from './benchmark'
 import { SyncOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { keys, sum } from 'lodash';
 import Steps from '../guide-steps'
@@ -40,7 +41,7 @@ const COLOR_MAPPING: any = {
 
 export interface IPanelRightProps { }
 const PanelRight: FC<IPanelRightProps> = (props) => {
-  const { result, curGpu, curMode, curModel, otherConfig, setProject } = useModel(ProjectModel);
+  const { result, bm_result, curGpu, curMode, curModel, otherConfig, setProject } = useModel(ProjectModel);
   const [state, setState] = useImmer({
     memoryCollapse: false,
     computationCollapse: true,
@@ -136,7 +137,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
       </div>
     </div>
   }
-  if (!result) {
+  if ((!result && curMode === 'custom') || (!bm_result && curMode === 'benchmark')) {
     return <div className={styles.content}>
       <div className={styles.empty} >
         <div className={styles.empty_icon}></div>
@@ -144,6 +145,11 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
           Waiting for calculation...
         </div>
       </div >
+    </div>
+  }
+  if (curMode === 'benchmark') {
+    return <div className={styles.content}>
+      <BenchPanel />
     </div>
   }
   return (
