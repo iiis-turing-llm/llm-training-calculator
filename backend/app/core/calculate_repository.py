@@ -26,21 +26,21 @@ class CalculateRepository:
         return min(8, max(1, math.floor(
             3 * model.hidden_layer_size / gpu.sparse_tensor_fp16_processing_power * gpu.bus_bandwidth / 2 / 1000)))
 
-    def recommended_pipeline(self, gpu: GPU, model: Model, optimization_strategy, recomended_tensor_parallel_degree):
+    def recommended_pipeline(self, gpu: GPU, model: Model, optimization_strategy, tensor_parallel_degree):
         params = self.parameter_metrics(model)
         if optimization_strategy == "Full recomputation":
-            return math.ceil((16 * params.total_parameters / recomended_tensor_parallel_degree) / (
-                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / recomended_tensor_parallel_degree))
+            return math.ceil((16 * params.total_parameters / tensor_parallel_degree) / (
+                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / tensor_parallel_degree))
         elif optimization_strategy == "No recomputation":
-            return math.ceil((16 * params.total_parameters / recomended_tensor_parallel_degree) / (
+            return math.ceil((16 * params.total_parameters / tensor_parallel_degree) / (
                     gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * (
-                    10 + 24 / recomended_tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / recomended_tensor_parallel_degree))
+                    10 + 24 / tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / tensor_parallel_degree))
         elif optimization_strategy == "Selective recomputation":
-            return math.ceil((16 * params.total_parameters / recomended_tensor_parallel_degree) / (
-                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / recomended_tensor_parallel_degree))
+            return math.ceil((16 * params.total_parameters / tensor_parallel_degree) / (
+                    gpu.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / tensor_parallel_degree))
 
-    def recommended_microbatch(self, model: Model, recomended_pipeline_parallel_degree):
-        return max(1, math.floor(model.minibatch_size / 4 / recomended_pipeline_parallel_degree))
+    def recommended_microbatch(self, model: Model, pipeline_parallel_degree):
+        return max(1, math.floor(model.minibatch_size / 4 / pipeline_parallel_degree))
 
     def calculate(self, gpu: GPU, model: Model, other_config: OtherConfig, total_train_config: TotalTrainConfig):
         params = self.parameter_metrics(model)
