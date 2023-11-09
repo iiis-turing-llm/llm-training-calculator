@@ -131,7 +131,7 @@ class CalculateRepository:
 
     def read_file_to_timeline(self, content):
         # 打开Excel文件
-        workbook = openpyxl.load_workbook(filename=BytesIO(content), read_only= True, data_only=True)
+        workbook = openpyxl.load_workbook(filename=BytesIO(content), read_only=True, data_only=True)
         # 选择要操作的工作表
         worksheet = workbook["Output"]
 
@@ -243,6 +243,6 @@ class CalculateRepository:
     def calculate_total_time(self, model: Model, time_line: Timeline, total_train_config: TotalTrainConfig):
         tt = TotalTime()
         tt.global_minibatch_size = total_train_config.data_parallel_degree * model.minibatch_size
-        tt.global_number_of_samples = total_train_config.number_of_input_tokens * total_train_config.epochs / model.token_length
+        tt.global_number_of_samples = total_train_config.number_of_input_tokens * 1e6 * total_train_config.epochs / model.token_length
         tt.total_training_time = tt.global_number_of_samples / tt.global_minibatch_size * time_line.per_iter_training_time
         return tt

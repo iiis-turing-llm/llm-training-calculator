@@ -32,5 +32,5 @@ class OtherConfig(BaseModel):
 
 class TotalTrainConfig(BaseModel):
     data_parallel_degree: int = None
-    number_of_input_tokens: int = None
+    number_of_input_tokens: int = None  # 单位为M
     epochs: int = None
