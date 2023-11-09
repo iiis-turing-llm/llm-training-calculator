@@ -46,18 +46,18 @@ def recommended_tensor(gpu: GPU, model: Model):
 def recommended_pipeline(gpu: GPU,
                          model: Model,
                          optimization_strategy: str = Body("Full recomputation"),
-                         recomended_tensor_parallel_degree: int = Body(...)):
+                         tensor_parallel_degree: int = Body(...)):
     cr = CalculateRepository()
     recomended_pipeline_parallel_degree = cr.recommended_pipeline(gpu, model, optimization_strategy,
-                                                                  recomended_tensor_parallel_degree)
+                                                                  tensor_parallel_degree)
     return recomended_pipeline_parallel_degree
 
 
 @router.post("/recommended_microbatch")
 def recommended_microbatch(model: Model,
-                           recomended_pipeline_parallel_degree: int = Body(...)):
+                           pipeline_parallel_degree: int = Body(...)):
     cr = CalculateRepository()
-    recommended_config = cr.recommended_microbatch(model, recomended_pipeline_parallel_degree)
+    recommended_config = cr.recommended_microbatch(model, pipeline_parallel_degree)
     return recommended_config
 
 

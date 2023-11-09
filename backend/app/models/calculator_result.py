@@ -61,8 +61,7 @@ class Timeline(BaseModel):
     cooldown_time: float = 0
     allreduce_time: float = 0
     per_iter_training_time: float = 0
-    tensor_parallel_degree: int = None
-    pipeline_parallel_degree: int = None
+
 
 
 class TotalTime(BaseModel):
