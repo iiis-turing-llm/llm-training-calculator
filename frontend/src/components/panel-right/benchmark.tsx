@@ -48,7 +48,6 @@ const BenchMark: FC<IBenchMarkProps> = (props) => {
     // curIteration: bm_result[0]
   });
   const curIteration = bm_result ? bm_result[state.ite_index] : null
-  console.log('curIteration', curIteration)
   const dataParse = (d: number, toGB?: boolean) => {
     if (!d) return d
     if (toGB) {
@@ -93,6 +92,13 @@ const BenchMark: FC<IBenchMarkProps> = (props) => {
     return curIteration.groups.map((item: any, index: number) =>
       renderLoopTime(index, item.forward, item.backward)
     )
+  }
+  const changeIteration = (val: number) => {
+    if (val && val < bm_result.length) {
+      setState({
+        ite_index: val
+      })
+    }
   }
 
   const renderTip = (time: number, title: string) => {
@@ -156,15 +162,12 @@ const BenchMark: FC<IBenchMarkProps> = (props) => {
               <InputNumber
                 value={state.ite_index + 1}
                 style={{ width: 150 }}
+                onChange={(val) => { val && changeIteration(val - 1) }}
                 addonBefore={< MinusOutlined onClick={() => {
-                  setState({
-                    ite_index: state.ite_index > 0 ? state.ite_index - 1 : state.ite_index
-                  })
+                  changeIteration(state.ite_index - 1)
                 }} />}
                 addonAfter={<PlusOutlined onClick={() => {
-                  setState({
-                    ite_index: state.ite_index < bm_result.length - 1 ? state.ite_index + 1 : state.ite_index
-                  })
+                  changeIteration(state.ite_index + 1)
                 }} />}
                 defaultValue={1}
                 controls={false}

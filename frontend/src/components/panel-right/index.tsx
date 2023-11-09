@@ -372,9 +372,20 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             </Space>
           </div>}
         </div>
-        <div className={styles.timeline_group_total}>
+        {result.total_time ? <div className={styles.timeline_group_total}>
+          {/* {dataParse(totalTime)}s */}
+          <span className={styles.timeline_total_label}>Iteration</span>
+          {dataParse(totalTime)}s
+          <Divider type="vertical" />
+          <span className={styles.timeline_total_label}> Number of iterations</span>
+          {Math.floor(result.total_time.global_number_of_samples)}
+          <Divider type="vertical" />
+          <span className={styles.timeline_total_label}> Total duration</span>
+          {dataParse(result.total_time.total_training_time)}s
+        </div> : <div className={styles.timeline_group_total}>
           {dataParse(totalTime)}s
         </div>
+        }
         <div className={styles.timeline_group}>
           <Popover content={renderTip(warmup_time, COLOR_MAPPING['warmup'].label)} title="" trigger="hover">
             <div className={styles.timeline_block} style={{
@@ -395,7 +406,8 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             }}>
             </div>
           </Popover>
-          <Popover content={renderTip(allreduce_time, COLOR_MAPPING['allReduce'].label)} title="" trigger="hover">
+          <Popover content={renderTip(allreduce_time, COLOR_MAPPING['allReduce'].label)} title="" trigger="hover"
+            placement='left'>
             <div className={styles.timeline_block} style={{
               width: calcLength(allreduce_time),
               backgroundColor: COLOR_MAPPING['allReduce'].color

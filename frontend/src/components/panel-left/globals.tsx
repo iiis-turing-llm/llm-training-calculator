@@ -32,13 +32,21 @@ const GlobalPanel = (props: any) => {
       </p>
       <div className={styles.section_content}>
         <InputNumber
-          value={totalConfig.data_parallel_degree}
+          style={{ width: '100%' }}
+          value={totalConfig.number_of_input_tokens}
+          prefix="M"
+          // formatter={(value) => `${value}M`}
+          onChange={(val) => {
+            onChangeItem('number_of_input_tokens', val)
+          }}
           addonBefore={< MinusOutlined onClick={() => {
-            onChangeItem('data_parallel_degree', (totalConfig.data_parallel_degree || 0) - 1)
+            onChangeItem('number_of_input_tokens', (totalConfig.data_parallel_degree || 0) - 1)
           }} />}
-          addonAfter={<PlusOutlined onClick={() => {
-            onChangeItem('data_parallel_degree', (totalConfig.data_parallel_degree || 0) + 1)
-          }} />}
+          addonAfter={<div>
+            {/* <span style={{ padding: '0 10px', color: '#666' }}>M</span> */}
+            <PlusOutlined onClick={() => {
+              onChangeItem('number_of_input_tokens', (totalConfig.data_parallel_degree || 0) + 1)
+            }} /></div>}
           controls={false}
           step={1}
           min={1}
@@ -49,12 +57,16 @@ const GlobalPanel = (props: any) => {
       </p>
       <div className={styles.section_content}>
         <InputNumber
-          value={totalConfig.number_of_input_tokens}
+          style={{ width: '100%' }}
+          value={totalConfig.data_parallel_degree}
+          onChange={(val) => {
+            onChangeItem('data_parallel_degree', val)
+          }}
           addonBefore={< MinusOutlined onClick={() => {
-            onChangeItem('number_of_input_tokens', (totalConfig.number_of_input_tokens || 0) - 1)
+            onChangeItem('data_parallel_degree', (totalConfig.number_of_input_tokens || 0) - 1)
           }} />}
           addonAfter={<PlusOutlined onClick={() => {
-            onChangeItem('number_of_input_tokens', (totalConfig.number_of_input_tokens || 0) + 1)
+            onChangeItem('data_parallel_degree', (totalConfig.number_of_input_tokens || 0) + 1)
           }} />}
           controls={false}
           step={1}
@@ -66,7 +78,11 @@ const GlobalPanel = (props: any) => {
       </p>
       <div className={styles.section_content}>
         <InputNumber
+          style={{ width: '100%' }}
           value={totalConfig.epochs}
+          onChange={(val) => {
+            onChangeItem('epochs', val)
+          }}
           addonBefore={< MinusOutlined onClick={() => {
             onChangeItem('epochs', (totalConfig.epochs || 0) + 1)
           }} />}

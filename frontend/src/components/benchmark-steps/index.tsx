@@ -1,16 +1,16 @@
 import AiIcon from '../ai-icons'
-import { Divider } from 'antd'
+import { repo_url } from '@/utils/constant'
 import styles from './index.less'
 
 export default () => {
   return <div className={styles.steps}>
     <div className={styles.step_item}>
       <div className={styles.step_title}>
-        <AiIcon type='llm-excel' />
+        <AiIcon type='llm-progress' />
         <div className={styles.step_title_text}>
           Step1.
           <div className={styles.step_desc_text}>
-            Download and run our benchmark program at  Name-Here-Link.
+            Download and run our benchmark program at <a href={repo_url} target='_blank'>Link</a>.
           </div>
         </div>
       </div >
@@ -18,7 +18,7 @@ export default () => {
     </div>
     <div className={styles.step_item}>
       <div className={styles.step_title}>
-        <AiIcon type='llm-edit' />
+        <AiIcon type='llm-upload' />
         <div className={styles.step_title_text}>
           Step2.
           <div className={styles.step_desc_text}>
@@ -30,7 +30,7 @@ export default () => {
     </div>
     <div className={styles.step_item}>
       <div className={styles.step_title}>
-        <AiIcon type='llm-upload' />
+        <AiIcon type='llm-checktimeline' />
         <div className={styles.step_title_text}>
           Step3.
           <div className={styles.step_desc_text}>

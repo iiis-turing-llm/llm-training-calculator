@@ -2,8 +2,7 @@ import {
   Button,
   InputNumber,
   Slider,
-  Popover,
-  Alert
+  Popover
 } from 'antd';
 import useModel from 'flooks';
 import styles from './index.less';
@@ -61,6 +60,21 @@ const OtherPanel = (props: any) => {
       [key]: val
     });
   };
+  const calcMin = (cf: any) => {
+    if (cf.key === 'pipeline_parallel_degree') {
+      return recommendConfig.recomended_pipeline_parallel_degree
+    }
+    return cf.min
+  }
+  const calcMax = (cf: any) => {
+    if (cf.key === 'pipeline_parallel_degree') {
+      return curModel?.num_layers
+    }
+    if (cf.key === 'tensor_parallel_degree') {
+      return recommendConfig.recomended_tensor_parallel_degree
+    }
+    return cf.max
+  }
   const closeErrorMsg = () => {
     setProject({
       errorMsg: null,
@@ -69,26 +83,6 @@ const OtherPanel = (props: any) => {
   }
   return (
     <div className={styles.nest}>
-      <p className={styles.section_title}>
-        Microbatch size
-      </p>
-      <div className={styles.section_content}>
-        <InputNumber
-          className={styles.number_item}
-          precision={0}
-          min={0}
-          max={curModel?.minibatch_size}
-          value={otherConfig?.microbatch_size}
-          onChange={(val) => setParamValue('microbatch_size', val)}
-          addonAfter={<Popover
-            content={<div>
-              Need to be able to divide minibatch size.
-            </div>}>
-            <InfoCircleOutlined style={{ cursor: 'pointer' }} />
-          </Popover>}>
-        </InputNumber>
-        {!checkSize() && curModel?.minibatch_size && <div className={styles.error_tip}>Need to be able to divide minibatch size({curModel?.minibatch_size}).</div>}
-      </div>
       <p className={styles.section_title}>
         Optimization Strategy
       </p>
@@ -124,8 +118,8 @@ const OtherPanel = (props: any) => {
                 <InputNumber
                   precision={cf.precision || 0}
                   width={100}
-                  min={cf.key === 'pipeline_parallel_degree' ? recommendConfig.recomended_pipeline_parallel_degree : cf.min}
-                  max={cf.key === 'pipeline_parallel_degree' ? curModel?.num_layers : cf.max}
+                  min={calcMin(cf)}
+                  max={calcMax(cf)}
                   value={otherConfig[cf.key]}
                   onChange={(val) => {
                     setParamValue(cf.key, val)
@@ -134,13 +128,13 @@ const OtherPanel = (props: any) => {
               </div>
               {cf.key === 'tensor_parallel_degree' &&
                 <div className={styles.slider_tip}>
-                  Recommended Tensor parallel degree ({recommendConfig?.recomended_tensor_parallel_degree})</div>}
-              {cf.key === 'pipeline_parallel_degree' &&
+                  No larger than recommended value (<b>{recommendConfig?.recomended_tensor_parallel_degree}</b>) to balance GPU communication/computation time.</div>}
+              {cf.key === 'pipeline_parallel_degree' && otherConfig.tensor_parallel_degree &&
                 <div className={styles.slider_tip}>
                   {recommendConfig.recomended_pipeline_parallel_degree > 0 ?
-                    <span>No smaller than  recommended Pipeline parallel degree ({recommendConfig.recomended_pipeline_parallel_degree})</span>
+                    <span>No smaller than  recommended value (<b>{recommendConfig.recomended_pipeline_parallel_degree}</b>) to avoid OOM</span>
                     :
-                    <span style={{ color: '#ff4d4f' }}>Activation out of memory, try to increase Tensor parallel degree or change GPU type</span>
+                    <span style={{ color: '#ff4d4f' }}>Activation out of memory, try to increase Tensor parallel degree or decrease minibatch size</span>
                   }</div>}
               <Slider
                 min={cf.min}
@@ -158,12 +152,28 @@ const OtherPanel = (props: any) => {
           );
         })}
       </div>
-      {showError && <Alert
-        message={errorMsg}
-        type="warning"
-        closable
-        onClose={closeErrorMsg}
-      />}
+      <p className={styles.section_title}>
+        Microbatch size
+      </p>
+      <div className={styles.section_content}>
+        {recommendConfig.recomended_microbatch && <div className={styles.slider_tip}>
+          No larger than  recommended value (<b>{recommendConfig.recomended_microbatch}</b>) to reduce pipeline bubble time.</div>}
+        <InputNumber
+          className={styles.number_item}
+          precision={0}
+          min={0}
+          max={recommendConfig.recomended_microbatch || curModel?.minibatch_size}
+          value={otherConfig?.microbatch_size}
+          onChange={(val) => setParamValue('microbatch_size', val)}
+          addonAfter={<Popover
+            content={<div>
+              Need to be able to divide minibatch size.
+            </div>}>
+            <InfoCircleOutlined style={{ cursor: 'pointer' }} />
+          </Popover>}>
+        </InputNumber>
+        {!checkSize() && curModel?.minibatch_size && <div className={styles.error_tip}>Need to be able to divide minibatch size({curModel?.minibatch_size}).</div>}
+      </div>
     </div>
   );
 };

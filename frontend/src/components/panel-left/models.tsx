@@ -4,7 +4,7 @@ import { Select, Divider, InputNumber } from 'antd'
 import useModel from 'flooks';
 import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
-import { getModelList, getParameterMetrics, getRecommendedConfig } from '@/services';
+import { getModelList, getParameterMetrics } from '@/services';
 import Empty from '../empty';
 
 const PARAMS_LIST = [
@@ -64,7 +64,7 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
     setProject({
       curModel: {
         ...item,
-        minibatch_size: curModel?.minibatch_size
+        minibatch_size: curModel?.minibatch_size || 32
       }
     });
   };

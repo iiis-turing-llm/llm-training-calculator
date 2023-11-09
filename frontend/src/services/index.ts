@@ -25,8 +25,24 @@ export async function getParameterMetrics(params: any) {
   });
 }
 
-export async function getRecommendedConfig(params: any) {
-  return request(`${service_base_url}/llm_training_calculator/calculator/recommended_config`, {
+export async function getRecommendedTenser(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/recommended_tensor`, {
+    data: {
+      ...params
+    },
+    method: 'POST',
+  });
+}
+export async function getRecommendedPipeline(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/recommended_pipeline`, {
+    data: {
+      ...params
+    },
+    method: 'POST',
+  });
+}
+export async function getRecommendedMicrobatch(params: any) {
+  return request(`${service_base_url}/llm_training_calculator/calculator/recommended_microbatch`, {
     data: {
       ...params
     },

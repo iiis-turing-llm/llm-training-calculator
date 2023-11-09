@@ -11,7 +11,10 @@ import GlobalSetting from './globals'
 import FileSaver from 'file-saver'
 import CustomSteps from './../custom-steps'
 import BenchmarkSteps from './../benchmark-steps'
-import { calculate, readFile, getRecommendedConfig, downloadTemplate } from '@/services';
+import {
+  calculate, readFile, getRecommendedTenser, getRecommendedPipeline,
+  getRecommendedMicrobatch, downloadTemplate
+} from '@/services';
 import type { UploadProps } from 'antd';
 import { service_base_url } from '@/utils/constant'
 import styles from './index.less';
@@ -35,7 +38,7 @@ const itemData = [
   {
     id: 'global',
     name: 'Global',
-    icon: 'llm-others'
+    icon: 'llm-global'
   },
 ];
 
@@ -44,8 +47,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   const [state, setState] = useImmer({
     active: 'gpu',
   });
-  const { curMode, curGpu, curModel, otherConfig, totalConfig, setProject,
-    checkSize, checkPipeline } = useModel(ProjectModel);
+  const { curMode, curGpu, curModel, otherConfig, totalConfig, recommendConfig, setProject,
+    checkSize, checkPipeline, checkTotalConfig } = useModel(ProjectModel);
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
       message.warn('GPU should be set!')
@@ -73,7 +76,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       && otherConfig.tensor_parallel_degree
       && otherConfig.pipeline_parallel_degree
       && otherConfig.network_bandwidth) {
-      if (checkSize() && checkPipeline()) {
+      console.log('checkTotalConfig', checkTotalConfig(), totalConfig)
+      if (checkSize() && checkPipeline() && checkTotalConfig()) {
         return true
       }
     }
@@ -90,42 +94,68 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       result: calcRes
     });
   }
-  const readExcelFile = async () => {
-    const readRes = await readFile()
-    setProject({
-      result: {
-        timeline: readRes
-      }
-    });
-  }
-  const calcPipelinResonableValue = (recommendVal: number) => {
-    const modelLayers = curModel.num_layers
-    if (modelLayers % recommendVal === 0) {
-      return recommendVal
-    } else {
-      for (let i = recommendVal; i < modelLayers; i++) {
-        if (modelLayers % i === 0) {
-          return i
-        }
-      }
-      return modelLayers
-    }
-  }
-  const refreshRecommend = async () => {
-    if (curModel?.minibatch_size) {
-      const recommendRes: any = await getRecommendedConfig({
+  // const readExcelFile = async () => {
+  //   const readRes = await readFile()
+  //   setProject({
+  //     result: {
+  //       timeline: readRes
+  //     }
+  //   });
+  // }
+  // const calcPipelinResonableValue = (recommendVal: number) => {
+  //   const modelLayers = curModel.num_layers
+  //   if (modelLayers % recommendVal === 0) {
+  //     return recommendVal
+  //   } else {
+  //     for (let i = recommendVal; i < modelLayers; i++) {
+  //       if (modelLayers % i === 0) {
+  //         return i
+  //       }
+  //     }
+  //     return modelLayers
+  //   }
+  // }
+  const refreshRecommendTensor = async () => {
+    if (curGpu?.name && curModel?.minibatch_size) {
+      const recommendRes: any = await getRecommendedTenser({
         gpu: curGpu,
         model: curModel,
         optimization_strategy: otherConfig.optimization_strategy
       })
       setProject({
         recommendConfig: {
-          ...recommendRes
-        },
-        otherConfig: {
-          ...otherConfig,
-          tensor_parallel_degree: recommendRes.recomended_tensor_parallel_degree,
-          pipeline_parallel_degree: calcPipelinResonableValue(recommendRes.recomended_pipeline_parallel_degree)
+          ...recommendConfig,
+          recomended_tensor_parallel_degree: recommendRes
+        }
+      });
+    }
+  }
+  const refreshRecommendPipeline = async () => {
+    if (curGpu?.name && curModel?.minibatch_size && otherConfig.tensor_parallel_degree) {
+      const recommendRes: any = await getRecommendedPipeline({
+        gpu: curGpu,
+        model: curModel,
+        optimization_strategy: otherConfig.optimization_strategy,
+        tensor_parallel_degree: otherConfig.tensor_parallel_degree
+      })
+      setProject({
+        recommendConfig: {
+          ...recommendConfig,
+          recomended_pipeline_parallel_degree: recommendRes
+        }
+      });
+    }
+  }
+  const refreshRecommendMicrobatch = async () => {
+    if (curModel?.minibatch_size && otherConfig.pipeline_parallel_degree) {
+      const recommendRes: any = await getRecommendedMicrobatch({
+        model: curModel,
+        pipeline_parallel_degree: otherConfig.pipeline_parallel_degree
+      })
+      setProject({
+        recommendConfig: {
+          ...recommendConfig,
+          recomended_microbatch: recommendRes
         }
       });
     }
@@ -171,15 +201,16 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         }
         const label = rowItem[0]
         const time = Number(rowItem[1])
-        if (idx > 0 && items[idx - 1][0].indexOf('1F1B') < 0) {
+        if (idx > 0) { // && items[idx - 1][0].indexOf('1F1B') < 0
           totalTime += time
         }
         if (label.indexOf('warmup start') > -1) {
           itemObj.start_time = time
+          itemObj.warmup_time = Number(items[idx + 1][1])
         }
-        if (label.indexOf('1F1B start') > -1) {
-          itemObj.warmup_time = time
-        }
+        // if (label.indexOf('1F1B start') > -1) {
+        //   itemObj.warmup_time = time
+        // }
         if (label.indexOf('allreduce start') > -1) {
           itemObj.cooldown_time = time
         }
@@ -219,8 +250,14 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   };
 
   useEffect(() => {
-    refreshRecommend()
-  }, [curGpu, curModel, otherConfig.optimization_strategy]);
+    refreshRecommendTensor()
+  }, [curGpu, curModel]);
+  useEffect(() => {
+    refreshRecommendPipeline()
+  }, [curGpu, curModel, otherConfig.optimization_strategy, otherConfig.tensor_parallel_degree]);
+  useEffect(() => {
+    refreshRecommendMicrobatch()
+  }, [curModel, otherConfig.pipeline_parallel_degree]);
 
   if (curMode === 'custom') {
     return <div className={styles.notice}>

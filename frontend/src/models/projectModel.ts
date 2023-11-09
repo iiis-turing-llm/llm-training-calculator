@@ -10,7 +10,7 @@ const ProjectModel = ({ set, get }: any = {}) => ({
     // data_parallel_degree: 0,
     // number_of_input_tokens: 0,
     // epochs: 0
-  },
+  } as any,
   recommendConfig: {},
   result: null as any, // 计算结果
   bm_result: null as any, // benchmark 解析结果
@@ -36,6 +36,15 @@ const ProjectModel = ({ set, get }: any = {}) => ({
       return false
     }
     return true
+  },
+  checkTotalConfig: () => {
+    const { totalConfig } = get();
+    const { data_parallel_degree, number_of_input_tokens, epochs } = totalConfig || {}
+    console.log('data_parallel_degree', totalConfig, data_parallel_degree, number_of_input_tokens, epochs)
+    if (data_parallel_degree && number_of_input_tokens && epochs) {
+      return true
+    }
+    return false
   },
   setProject: (pro: any) => {
     set((state: any) => {
