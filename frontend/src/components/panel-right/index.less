@@ -35,7 +35,7 @@
   width: 90%;
   margin: 20px auto;
 }
-.result_group_header{
+.result_group_header, .bm_group_header{
   display: flex;
   align-items: center;
   font-size: 24px;
@@ -43,6 +43,9 @@
   color: #303133;
   line-height: 24px;
   padding: 10px 0;
+}
+.bm_group_header{
+  justify-content: space-between;
 }
 .result_group_title{
   display: flex;
@@ -216,6 +219,19 @@
 .export_btn{
   text-align: right;
   padding: 20px 5px;
+}
+.pop_stats{
+  width: 300px;
+  color: #606266;
+  font-size: 12px;
+  >div{
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+  }
+}
+.light{
+  font-weight: normal!important;
 }
 :global{
   .ant-space{

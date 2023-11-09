@@ -6,8 +6,15 @@ const ProjectModel = ({ set, get }: any = {}) => ({
   otherConfig: {
     optimization_strategy: 'No recomputation'
   } as any, // 其他配置
+  totalConfig: {
+    // data_parallel_degree: 0,
+    // number_of_input_tokens: 0,
+    // epochs: 0
+  },
   recommendConfig: {},
   result: null as any, // 计算结果
+  bm_result: null as any, // benchmark 解析结果
+  curIteration: 0, // 当前指针
   showError: false, //  是否显示错误提示
   errorMsg: '', // 错误信息
   checkSize: () => {

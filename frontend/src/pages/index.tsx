@@ -16,6 +16,10 @@ const items = [
   {
     key: 'custom',
     label: 'Custom Mode'
+  },
+  {
+    key: 'benchmark',
+    label: 'Benchmark Mode'
   }
 ];
 export interface IIndexProps { }
@@ -24,7 +28,8 @@ const Index: FC<IIndexProps> = (props) => {
   const onChangeMode = (mode: string) => {
     setProject({
       curMode: mode,
-      result: null
+      result: null,
+      // bm_result: null
     })
   }
 
@@ -47,7 +52,7 @@ const Index: FC<IIndexProps> = (props) => {
           </div>
         </Header>
         <Layout className="llm-inner-layout-wrapper">
-          <Sider width={curMode === 'custom' ? 380 : 430} theme='light'>
+          <Sider width={curMode === 'guide' ? 430 : 400} theme='light'>
             <PanelLeft></PanelLeft>
           </Sider>
           <Content>

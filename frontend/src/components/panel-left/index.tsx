@@ -7,8 +7,10 @@ import ProjectModel from '@/models/projectModel';
 import GpuSelection from './gpus';
 import ModelSelection from './models';
 import OtherSetting from './others';
+import GlobalSetting from './globals'
 import FileSaver from 'file-saver'
 import CustomSteps from './../custom-steps'
+import BenchmarkSteps from './../benchmark-steps'
 import { calculate, readFile, getRecommendedConfig, downloadTemplate } from '@/services';
 import type { UploadProps } from 'antd';
 import { service_base_url } from '@/utils/constant'
@@ -30,6 +32,11 @@ const itemData = [
     name: 'Others',
     icon: 'llm-others'
   },
+  {
+    id: 'global',
+    name: 'Global',
+    icon: 'llm-others'
+  },
 ];
 
 export interface IPanelLeftProps { }
@@ -37,7 +44,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   const [state, setState] = useImmer({
     active: 'gpu',
   });
-  const { curMode, curGpu, curModel, otherConfig, setProject,
+  const { curMode, curGpu, curModel, otherConfig, totalConfig, setProject,
     checkSize, checkPipeline } = useModel(ProjectModel);
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
@@ -76,7 +83,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     const calcRes = await calculate({
       gpu: curGpu,
       model: curModel,
-      other_config: otherConfig
+      other_config: otherConfig,
+      total_train_config: totalConfig
     })
     setProject({
       result: calcRes
@@ -130,9 +138,6 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   const upProps: UploadProps = {
     name: 'file',
     action: `${service_base_url}/llm_training_calculator/calculator/upload`,
-    headers: {
-      // authorization: 'authorization-text',
-    },
     showUploadList: false,
     onChange(info) {
       if (info.file.status !== 'uploading') {
@@ -155,6 +160,63 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       }
     },
   };
+  const formatBMResult = (res: any[]) => {
+    return res.map((items: any[]) => {
+      let itemObj = {} as any
+      let group = [] as any[]
+      let totalTime = 0
+      items.forEach((rowItem: any, idx: number) => {
+        if (!rowItem || rowItem.length < 2) {
+          return
+        }
+        const label = rowItem[0]
+        const time = Number(rowItem[1])
+        if (idx > 0 && items[idx - 1][0].indexOf('1F1B') < 0) {
+          totalTime += time
+        }
+        if (label.indexOf('warmup start') > -1) {
+          itemObj.start_time = time
+        }
+        if (label.indexOf('1F1B start') > -1) {
+          itemObj.warmup_time = time
+        }
+        if (label.indexOf('allreduce start') > -1) {
+          itemObj.cooldown_time = time
+        }
+        if (label.indexOf('iteration end') > -1) {
+          itemObj.allreduce_time = time
+        }
+        if (label.indexOf('forward start') > -1) {
+          group.push({
+            forward: Number(items[idx + 1][1])
+          })
+        }
+        if (label.indexOf('backward start') > -1) {
+          group[group.length - 1]['backward'] = Number(items[idx + 1][1])
+        }
+      })
+      itemObj.groups = group
+      itemObj.totalTime = totalTime
+      return itemObj
+    })
+  }
+  const upBenchProps: UploadProps = {
+    name: 'file',
+    action: `${service_base_url}/llm_training_calculator/benchmark/upload`,
+    showUploadList: false,
+    onChange(info) {
+      if (info.file.status === 'done') {
+        message.success(`${info.file.name} file uploaded successfully`);
+        const res = info.file.response
+        setProject({
+          bm_result: formatBMResult(res)
+        });
+        console.log('formatBMResult(res)', formatBMResult(res))
+      } else if (info.file.status === 'error') {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+    },
+  };
 
   useEffect(() => {
     refreshRecommend()
@@ -170,10 +232,6 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
           <CustomSteps />
         </div>
       </div>
-      {/* <Button type="primary" className={styles.gen_btn}
-        onClick={() => {
-          readExcelFile()
-        }}>READ EXCEL & CALCULATE</Button> */}
       <Upload {...upProps}>
         <Button type="primary" className={styles.gen_btn}>
           IMPORT
@@ -184,6 +242,23 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         onClick={() => {
           exportResultFile()
         }}>DOWNLOAD TEMPLATE</Button>
+    </div>
+  }
+  if (curMode === 'benchmark') {
+    return <div className={styles.notice}>
+      <div className={styles.bm_notice_panel}>
+        <div className={styles.notice_title}>
+          Benchmark your training with our tracing program:
+        </div>
+        <div className={styles.notice_content}>
+          <BenchmarkSteps />
+        </div>
+      </div>
+      <Upload {...upBenchProps}>
+        <Button type="primary" className={styles.gen_btn}>
+          IMPORT
+        </Button>
+      </Upload>
     </div>
   }
 
@@ -218,6 +293,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
           {state.active === 'gpu' && <GpuSelection />}
           {state.active === 'model' && <ModelSelection />}
           {state.active === 'others' && <OtherSetting />}
+          {state.active === 'global' && <GlobalSetting />}
         </div>
         <div className={styles.area_btn}>
           <Button type="primary"
