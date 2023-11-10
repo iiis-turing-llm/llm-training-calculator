@@ -40,7 +40,6 @@ const ProjectModel = ({ set, get }: any = {}) => ({
   checkTotalConfig: () => {
     const { totalConfig } = get();
     const { data_parallel_degree, number_of_input_tokens, epochs } = totalConfig || {}
-    console.log('data_parallel_degree', totalConfig, data_parallel_degree, number_of_input_tokens, epochs)
     if (data_parallel_degree && number_of_input_tokens && epochs) {
       return true
     }
@@ -57,6 +56,12 @@ const ProjectModel = ({ set, get }: any = {}) => ({
         ...state.otherConfig,
         ...params
       }
+      return state
+    });
+  },
+  setRecommendConfig: (key: string, val: any) => {
+    set((state: any) => {
+      state.recommendConfig[key] = val
       return state
     });
   },

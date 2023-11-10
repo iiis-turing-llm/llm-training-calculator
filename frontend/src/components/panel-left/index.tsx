@@ -48,7 +48,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     active: 'gpu',
   });
   const { curMode, curGpu, curModel, otherConfig, totalConfig, recommendConfig, setProject,
-    checkSize, checkPipeline, checkTotalConfig } = useModel(ProjectModel);
+    checkSize, checkPipeline, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
       message.warn('GPU should be set!')
@@ -76,7 +76,6 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       && otherConfig.tensor_parallel_degree
       && otherConfig.pipeline_parallel_degree
       && otherConfig.network_bandwidth) {
-      console.log('checkTotalConfig', checkTotalConfig(), totalConfig)
       if (checkSize() && checkPipeline() && checkTotalConfig()) {
         return true
       }
@@ -122,12 +121,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         model: curModel,
         optimization_strategy: otherConfig.optimization_strategy
       })
-      setProject({
-        recommendConfig: {
-          ...recommendConfig,
-          recomended_tensor_parallel_degree: recommendRes
-        }
-      });
+      setRecommendConfig('recomended_tensor_parallel_degree', recommendRes);
     }
   }
   const refreshRecommendPipeline = async () => {
@@ -138,12 +132,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         optimization_strategy: otherConfig.optimization_strategy,
         tensor_parallel_degree: otherConfig.tensor_parallel_degree
       })
-      setProject({
-        recommendConfig: {
-          ...recommendConfig,
-          recomended_pipeline_parallel_degree: recommendRes
-        }
-      });
+      setRecommendConfig(
+        'recomended_pipeline_parallel_degree', recommendRes
+      );
     }
   }
   const refreshRecommendMicrobatch = async () => {
@@ -152,12 +143,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         model: curModel,
         pipeline_parallel_degree: otherConfig.pipeline_parallel_degree
       })
-      setProject({
-        recommendConfig: {
-          ...recommendConfig,
-          recomended_microbatch: recommendRes
-        }
-      });
+      setRecommendConfig(
+        'recomended_microbatch', recommendRes
+      );
     }
   }
   const exportResultFile = () => {
@@ -251,13 +239,15 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
 
   useEffect(() => {
     refreshRecommendTensor()
+    refreshRecommendPipeline()
+    refreshRecommendMicrobatch()
   }, [curGpu?.name, curModel?.name, curModel?.minibatch_size]);
   useEffect(() => {
     refreshRecommendPipeline()
-  }, [curGpu?.name, curModel?.name, curModel?.minibatch_size, otherConfig?.optimization_strategy, otherConfig?.tensor_parallel_degree]);
+  }, [otherConfig?.optimization_strategy, otherConfig?.tensor_parallel_degree]);
   useEffect(() => {
     refreshRecommendMicrobatch()
-  }, [curModel?.name, curModel?.minibatch_size, otherConfig?.pipeline_parallel_degree]);
+  }, [otherConfig?.pipeline_parallel_degree]);
 
   if (curMode === 'custom') {
     return <div className={styles.notice}>
