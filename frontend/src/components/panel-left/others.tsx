@@ -71,7 +71,8 @@ const OtherPanel = (props: any) => {
       return curModel?.num_layers
     }
     if (cf.key === 'tensor_parallel_degree') {
-      return recommendConfig.recomended_tensor_parallel_degree
+      // return recommendConfig.recomended_tensor_parallel_degree
+      return 8
     }
     return cf.max
   }

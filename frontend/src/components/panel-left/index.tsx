@@ -251,13 +251,13 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
 
   useEffect(() => {
     refreshRecommendTensor()
-  }, [curGpu, curModel]);
+  }, [curGpu?.name, curModel?.name, curModel?.minibatch_size]);
   useEffect(() => {
     refreshRecommendPipeline()
-  }, [curGpu, curModel, otherConfig.optimization_strategy, otherConfig.tensor_parallel_degree]);
+  }, [curGpu?.name, curModel?.name, curModel?.minibatch_size, otherConfig?.optimization_strategy, otherConfig?.tensor_parallel_degree]);
   useEffect(() => {
     refreshRecommendMicrobatch()
-  }, [curModel, otherConfig.pipeline_parallel_degree]);
+  }, [curModel?.name, curModel?.minibatch_size, otherConfig?.pipeline_parallel_degree]);
 
   if (curMode === 'custom') {
     return <div className={styles.notice}>
