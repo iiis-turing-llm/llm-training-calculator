@@ -20,6 +20,4 @@ class BenchmarkRepository:
                     has_start = False
             else:
                 current_object.append((row[0], row[1]))
-
-        print(data)
         return data
