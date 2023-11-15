@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class GPU(BaseModel):
+class Cluster(BaseModel):
     name: str = None
     sparse_tensor_fp16_processing_power: int = None
     fp32_processing_power: int = None
@@ -10,6 +10,7 @@ class GPU(BaseModel):
     bus_bandwidth: int = None
     delay: int = None
     launch_msrp: int = None
+    network_bandwidth: int = None
 
 
 class Model(BaseModel):
@@ -25,12 +26,11 @@ class Model(BaseModel):
 class OtherConfig(BaseModel):
     tensor_parallel_degree: int = None
     pipeline_parallel_degree: int = None
-    network_bandwidth: int = None
     microbatch_size: int = None
     optimization_strategy: str = None
 
 
-class TotalTrainConfig(BaseModel):
+class InputConfig(BaseModel):
     data_parallel_degree: int = None
     number_of_input_tokens: int = None  # 单位为M
     epochs: int = None
