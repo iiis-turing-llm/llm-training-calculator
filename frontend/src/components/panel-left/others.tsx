@@ -42,14 +42,14 @@ const PARAMS_LIST = [
     step: 1
 
   },
-  {
-    title: 'Per-host network bandwidth(Gb/s)',
-    key: 'network_bandwidth',
-    min: 1,
-    max: 1600,
-    precision: 1,
-    step: 1
-  }
+  // {
+  //   title: 'Per-host network bandwidth(Gb/s)',
+  //   key: 'network_bandwidth',
+  //   min: 1,
+  //   max: 1600,
+  //   precision: 1,
+  //   step: 1
+  // }
 ]
 const OtherPanel = (props: any) => {
   const { setProject, setOtherConfig, otherConfig, recommendConfig, curModel, curGpu,

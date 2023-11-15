@@ -22,7 +22,7 @@ import styles from './index.less';
 const itemData = [
   {
     id: 'gpu',
-    name: 'GPUs',
+    name: 'Cluster',
     icon: 'llm-gpu'
   },
   {
@@ -37,7 +37,7 @@ const itemData = [
   },
   {
     id: 'global',
-    name: 'Global',
+    name: 'Input',
     icon: 'llm-global'
   },
 ];
@@ -60,6 +60,11 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       setState({ active: 'model' });
       return
     }
+    if (key === 'others' && !curGpu.network_bandwidth) {
+      message.warn('Per-host network bandwidth should be set!')
+      setState({ active: 'gpu' });
+      return
+    }
     if (key === 'others' && !curModel.minibatch_size) {
       message.warn('Minibatch size should be set!')
       setState({ active: 'model' });
@@ -74,8 +79,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       otherConfig.microbatch_size
       && otherConfig.optimization_strategy
       && otherConfig.tensor_parallel_degree
-      && otherConfig.pipeline_parallel_degree
-      && otherConfig.network_bandwidth) {
+      && otherConfig.pipeline_parallel_degree) {
       if (checkSize() && checkPipeline() && checkTotalConfig()) {
         return true
       }
@@ -84,10 +88,10 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   }
   const doCalculate = async () => {
     const calcRes = await calculate({
-      gpu: curGpu,
+      cluster: curGpu,
       model: curModel,
       other_config: otherConfig,
-      total_train_config: totalConfig
+      input_config: totalConfig
     })
     setProject({
       result: calcRes
@@ -115,9 +119,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   //   }
   // }
   const refreshRecommendTensor = async () => {
-    if (curGpu?.name && curModel?.minibatch_size) {
+    if (curGpu?.name && curGpu?.network_bandwidth && curModel?.minibatch_size) {
       const recommendRes: any = await getRecommendedTenser({
-        gpu: curGpu,
+        cluster: curGpu,
         model: curModel,
         optimization_strategy: otherConfig.optimization_strategy
       })
@@ -127,7 +131,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   const refreshRecommendPipeline = async () => {
     if (curGpu?.name && curModel?.minibatch_size && otherConfig.tensor_parallel_degree) {
       const recommendRes: any = await getRecommendedPipeline({
-        gpu: curGpu,
+        cluster: curGpu,
         model: curModel,
         optimization_strategy: otherConfig.optimization_strategy,
         tensor_parallel_degree: otherConfig.tensor_parallel_degree

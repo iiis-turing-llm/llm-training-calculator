@@ -94,7 +94,7 @@ const BenchMark: FC<IBenchMarkProps> = (props) => {
     )
   }
   const changeIteration = (val: number) => {
-    if (val && val < bm_result.length) {
+    if (val > -1 && val < bm_result.length) {
       setState({
         ite_index: val
       })

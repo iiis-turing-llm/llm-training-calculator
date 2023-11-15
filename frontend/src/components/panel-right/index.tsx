@@ -114,7 +114,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
   }
   const exportResultFile = () => {
     exportResult({
-      ...result, gpu: curGpu, model: curModel, other_config: otherConfig
+      ...result, cluster: curGpu, model: curModel, other_config: otherConfig
     }).then((res: any) => {
       FileSaver.saveAs(res, "llm-training-calculator.xlsx");
     })
@@ -329,7 +329,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             <div className={styles.result_group_title}>
               Timeline
               {curMode === 'custom' ? <div>
-                <SyncOutlined className={styles.fresh_icon} onClick={readExcelFile} />
+                {/* <SyncOutlined className={styles.fresh_icon} onClick={readExcelFile} /> */}
               </div> :
                 <div className={styles.result_group_collapse}>{!state.timelineCollapse ?
                   <CaretDownOutlined onClick={() => {

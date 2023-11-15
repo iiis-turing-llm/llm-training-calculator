@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react';
 import { useImmer } from 'use-immer';
-import { Select, Divider } from 'antd'
+import { Select, Divider, InputNumber, Slider } from 'antd'
 import Empty from '../empty';
 import useModel from 'flooks';
 import { getGpuList } from '@/services'
@@ -38,12 +38,25 @@ const PARAMS_LIST = [
     key: 'launch_msrp'
   }
 ]
+const SLIDER_LIST = [{
+  title: 'Per-host network bandwidth(Gb/s)',
+  key: 'network_bandwidth',
+  min: 1,
+  max: 1600,
+  precision: 1,
+  step: 1
+}]
 export interface IGPUSelectionProps { }
 const GpuSelection: FC<IGPUSelectionProps> = (props) => {
   const { setProject, curGpu } = useModel(ProjectModel);
 
   const handleItemClick = (key: string, item: any) => {
-    setProject({ curGpu: item });
+    setProject({
+      curGpu: {
+        ...item,
+        network_bandwidth: curGpu?.network_bandwidth
+      }
+    });
   };
 
   const [state, setState] = useImmer({
@@ -70,7 +83,7 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
 
 
   return (
-    <div className={styles.gpu_wrapper}>
+    <div className={styles.nest}>
       <p className={styles.section_title}>
         Select GPU
       </p>
@@ -100,6 +113,38 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
             <Empty />
           </div>
         }
+      </div>
+      <div className={styles.group_slider}>
+        {SLIDER_LIST.map((cf: any) => {
+          return (
+            <div className={styles['group-list-item']} key={cf.key}>
+              <div className={styles['item-wrapper']}>
+                <span>
+                  {cf.title}
+                </span>
+                <InputNumber
+                  precision={cf.precision || 0}
+                  width={100}
+                  min={cf.min}
+                  max={cf.max}
+                  value={curGpu?.[cf.key]}
+                  onChange={(val) => {
+                    setProject({ curGpu: { ...curGpu, [cf.key]: val } });
+                  }}
+                />
+              </div>
+              <Slider
+                min={cf.min}
+                max={cf.max}
+                onChange={(val) => {
+                  setProject({ curGpu: { ...curGpu, [cf.key]: val } });
+                }}
+                value={curGpu?.[cf.key]}
+                step={cf.step}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

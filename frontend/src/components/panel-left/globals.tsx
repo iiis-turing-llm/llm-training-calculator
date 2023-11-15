@@ -39,13 +39,15 @@ const GlobalPanel = (props: any) => {
           onChange={(val) => {
             onChangeItem('number_of_input_tokens', val)
           }}
-          addonBefore={< MinusOutlined onClick={() => {
-            onChangeItem('number_of_input_tokens', (totalConfig.data_parallel_degree || 0) - 1)
+          addonBefore={< MinusOutlined onClick={(e) => {
+            onChangeItem('number_of_input_tokens', (totalConfig.number_of_input_tokens || 0) - 1)
+            e.stopPropagation()
           }} />}
           addonAfter={<div>
             {/* <span style={{ padding: '0 10px', color: '#666' }}>M</span> */}
-            <PlusOutlined onClick={() => {
-              onChangeItem('number_of_input_tokens', (totalConfig.data_parallel_degree || 0) + 1)
+            <PlusOutlined onClick={(e) => {
+              onChangeItem('number_of_input_tokens', (totalConfig.number_of_input_tokens || 0) + 1)
+              e.stopPropagation()
             }} /></div>}
           controls={false}
           step={1}
@@ -62,11 +64,13 @@ const GlobalPanel = (props: any) => {
           onChange={(val) => {
             onChangeItem('data_parallel_degree', val)
           }}
-          addonBefore={< MinusOutlined onClick={() => {
-            onChangeItem('data_parallel_degree', (totalConfig.number_of_input_tokens || 0) - 1)
+          addonBefore={< MinusOutlined onClick={(e) => {
+            onChangeItem('data_parallel_degree', (totalConfig.data_parallel_degree || 0) - 1)
+            e.stopPropagation()
           }} />}
-          addonAfter={<PlusOutlined onClick={() => {
-            onChangeItem('data_parallel_degree', (totalConfig.number_of_input_tokens || 0) + 1)
+          addonAfter={<PlusOutlined onClick={(e) => {
+            onChangeItem('data_parallel_degree', (totalConfig.data_parallel_degree || 0) + 1)
+            e.stopPropagation()
           }} />}
           controls={false}
           step={1}
@@ -83,11 +87,13 @@ const GlobalPanel = (props: any) => {
           onChange={(val) => {
             onChangeItem('epochs', val)
           }}
-          addonBefore={< MinusOutlined onClick={() => {
-            onChangeItem('epochs', (totalConfig.epochs || 0) + 1)
+          addonBefore={< MinusOutlined onClick={(e) => {
+            onChangeItem('epochs', (totalConfig.epochs || 0) - 1)
+            e.stopPropagation()
           }} />}
-          addonAfter={<PlusOutlined onClick={() => {
+          addonAfter={<PlusOutlined onClick={(e) => {
             onChangeItem('epochs', (totalConfig.epochs || 0) + 1)
+            e.stopPropagation()
           }} />}
           controls={false}
           step={1}
