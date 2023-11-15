@@ -3,7 +3,7 @@ from typing import List
 from pydantic import AnyHttpUrl
 from pydantic_settings import BaseSettings
 
-from app.models.calculator_input import GPU, Model
+from app.models.calculator_input import Cluster, Model
 
 
 class Settings(BaseSettings):
@@ -17,18 +17,18 @@ class Settings(BaseSettings):
     CALCULATOR_RESULT_FILE_MODEL: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                                      "calculator_model.xlsx")
 
-    GPU_LIST: List[GPU] = [
-        GPU(
+    GPU_LIST: List[Cluster] = [
+        Cluster(
             name="H200",
             sparse_tensor_fp16_processing_power=989,
             fp32_processing_power=495,
-            memory=144,
+            memory=141,
             memory_bandwidth=4900,
             bus_bandwidth=900,
             delay=1,
             launch_msrp=0,
         ),
-        GPU(
+        Cluster(
             name="H100",
             sparse_tensor_fp16_processing_power=989,
             fp32_processing_power=495,
@@ -38,7 +38,7 @@ class Settings(BaseSettings):
             delay=1,
             launch_msrp=0,
         ),
-        GPU(
+        Cluster(
             name="A100",
             sparse_tensor_fp16_processing_power=312,
             fp32_processing_power=156,
@@ -48,7 +48,7 @@ class Settings(BaseSettings):
             delay=1,
             launch_msrp=0,
         ),
-        GPU(
+        Cluster(
             name="4090",
             sparse_tensor_fp16_processing_power=330,
             fp32_processing_power=83,
@@ -58,7 +58,7 @@ class Settings(BaseSettings):
             delay=10,
             launch_msrp=0,
         ),
-        GPU(
+        Cluster(
             name="3090",
             sparse_tensor_fp16_processing_power=142,
             fp32_processing_power=36,

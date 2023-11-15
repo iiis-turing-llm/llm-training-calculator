@@ -1,8 +1,8 @@
 import fastapi
 from app.config import settings
 from app.core.calculate_repository import CalculateRepository
-from app.models.calculator_input import GPU, Model, OtherConfig
-from app.models.calculator_input import TotalTrainConfig
+from app.models.calculator_input import Cluster, Model, OtherConfig
+from app.models.calculator_input import InputConfig
 from app.models.calculator_result import Parameter, RecommendedConfig, MemoryUsage, \
     Computation, Communication, Timeline
 from fastapi import Body, UploadFile, File
@@ -36,19 +36,19 @@ def calculate_params(model: Model):
 
 
 @router.post("/recommended_tensor")
-def recommended_tensor(gpu: GPU, model: Model):
+def recommended_tensor(cluster: Cluster, model: Model):
     cr = CalculateRepository()
-    recomended_tensor_parallel_degree = cr.recommended_tensor(gpu, model)
+    recomended_tensor_parallel_degree = cr.recommended_tensor(cluster, model)
     return recomended_tensor_parallel_degree
 
 
 @router.post("/recommended_pipeline")
-def recommended_pipeline(gpu: GPU,
+def recommended_pipeline(cluster: Cluster,
                          model: Model,
                          optimization_strategy: str = Body("Full recomputation"),
                          tensor_parallel_degree: int = Body(...)):
     cr = CalculateRepository()
-    recomended_pipeline_parallel_degree = cr.recommended_pipeline(gpu, model, optimization_strategy,
+    recomended_pipeline_parallel_degree = cr.recommended_pipeline(cluster, model, optimization_strategy,
                                                                   tensor_parallel_degree)
     return recomended_pipeline_parallel_degree
 
@@ -62,16 +62,16 @@ def recommended_microbatch(model: Model,
 
 
 @router.post("/")
-def create_calculator(gpu: GPU,
+def create_calculator(cluster: Cluster,
                       model: Model,
                       other_config: OtherConfig,
-                      total_train_config: TotalTrainConfig):
+                      input_config: InputConfig):
     cr = CalculateRepository()
-    return cr.calculate(gpu, model, other_config, total_train_config)
+    return cr.calculate(cluster, model, other_config, input_config)
 
 
 @router.post("/download")
-def create_calculator(gpu: GPU,
+def create_calculator(cluster: Cluster,
                       model: Model,
                       other_config: OtherConfig,
                       parameter: Parameter,
@@ -81,7 +81,7 @@ def create_calculator(gpu: GPU,
                       communication: Communication,
                       timeline: Timeline, ):
     cr = CalculateRepository()
-    file = cr.write_result_to_file(gpu, model, other_config, parameter, recommended_config, memory_usage, computation,
+    file = cr.write_result_to_file(cluster, model, other_config, parameter, recommended_config, memory_usage, computation,
                                    communication, timeline)
     return FileResponse(file, filename="calculator.xlsx")
 
