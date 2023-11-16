@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react';
-import { Tooltip, Button, message, Upload } from 'antd';
+import { Tooltip, Button, message, Upload, Switch } from 'antd';
 import { AiIcon } from '@/components';
 import { useImmer } from 'use-immer';
 import useModel from 'flooks';
@@ -18,6 +18,7 @@ import {
 import type { UploadProps } from 'antd';
 import { service_base_url } from '@/utils/constant'
 import styles from './index.less';
+import { debounce } from 'lodash';
 
 const itemData = [
   {
@@ -47,7 +48,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   const [state, setState] = useImmer({
     active: 'gpu',
   });
-  const { curMode, curGpu, curModel, otherConfig, totalConfig, recommendConfig, setProject,
+  const { curMode, curGpu, curModel, autoRecalc, otherConfig, totalConfig, recommendConfig, setProject,
     checkSize, checkPipeline, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
@@ -87,6 +88,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     return false
   }
   const doCalculate = async () => {
+    setProject({
+      loading: true
+    });
     const calcRes = await calculate({
       cluster: curGpu,
       model: curModel,
@@ -96,6 +100,11 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     setProject({
       result: calcRes
     });
+    setTimeout(() => {
+      setProject({
+        loading: false
+      });
+    }, 300)
   }
   // const readExcelFile = async () => {
   //   const readRes = await readFile()
@@ -234,7 +243,6 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         setProject({
           bm_result: formatBMResult(res)
         });
-        console.log('formatBMResult(res)', formatBMResult(res))
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
@@ -245,7 +253,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     refreshRecommendTensor()
     refreshRecommendPipeline()
     refreshRecommendMicrobatch()
-  }, [curGpu?.name, curModel?.name, curModel?.minibatch_size]);
+  }, [curGpu?.name, curGpu?.network_bandwidth, curModel?.name, curModel?.minibatch_size]);
   useEffect(() => {
     refreshRecommendPipeline()
   }, [otherConfig?.optimization_strategy, otherConfig?.tensor_parallel_degree]);
@@ -253,6 +261,11 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     refreshRecommendMicrobatch()
   }, [otherConfig?.pipeline_parallel_degree]);
 
+  useEffect(() => {
+    if (validateInput() && autoRecalc) {
+      debounce(doCalculate, 200)()//消抖
+    }
+  }, [curGpu, curModel, otherConfig, totalConfig]);
   if (curMode === 'custom') {
     return <div className={styles.notice}>
       <div className={styles.notice_panel}>
@@ -327,11 +340,22 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
           {state.active === 'global' && <GlobalSetting />}
         </div>
         <div className={styles.area_btn}>
+          <div className={styles.area_switch}>
+            <Switch checked={autoRecalc}
+              onChange={(check: boolean) => {
+                setProject({
+                  autoRecalc: check
+                });
+              }}></Switch>
+            <span style={{ color: autoRecalc ? '#1989FA' : '' }}>Automatic Calculation</span>
+          </div>
           <Button type="primary"
             disabled={!validateInput()}
             className={styles.area_btn_btn}
-            onClick={doCalculate}
-          >CALCUTATE</Button>
+            onClick={doCalculate}>
+            CALCUTATE
+          </Button>
+
         </div>
       </div>
     </div>

@@ -15,6 +15,8 @@ const ProjectModel = ({ set, get }: any = {}) => ({
   result: null as any, // 计算结果
   bm_result: null as any, // benchmark 解析结果
   curIteration: 0, // 当前指针
+  autoRecalc: false,
+  loading: false,
   showError: false, //  是否显示错误提示
   errorMsg: '', // 错误信息
   checkSize: () => {

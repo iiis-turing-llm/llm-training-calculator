@@ -6,7 +6,7 @@ import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import PopPanel from './pops'
 import BenchPanel from './benchmark'
-import { SyncOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
+import { LoadingOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { keys, sum } from 'lodash';
 import Steps from '../guide-steps'
 import FileSaver from 'file-saver'
@@ -41,7 +41,7 @@ const COLOR_MAPPING: any = {
 
 export interface IPanelRightProps { }
 const PanelRight: FC<IPanelRightProps> = (props) => {
-  const { result, bm_result, curGpu, curMode, curModel, otherConfig, setProject } = useModel(ProjectModel);
+  const { result, bm_result, loading, curGpu, curMode, curModel, otherConfig, setProject } = useModel(ProjectModel);
   const [state, setState] = useImmer({
     memoryCollapse: false,
     computationCollapse: true,
@@ -128,6 +128,9 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
   }
   const renderDetail = () => {
     return <PopPanel />
+  }
+  if (loading) {
+    return <div className={styles.loading}><LoadingOutlined /></div>
   }
   if (!result && curMode === 'guide') {
     return <div className={styles.content}>

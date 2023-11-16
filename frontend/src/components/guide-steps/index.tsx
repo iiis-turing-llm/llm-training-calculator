@@ -7,11 +7,11 @@ export default () => {
     <div className={styles.step_item}>
       <div className={styles.step_title}>
         <AiIcon type='llm-gpu' />
-        <div className={styles.step_title_text}>GPUs</div>
+        <div className={styles.step_title_text}>Cluster</div>
       </div >
       <div className={styles.step_desc}>
         <div className={styles.step_desc_text}>
-          Determine the GPU type.
+          Determine the GPU type and per-host network bandwidth.
           <div>
             <Divider style={{ marginTop: 20 }} />
           </div>
@@ -38,19 +38,39 @@ export default () => {
         <div className={styles.step_title_text}>Others</div>
       </div >
       <div className={styles.step_desc}>
-        <div className={styles.step_desc_text_other}>
+        <div className={styles.step_desc_text}>
           <div className={styles.other_item}>
             <div className={styles.other_item_title}>Step1.</div>
-            <div>Determine the optimization strategy and input the microbatch size.</div>
+            <div>
+              Determine the optimization strategy.</div>
           </div>
           <div className={styles.other_item}>
             <div className={styles.other_item_title}>Step2.</div>
-            <div>Determine Tensor parallel degree/Pipeline parallel degree following recommendation.</div>
+            <div>
+              Determine tensor parallel degree.</div>
           </div>
           <div className={styles.other_item}>
             <div className={styles.other_item_title}>Step3.</div>
-            <div>Input Per-host network bandwidth.</div>
+            <div>Determine pipeline parallel degree.</div>
           </div>
+          <div className={styles.other_item}>
+            <div className={styles.other_item_title}>Step4.</div>
+            <div>Determine the microbatch size.</div>
+          </div>
+          <div>
+            <Divider style={{ marginTop: 20 }} />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className={styles.step_item}>
+      <div className={styles.step_title}>
+        <AiIcon type='llm-global' />
+        <div className={styles.step_title_text}>Input</div>
+      </div >
+      <div className={styles.step_desc}>
+        <div className={styles.step_desc_text_other}>
+          Input the total number of tokens / data parallel degree / number of epochs.
         </div>
       </div>
     </div>
