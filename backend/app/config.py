@@ -128,7 +128,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 Small",
             token_length=2048,
-            num_attention_heads=64,
+            num_attention_heads=12,
             hidden_layer_size=768,
             num_layers=12,
             vocab_size=50257,
@@ -137,7 +137,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 Medium",
             token_length=2048,
-            num_attention_heads=64,
+            num_attention_heads=16,
             hidden_layer_size=1024,
             num_layers=16,
             vocab_size=50257,
@@ -146,7 +146,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 Large",
             token_length=2048,
-            num_attention_heads=96,
+            num_attention_heads=16,
             hidden_layer_size=1536,
             num_layers=16,
             vocab_size=50257,
@@ -155,7 +155,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 XL",
             token_length=2048,
-            num_attention_heads=128,
+            num_attention_heads=24,
             hidden_layer_size=2048,
             num_layers=24,
             vocab_size=50257,
@@ -164,7 +164,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-32.7B",
             token_length=2048,
-            num_attention_heads=80,
+            num_attention_heads=32,
             hidden_layer_size=2560,
             num_layers=32,
             vocab_size=50257,
@@ -173,7 +173,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 6.7B",
             token_length=2048,
-            num_attention_heads=128,
+            num_attention_heads=32,
             hidden_layer_size=4096,
             num_layers=32,
             vocab_size=50257,
@@ -182,7 +182,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 13B",
             token_length=2048,
-            num_attention_heads=128,
+            num_attention_heads=40,
             hidden_layer_size=5140,
             num_layers=40,
             vocab_size=50257,
@@ -191,7 +191,7 @@ class Settings(BaseSettings):
         Model(
             name="GPT-3 175B",
             token_length=2048,
-            num_attention_heads=128,
+            num_attention_heads=96,
             hidden_layer_size=12288,
             num_layers=96,
             vocab_size=50257,
