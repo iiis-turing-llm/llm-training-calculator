@@ -26,7 +26,7 @@ show_usage() {
 install() {
     echo_back "cd ${SHELL_FOLDER}"
     echo_info "install megatron v3.02"
-    # echo_back "wget --no-check-certificate --content-disposition https://github.com/NVIDIA/Megatron-LM/archive/refs/tags/v3.0.2.zip"
+    echo_back "wget --no-check-certificate --content-disposition https://github.com/NVIDIA/Megatron-LM/archive/refs/tags/v3.0.2.zip"
     echo_back "unzip Megatron-LM-3.0.2.zip"
     echo_back  "cd ../"
     echo_back "mkdir Megatron"
