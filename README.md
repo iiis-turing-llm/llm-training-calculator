@@ -97,7 +97,25 @@ b. 如希望以开发模式打开前端服务：
 
 LLM training calculator将可视化训练时间轴
 
+### Benchmark mode
 
+- 下载并安装分布式训练框架（本项目使用Megatron进行benchmark测量）
+```
+cd benchmark
+bash script/benchmark.sh install
+```
+- 修改examples下脚本参数以支持分布式训练
+- 预处理数据集
+```
+bash script/benchmark.sh setup
+```
+- 开始测量
+```
+bash script/benchmark.sh train
+```
+- 上传训练完成后生成的模板文件benchmark.csv
+
+LLM training calculator将根据指定iteration的trace信息可视化训练时间轴
 
 
 
