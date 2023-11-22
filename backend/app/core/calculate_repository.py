@@ -24,7 +24,7 @@ class CalculateRepository:
 
     def recommended_tensor(self, cluster: Cluster, model: Model):
         return min(8, max(1, math.floor(
-            3 * model.hidden_layer_size / cluster.sparse_tensor_fp16_processing_power * cluster.bus_bandwidth / 2 / 1000)))
+            3 * model.hidden_layer_size / cluster.fp32_processing_power * cluster.bus_bandwidth / 2 / 1000)))
 
     def recommended_pipeline(self, cluster: Cluster, model: Model, optimization_strategy, tensor_parallel_degree):
         params = self.parameter_metrics(model)
@@ -65,9 +65,9 @@ class CalculateRepository:
         comp = Computation()
         comp.per_device_layers = model.num_layers / other_config.pipeline_parallel_degree
         comp.num_microbatches = model.minibatch_size / other_config.microbatch_size
-        comp.total_forward_computation_time = 2 * model.token_length * model.minibatch_size * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.sparse_tensor_fp16_processing_power / 1e12
+        comp.total_forward_computation_time = 2 * model.token_length * model.minibatch_size * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.fp32_processing_power / 1e12
         comp.per_loop_forward_computation_time = comp.total_forward_computation_time / comp.per_device_layers / comp.num_microbatches
-        comp.total_backward_computation_time = 4 * model.token_length * model.minibatch_size * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.sparse_tensor_fp16_processing_power / 1e12
+        comp.total_backward_computation_time = 4 * model.token_length * model.minibatch_size * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.fp32_processing_power / 1e12
         comp.per_loop_backward_computation_time = comp.total_backward_computation_time / comp.per_device_layers / comp.num_microbatches
 
         comm = Communication()
