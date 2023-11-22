@@ -19,6 +19,7 @@ import type { UploadProps } from 'antd';
 import { service_base_url } from '@/utils/constant'
 import styles from './index.less';
 import { debounce } from 'lodash';
+import LogModel from '@/models/logModel';
 
 const itemData = [
   {
@@ -41,15 +42,16 @@ const itemData = [
     name: 'Input',
     icon: 'llm-global'
   },
-];
+] as any[];
 
 export interface IPanelLeftProps { }
 const PanelLeft: FC<IPanelLeftProps> = (props) => {
   const [state, setState] = useImmer({
     active: 'gpu',
   });
-  const { curMode, curGpu, curModel, autoRecalc, otherConfig, totalConfig, recommendConfig, setProject,
+  const { curMode, curGpu, curModel, autoRecalc, otherConfig, totalConfig, result, setProject,
     checkSize, checkPipeline, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
+  const { changeLog, setAutoCalculated } = useModel(LogModel);
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
       message.warn('GPU should be set!')
@@ -76,14 +78,24 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
 
   // && otherConfig.per_host_network_bandwidth
   const validateInput = () => {
-    if (curGpu && curModel &&
-      otherConfig.microbatch_size
-      && otherConfig.optimization_strategy
-      && otherConfig.tensor_parallel_degree
-      && otherConfig.pipeline_parallel_degree) {
-      if (checkSize() && checkPipeline() && checkTotalConfig()) {
-        return true
+    if (state.active == 'gpu') {
+      return curGpu && curGpu?.network_bandwidth ? true : false
+    }
+    if (state.active == 'model') {
+      return curModel && curModel.minibatch_size ? true : false
+    }
+    if (state.active == 'others') {
+      if (otherConfig && otherConfig.microbatch_size
+        && otherConfig.optimization_strategy
+        && otherConfig.tensor_parallel_degree
+        && otherConfig.pipeline_parallel_degree) {
+        if (checkSize() && checkPipeline()) {
+          return true
+        }
       }
+    }
+    if (state.active == 'global' && checkTotalConfig()) {
+      return true
     }
     return false
   }
@@ -98,6 +110,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       input_config: totalConfig
     })
     setProject({
+      latest_result: autoRecalc ? { ...result } : null,
       result: calcRes
     });
     setTimeout(() => {
@@ -105,6 +118,14 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         loading: false
       });
     }, 300)
+  }
+  const doCalculateOrNext = () => {
+    if (state.active === 'global') {
+      doCalculate()
+    } else {
+      const curModeIndex = itemData.findIndex((item: any) => item.id === state.active)
+      handleItemClick(itemData[curModeIndex + 1].id)
+    }
   }
   // const readExcelFile = async () => {
   //   const readRes = await readFile()
@@ -264,6 +285,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   useEffect(() => {
     if (validateInput() && autoRecalc) {
       debounce(doCalculate, 200)()//消抖
+      // setAutoCalculated()
+      // message.success(`${changeLog.field} changed!`)
     }
   }, [curGpu, curModel, otherConfig, totalConfig]);
   if (curMode === 'custom') {
@@ -352,8 +375,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
           <Button type="primary"
             disabled={!validateInput()}
             className={styles.area_btn_btn}
-            onClick={doCalculate}>
-            CALCUTATE
+            onClick={doCalculateOrNext}>
+            {state.active === 'global' ? 'CALCUTATE' : 'NEXT'}
           </Button>
 
         </div>

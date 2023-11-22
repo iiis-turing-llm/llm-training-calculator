@@ -8,6 +8,7 @@ import useModel from 'flooks';
 import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import LogModel from '@/models/logModel';
 
 const SRATEGY_LIST = [
   {
@@ -53,9 +54,10 @@ const PARAMS_LIST = [
 ]
 const OtherPanel = (props: any) => {
   const { setProject, setOtherConfig, otherConfig, recommendConfig, curModel, curGpu,
-    checkSize, checkPipeline, showError, errorMsg } = useModel(ProjectModel);
-
-  const setParamValue = (key: string, val: any) => {
+    checkSize, checkPipeline } = useModel(ProjectModel);
+  const { setChangeLog } = useModel(LogModel);
+  const setParamValue = (key: string, val: any, title?: string) => {
+    setChangeLog(title, val, otherConfig?.[key])
     setOtherConfig({
       [key]: val
     });
@@ -96,7 +98,9 @@ const OtherPanel = (props: any) => {
               value="line"
               className={`${styles['mode-btn']} ${otherConfig.optimization_strategy === m.value ? styles['active'] : ''
                 }`}
-              onClick={(e) => setParamValue('optimization_strategy', m.value)}
+              onClick={(e) => {
+                setParamValue('optimization_strategy', m.value, 'Optimization Strategy')
+              }}
             >
               {m.label}
             </Button>
@@ -123,7 +127,7 @@ const OtherPanel = (props: any) => {
                   max={calcMax(cf)}
                   value={otherConfig[cf.key]}
                   onChange={(val) => {
-                    setParamValue(cf.key, val)
+                    setParamValue(cf.key, val, cf.title)
                   }}
                 />
               </div>
@@ -141,7 +145,7 @@ const OtherPanel = (props: any) => {
                 min={cf.min}
                 max={cf.key === 'pipeline_parallel_degree' ? curModel?.num_layers : cf.max}
                 onChange={(val) => {
-                  setParamValue(cf.key, val)
+                  setParamValue(cf.key, val, cf.title)
                 }}
                 value={otherConfig[cf.key]}
                 step={cf.step}
@@ -163,9 +167,10 @@ const OtherPanel = (props: any) => {
           className={styles.number_item}
           precision={0}
           min={0}
-          max={recommendConfig.recomended_microbatch || curModel?.minibatch_size}
+          // max={recommendConfig.recomended_microbatch || curModel?.minibatch_size}
+          max={curModel?.minibatch_size}
           value={otherConfig?.microbatch_size}
-          onChange={(val) => setParamValue('microbatch_size', val)}
+          onChange={(val) => setParamValue('microbatch_size', val, 'Microbatch size')}
           addonAfter={<Popover
             content={<div>
               Need to be able to divide minibatch size.
