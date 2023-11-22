@@ -6,6 +6,7 @@ import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import { getModelList, getParameterMetrics } from '@/services';
 import Empty from '../empty';
+import LogModel from '@/models/logModel';
 
 const PARAMS_LIST = [
   {
@@ -58,9 +59,11 @@ const NUM_PARAMS_LIST = [
 
 export interface IModelSelectionProps { }
 const ModelSelection: FC<IModelSelectionProps> = (props) => {
-  const { setProject, curModel, curGpu, otherConfig, modelMetrics } = useModel(ProjectModel);
+  const { setProject, curModel, curGpu, modelMetrics } = useModel(ProjectModel);
+  const { setChangeLog } = useModel(LogModel);
 
   const handleItemClick = (key: string, item: any) => {
+    setChangeLog('Model', item?.name, curModel?.name)
     setProject({
       curModel: {
         ...item,
@@ -126,12 +129,15 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
           precision={0}
           min={0}
           value={curModel?.minibatch_size}
-          onChange={(val) => setProject({
-            curModel: {
-              ...curModel,
-              minibatch_size: val
-            }
-          })} >
+          onChange={(val) => {
+            setChangeLog('Minibatch size', val, curModel?.minibatch_size)
+            setProject({
+              curModel: {
+                ...curModel,
+                minibatch_size: val
+              }
+            })
+          }} >
         </InputNumber >
       </div >
       <p className={styles.section_title}>

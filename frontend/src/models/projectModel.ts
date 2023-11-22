@@ -13,12 +13,18 @@ const ProjectModel = ({ set, get }: any = {}) => ({
   } as any,
   recommendConfig: {},
   result: null as any, // 计算结果
+  latest_result: null as any, //上一次计算结果
   bm_result: null as any, // benchmark 解析结果
   curIteration: 0, // 当前指针
   autoRecalc: false,
   loading: false,
   showError: false, //  是否显示错误提示
   errorMsg: '', // 错误信息
+  changeLog: {
+    field: '',
+    new_value: '',
+    pre_value: ''
+  },
   checkSize: () => {
     const { curModel, otherConfig } = get();
     if (!curModel) {
@@ -57,6 +63,16 @@ const ProjectModel = ({ set, get }: any = {}) => ({
       state.otherConfig = {
         ...state.otherConfig,
         ...params
+      }
+      return state
+    });
+  },
+  setChangeLog: (field: string, new_value?: any, pre_value?: any) => {
+    set((state: any) => {
+      state.changeLog = {
+        field,
+        new_value,
+        pre_value
       }
       return state
     });

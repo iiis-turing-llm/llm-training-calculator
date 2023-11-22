@@ -6,6 +6,7 @@ import useModel from 'flooks';
 import { getGpuList } from '@/services'
 import ProjectModel from '@/models/projectModel';
 import styles from './index.less';
+import LogModel from '@/models/logModel';
 
 const PARAMS_LIST = [
   {
@@ -49,8 +50,10 @@ const SLIDER_LIST = [{
 export interface IGPUSelectionProps { }
 const GpuSelection: FC<IGPUSelectionProps> = (props) => {
   const { setProject, curGpu } = useModel(ProjectModel);
+  const { setChangeLog } = useModel(LogModel);
 
   const handleItemClick = (key: string, item: any) => {
+    setChangeLog('GPU', item?.name, curGpu?.name)
     setProject({
       curGpu: {
         ...item,
@@ -137,6 +140,7 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
                 min={cf.min}
                 max={cf.max}
                 onChange={(val) => {
+                  setChangeLog(cf.title, val, curGpu?.[cf.key])
                   setProject({ curGpu: { ...curGpu, [cf.key]: val } });
                 }}
                 value={curGpu?.[cf.key]}
