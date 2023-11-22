@@ -167,7 +167,8 @@ const OtherPanel = (props: any) => {
           className={styles.number_item}
           precision={0}
           min={0}
-          max={recommendConfig.recomended_microbatch || curModel?.minibatch_size}
+          // max={recommendConfig.recomended_microbatch || curModel?.minibatch_size}
+          max={curModel?.minibatch_size}
           value={otherConfig?.microbatch_size}
           onChange={(val) => setParamValue('microbatch_size', val, 'Microbatch size')}
           addonAfter={<Popover
