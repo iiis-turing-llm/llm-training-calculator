@@ -429,6 +429,7 @@ def train_step(forward_step_func, data_iterator,
 
     # All-reduce layernorm parameters across model parallel nodes
     # when sequence parallelism is used
+    torch.distributed.barrier()
     if is_last_rank:
         tracers.tik("allreduce start")
     if mpu.get_tensor_model_parallel_world_size() > 1 and \
