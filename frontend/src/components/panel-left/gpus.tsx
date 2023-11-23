@@ -106,7 +106,22 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
               <div key={_idx}>
                 <div className={styles.gpu_params_item}>
                   <div className={styles.gpu_params_label}>{pItem.title}</div>
-                  <div className={styles.gpu_params_value}>{curGpu[pItem.key]}</div>
+                  {pItem.key === 'bus_bandwidth' ?
+                    <div className={styles.gpu_params_value}>
+                      <InputNumber controls={false}
+                        className={styles.number_controls}
+                        value={curGpu[pItem.key]} onChange={(val: any) => {
+                          setProject({
+                            curGpu: {
+                              ...curGpu,
+                              bus_bandwidth: val
+                            }
+                          });
+                        }} />
+                    </div>
+                    :
+                    <div className={styles.gpu_params_value}>{curGpu[pItem.key]}
+                    </div>}
                 </div>
                 {_idx < PARAMS_LIST.length - 1 && <Divider />}
               </div>)}
