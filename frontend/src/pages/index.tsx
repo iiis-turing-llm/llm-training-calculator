@@ -1,12 +1,14 @@
 import React, { FC, useEffect } from 'react';
-import { Layout, Divider, Tabs } from 'antd'
+import { Layout, Divider, Tabs, Button, Drawer } from 'antd'
 const { Header, Sider, Content } = Layout
 import PanelLeft from '@/components/panel-left';
 import PanelRight from '@/components/panel-right';
-import './index.less'
+import { HistoryOutlined } from '@ant-design/icons';
 import { useImmer } from 'use-immer';
 import useModel from 'flooks';
 import ProjectModel from '@/models/projectModel';
+import History from './history'
+import './index.less'
 
 const items = [
   {
@@ -24,6 +26,9 @@ const items = [
 ];
 export interface IIndexProps { }
 const Index: FC<IIndexProps> = (props) => {
+  const [state, setState] = useImmer({
+    showHistory: false,
+  });
   const { setProject, curMode } = useModel(ProjectModel);
   const onChangeMode = (mode: string) => {
     setProject({
@@ -49,6 +54,12 @@ const Index: FC<IIndexProps> = (props) => {
                 onChange={onChangeMode}>
               </Tabs>
             </div>
+            <div className="header-history">
+              <Button type="primary" ghost icon={<HistoryOutlined />}
+                onClick={() => { setState({ showHistory: true }) }}>
+                HISTORY RECORD
+              </Button>
+            </div>
           </div>
         </Header>
         <Layout className="llm-inner-layout-wrapper">
@@ -60,6 +71,11 @@ const Index: FC<IIndexProps> = (props) => {
           </Content>
         </Layout>
       </Layout>
+      <Drawer title="HISTORY RECORD" placement="right" width={900}
+        onClose={() => { setState({ showHistory: false }) }}
+        open={state.showHistory}>
+        <History />
+      </Drawer>
     </React.Fragment>
   );
 };

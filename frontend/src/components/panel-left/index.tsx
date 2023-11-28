@@ -51,7 +51,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   });
   const { curMode, curGpu, curModel, autoRecalc, otherConfig, totalConfig, result, setProject,
     checkSize, checkPipeline, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
-  const { changeLog, setAutoCalculated } = useModel(LogModel);
+  // const { changeLog, setAutoCalculated } = useModel(LogModel);
+  const { history_results, pushHistory } = useModel(LogModel);
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
       message.warn('GPU should be set!')
@@ -113,11 +114,13 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       latest_result: autoRecalc ? { ...result } : null,
       result: calcRes
     });
+    pushHistory('guide', calcRes)
     setTimeout(() => {
       setProject({
         loading: false
       });
     }, 300)
+
   }
   const doCalculateOrNext = () => {
     if (state.active === 'global') {
@@ -207,6 +210,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
             pipeline_parallel_degree: res.pipeline_parallel_degree
           }
         });
+        pushHistory('custom', {
+          timeline: { ...res }
+        })
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
@@ -261,9 +267,11 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       if (info.file.status === 'done') {
         message.success(`${info.file.name} file uploaded successfully`);
         const res = info.file.response
+        const formatRes = formatBMResult(res)
         setProject({
-          bm_result: formatBMResult(res)
+          bm_result: formatRes
         });
+        pushHistory('benchmark', formatRes)
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }

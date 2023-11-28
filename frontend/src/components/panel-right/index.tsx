@@ -12,6 +12,7 @@ import Steps from '../guide-steps'
 import FileSaver from 'file-saver'
 import { readFile, exportResult, downloadTemplate } from '@/services';
 import LogModel from '@/models/logModel';
+import BaseTL from '../timelines/base-timeline';
 const COLOR_MAPPING: any = {
   warmup: {
     label: 'Warmup time',
@@ -423,70 +424,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             </Space>
           </div>}
         </div>
-        {result.total_time ? <div className={styles.timeline_group_total}>
-          {/* {dataParse(totalTime)}s */}
-          <span className={styles.timeline_total_label}>Iteration</span>
-          <span className={checkChanged(result.timeline.per_iter_training_time, latest_result?.timeline?.per_iter_training_time)}>
-            {dataParse(totalTime)}s
-          </span>
-          <Divider type="vertical" />
-          <span className={styles.timeline_total_label}> Number of iterations</span>
-          <span className={checkChanged(result.total_time.global_number_of_samples, latest_result?.total_time?.global_number_of_samples)}>
-            {Math.floor(result.total_time.global_number_of_samples)}
-          </span>
-          <Divider type="vertical" />
-          <span className={styles.timeline_total_label}> Total duration</span>
-          <span className={checkChanged(result.total_time.total_training_time, latest_result?.total_time?.total_training_time)}>
-            {dataParse(result.total_time.total_training_time)}s
-          </span>
-        </div> : <div className={styles.timeline_group_total}>
-          {dataParse(totalTime)}s
-        </div>
-        }
-        <div className={styles.timeline_group}>
-          <Popover content={renderTip(warmup_time, COLOR_MAPPING['warmup'].label)} title="" trigger="hover">
-            <div className={styles.timeline_block} style={{
-              width: calcLength(warmup_time),
-              backgroundColor: COLOR_MAPPING['warmup'].color
-            }}>
-            </div>
-          </Popover>
-          <Popover content={renderDetail()} title="" trigger="hover">
-            <div className={styles.timeline_block_loop} style={{ width: calcLength(loopTotalTime) }}>
-              {renderMultiLoopTime()}
-            </div>
-          </Popover>
-          <Popover content={renderTip(cooldown_time, COLOR_MAPPING['cooldown'].label)} title="" trigger="hover">
-            <div className={styles.timeline_block} style={{
-              width: calcLength(cooldown_time),
-              backgroundColor: COLOR_MAPPING['cooldown'].color
-            }}>
-            </div>
-          </Popover>
-          <Popover content={renderTip(allreduce_time, COLOR_MAPPING['allReduce'].label)} title="" trigger="hover"
-            placement='left'>
-            <div className={styles.timeline_block} style={{
-              width: calcLength(allreduce_time),
-              backgroundColor: COLOR_MAPPING['allReduce'].color
-            }}>
-            </div>
-          </Popover>
-        </div>
-        <div className={styles.timeline_group_legend}>
-          {keys(COLOR_MAPPING).map((key: string) => {
-            const item: any = COLOR_MAPPING[key]
-            if (!result.timeline[item.key]) {
-              return
-            }
-            return <Popover content={['forward', 'backward'].indexOf(key) > -1 ? renderDetail() : renderTip(result.timeline[item.key], item.label)
-            } title="" trigger="hover" key={key}>
-              <div key={key}>
-                <div className={styles.timeline_legend_item} style={{ backgroundColor: item.color }}></div>
-                <span>{item.label}</span>
-              </div>
-            </Popover>
-          })}
-        </div>
+        <BaseTL result={result} latest_result={latest_result} curMode={curMode}></BaseTL>
         {curMode === 'guide' && <div className={styles.export_btn}>
           <Button type="primary" icon={<ExportOutlined />} onClick={exportResultFile}>EXPORT</Button>
         </div>}

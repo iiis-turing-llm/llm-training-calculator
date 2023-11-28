@@ -63,9 +63,9 @@ const OtherPanel = (props: any) => {
     });
   };
   const calcMin = (cf: any) => {
-    if (cf.key === 'pipeline_parallel_degree') {
-      return recommendConfig.recomended_pipeline_parallel_degree
-    }
+    // if (cf.key === 'pipeline_parallel_degree') {
+    //   return recommendConfig.recomended_pipeline_parallel_degree
+    // }
     return cf.min
   }
   const calcMax = (cf: any) => {

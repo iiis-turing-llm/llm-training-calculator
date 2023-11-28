@@ -1,9 +1,12 @@
+import dayjs from "dayjs";
+
 const LogModel = ({ set, get }: any = {}) => ({
   changeLog: {
     field: '',
     new_value: '',
     pre_value: ''
   },
+  history_results: [] as any[],
   autoCalculated: false,
   setAutoCalculated: () => {
     set((state: any) => {
@@ -20,6 +23,22 @@ const LogModel = ({ set, get }: any = {}) => ({
     //   }
     //   return state
     // });
+  },
+  setHistory: (newHistory: any) => {
+    set((state: any) => {
+      state.history_results = newHistory
+      return state
+    });
+  },
+  pushHistory: (type: string, result: any) => {
+    set((state: any) => {
+      state.history_results = [...state.history_results, {
+        type,
+        result,
+        ts: dayjs(new Date()).format('HH:mm:ss')
+      }]
+      return state
+    });
   }
 });
 
