@@ -1,4 +1,5 @@
 import math
+from enum import Enum
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
@@ -8,6 +9,12 @@ from app.models.calculator_input import Cluster, Model, OtherConfig
 from app.models.calculator_input import InputConfig
 from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, TotalTime, CalculatorResult, \
     Parameter, RecommendedConfig
+
+
+class OptimizationStrategyType(Enum):
+    FULL_RECOMPUTATION = "Full recomputation"
+    NO_RECOMPUTATION = "No recomputation"
+    SELECTIVE_RECOMPUTATION = "Selective recomputation"
 
 
 class CalculateRepository:
@@ -28,14 +35,14 @@ class CalculateRepository:
 
     def recommended_pipeline(self, cluster: Cluster, model: Model, optimization_strategy, tensor_parallel_degree):
         params = self.parameter_metrics(model)
-        if optimization_strategy == "Full recomputation":
+        if optimization_strategy == OptimizationStrategyType.FULL_RECOMPUTATION.value:
             return math.ceil((16 * params.total_parameters / tensor_parallel_degree) / (
                     cluster.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / tensor_parallel_degree))
-        elif optimization_strategy == "No recomputation":
+        elif optimization_strategy == OptimizationStrategyType.NO_RECOMPUTATION.value:
             return math.ceil((16 * params.total_parameters / tensor_parallel_degree) / (
                     cluster.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * (
                     10 + 24 / tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size) / tensor_parallel_degree))
-        elif optimization_strategy == "Selective recomputation":
+        elif optimization_strategy == OptimizationStrategyType.SELECTIVE_RECOMPUTATION.value:
             return math.ceil((16 * params.total_parameters / tensor_parallel_degree) / (
                     cluster.memory * 1e9 - model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / tensor_parallel_degree))
 
@@ -45,7 +52,8 @@ class CalculateRepository:
     def calculate(self, cluster: Cluster, model: Model, other_config: OtherConfig, input_config: InputConfig):
         params = self.parameter_metrics(model)
         recomended_tensor_parallel_degree = self.recommended_tensor(cluster, model)
-        recomended_pipeline_parallel_degree = self.recommended_pipeline(cluster, model, other_config.optimization_strategy,
+        recomended_pipeline_parallel_degree = self.recommended_pipeline(cluster, model,
+                                                                        other_config.optimization_strategy,
                                                                         other_config.tensor_parallel_degree)
         recommended_microbatch = self.recommended_microbatch(model, other_config.pipeline_parallel_degree)
 
@@ -53,12 +61,12 @@ class CalculateRepository:
         memory.optimizer_states = 12 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
         memory.weights = 2 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
         memory.gradients = 2 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
-        if other_config.optimization_strategy == "Full recomputation":
+        if other_config.optimization_strategy == OptimizationStrategyType.FULL_RECOMPUTATION.value:
             memory.activation = model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 2 / other_config.tensor_parallel_degree
-        elif other_config.optimization_strategy == "No recomputation":
+        elif other_config.optimization_strategy == OptimizationStrategyType.NO_RECOMPUTATION.value:
             memory.activation = model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * (
                     10 + 24 / other_config.tensor_parallel_degree + 5 * model.num_attention_heads * model.token_length / model.hidden_layer_size / other_config.tensor_parallel_degree)
-        elif other_config.optimization_strategy == "Selective recomputation":
+        elif other_config.optimization_strategy == OptimizationStrategyType.SELECTIVE_RECOMPUTATION.value:
             memory.activation = model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / other_config.tensor_parallel_degree
         memory.overall_usage = memory.optimizer_states + memory.weights + memory.activation + memory.gradients
 
@@ -75,7 +83,7 @@ class CalculateRepository:
         comm.per_loop_forward_allgather_time = comm.total_forward_allgather_time / comp.per_device_layers / comp.num_microbatches
         comm.total_backward_allgather_time = 4 * 2 * 2 * 2 * model.hidden_layer_size * model.hidden_layer_size * model.minibatch_size * model.num_layers / other_config.pipeline_parallel_degree / cluster.bus_bandwidth / 1e9
         comm.per_loop_backward_allgather_time = comm.total_backward_allgather_time / comp.per_device_layers / comp.num_microbatches
-        comm.total_backward_reduce_scatter_time = comm.total_backward_allgather_time 
+        comm.total_backward_reduce_scatter_time = comm.total_backward_allgather_time
         comm.per_loop_backward_reduce_scatter_time = comm.total_backward_reduce_scatter_time / comp.per_device_layers / comp.num_microbatches
         comm.total_p2p_time = 2 * model.hidden_layer_size * model.hidden_layer_size * model.minibatch_size / other_config.tensor_parallel_degree / cluster.network_bandwidth * 8 * 8 / 1e9
         comm.per_loop_p2p_time = comm.total_p2p_time / comp.num_microbatches
