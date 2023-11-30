@@ -1,12 +1,13 @@
 import { FC, useEffect } from 'react';
 import { useImmer } from 'use-immer';
-import { Select, Divider, InputNumber, Slider } from 'antd'
+import { Select, Divider, Input, InputNumber, Slider, Button, Drawer, message } from 'antd'
 import Empty from '../empty';
 import useModel from 'flooks';
 import { getGpuList } from '@/services'
 import ProjectModel from '@/models/projectModel';
 import styles from './index.less';
 import LogModel from '@/models/logModel';
+import { PlusOutlined } from '@ant-design/icons'
 
 const PARAMS_LIST = [
   {
@@ -63,10 +64,13 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
   };
 
   const [state, setState] = useImmer({
-    GPU_LIST: [],
+    GPU_LIST: [] as any[],
+    showAddModal: false,
+    newGpu: {} as any
   });
 
   const loadGpuList = async () => {
+    const localItems = JSON.parse(localStorage.getItem('local_gpus') || '[]') || []
     const gpuRes: any = await getGpuList()
     const gpuList = gpuRes.map((item: any) => {
       return {
@@ -77,13 +81,57 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
       }
     })
     setState({
-      GPU_LIST: gpuList
+      ...state,
+      GPU_LIST: [...gpuList, ...localItems]
     })
+  }
+  const showAddModal = () => {
+    setState({
+      ...state,
+      showAddModal: true
+    })
+  }
+  const closeAddModal = () => {
+    setState({
+      ...state,
+      showAddModal: false
+    })
+  }
+  const setNewGpu = (newItem: any) => {
+    setState({
+      ...state,
+      newGpu: newItem
+    })
+  }
+  const addItemToList = () => {
+    const isNotComplete = PARAMS_LIST.find((p => !state.newGpu[p.key]))
+    if (isNotComplete) {
+      message.warn('Please fill it out completely!')
+      return
+    }
+    const newItem = {
+      ...state.newGpu,
+      key: state.newGpu.name,
+      label: state.newGpu.name,
+      value: state.newGpu.name,
+    }
+    const newGpuList = [...state.GPU_LIST, newItem]
+    setState({
+      ...state,
+      GPU_LIST: newGpuList,
+      showAddModal: false
+    })
+    setProject({
+      curGpu: {
+        ...newItem
+      }
+    });
+    const localItems = JSON.parse(localStorage.getItem('local_gpus') || '[]') || []
+    localStorage.setItem('local_gpus', JSON.stringify([...localItems, newItem]))
   }
   useEffect(() => {
     loadGpuList()
   }, []);
-
 
   return (
     <div className={styles.nest}>
@@ -93,7 +141,20 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
       <div className={styles.section_content}>
         <Select
           options={state.GPU_LIST}
-          value={curGpu?.value} onChange={handleItemClick}>
+          value={curGpu?.value}
+          onChange={handleItemClick}
+          dropdownRender={(menu) => (
+            <>
+              {menu}
+              <Divider />
+              <Button type="link" icon={<PlusOutlined />}
+                style={{ padding: '0 10px' }}
+                onClick={showAddModal}>
+                Add item
+              </Button>
+            </>
+          )}
+        >
         </Select>
       </div>
       <p className={styles.section_title}>
@@ -165,6 +226,52 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
           );
         })}
       </div>
+      <Drawer title="Add Item" placement="right" width={600}
+        // getPopupContainer={(node: any) => {
+        //   if (node) {
+        //     return node.parentNode;
+        //   }
+        //   return document.body;
+        // }}
+        onClose={closeAddModal}
+        open={state.showAddModal}>
+        <div className="gpu_params">
+          {PARAMS_LIST.map((pItem, _idx) =>
+            <div key={_idx}>
+              <div className="gpu_params_item">
+                <div className="gpu_params_label">{pItem.title}</div>
+                <div className="gpu_params_value">
+                  {pItem.key === 'name'
+                    ?
+                    <Input
+                      required
+                      className="number_controls"
+                      value={state.newGpu[pItem.key]} onChange={(e: any) => {
+                        setNewGpu({
+                          ...state.newGpu,
+                          [pItem.key]: e.target.value
+                        });
+                      }} />
+                    :
+                    <InputNumber controls={false}
+                      required
+                      className="number_controls"
+                      value={state.newGpu[pItem.key]} onChange={(val: any) => {
+                        setNewGpu({
+                          ...state.newGpu,
+                          [pItem.key]: val
+                        });
+                      }} />}
+                </div>
+              </div>
+              {_idx < PARAMS_LIST.length - 1 && <Divider />}
+            </div>)}
+        </div>
+        <Button type="primary" onClick={addItemToList}
+          style={{ position: 'absolute', bottom: 30, right: 20, width: 160 }}>
+          ADD
+        </Button>
+      </Drawer>
     </div>
   );
 };

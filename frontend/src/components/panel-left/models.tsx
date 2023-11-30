@@ -1,12 +1,13 @@
 import { FC, useEffect } from 'react';
 import { useImmer } from 'use-immer';
-import { Select, Divider, InputNumber } from 'antd'
+import { Select, Divider, InputNumber, Input, Drawer, Button, message } from 'antd'
 import useModel from 'flooks';
 import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import { getModelList, getParameterMetrics } from '@/services';
 import Empty from '../empty';
 import LogModel from '@/models/logModel';
+import { PlusOutlined } from '@ant-design/icons'
 
 const PARAMS_LIST = [
   {
@@ -59,7 +60,7 @@ const NUM_PARAMS_LIST = [
 
 export interface IModelSelectionProps { }
 const ModelSelection: FC<IModelSelectionProps> = (props) => {
-  const { setProject, curModel, curGpu, modelMetrics } = useModel(ProjectModel);
+  const { setProject, curModel, modelMetrics } = useModel(ProjectModel);
   const { setChangeLog } = useModel(LogModel);
 
   const handleItemClick = (key: string, item: any) => {
@@ -73,22 +74,70 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
   };
 
   const [state, setState] = useImmer({
-    MODEL_LIST: [] as any[]
+    MODEL_LIST: [] as any[],
+    showAddModal: false,
+    newModel: {} as any
   });
 
   const loadModelList = async () => {
+    const localItems = JSON.parse(localStorage.getItem('local_models') || '[]') || []
     const modelRes: any = await getModelList()
     setState({
       ...state,
-      MODEL_LIST: modelRes.map((item: any) => {
+      MODEL_LIST: [...modelRes.map((item: any) => {
         return {
           key: item.name,
           label: item.name,
           value: item.name,
           ...item
         }
-      })
+      }), ...localItems]
     })
+  }
+  const showAddModal = () => {
+    setState({
+      ...state,
+      showAddModal: true
+    })
+  }
+  const closeAddModal = () => {
+    setState({
+      ...state,
+      showAddModal: false
+    })
+  }
+  const setNewModel = (newItem: any) => {
+    setState({
+      ...state,
+      newModel: newItem
+    })
+  }
+  const addItemToList = () => {
+    const isNotComplete = PARAMS_LIST.find((p => !state.newModel[p.key]))
+    if (isNotComplete) {
+      message.warn('Please fill it out completely!')
+      return
+    }
+    const newItem = {
+      ...state.newModel,
+      key: state.newModel.name,
+      label: state.newModel.name,
+      value: state.newModel.name,
+    }
+    const newModelList = [...state.MODEL_LIST, newItem]
+    setState({
+      ...state,
+      MODEL_LIST: newModelList,
+      showAddModal: false
+    })
+    setProject({
+      curModel: {
+        ...newItem,
+        minibatch_size: curModel?.minibatch_size || 32
+      }
+    });
+    const localItems = JSON.parse(localStorage.getItem('local_models') || '[]') || []
+    localStorage.setItem('local_models', JSON.stringify([...localItems, newItem]))
   }
   const loadMetricsOfModel = async () => {
     if (!curModel) {
@@ -117,7 +166,20 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
         Select Model
       </p>
       <div className={styles.section_content}>
-        <Select options={state.MODEL_LIST} value={curModel?.value} onChange={handleItemClick}>
+        <Select options={state.MODEL_LIST} value={curModel?.value}
+          onChange={handleItemClick}
+          dropdownRender={(menu) => (
+            <>
+              {menu}
+              <Divider />
+              <Button type="link" icon={<PlusOutlined />}
+                style={{ padding: '0 10px' }}
+                onClick={showAddModal}>
+                Add item
+              </Button>
+            </>
+          )}
+        >
         </Select>
       </div>
       <p className={styles.section_title}>
@@ -182,6 +244,52 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
           </div>
         }
       </div>
+      <Drawer title="Add Item" placement="right" width={600}
+        // getPopupContainer={(node: any) => {
+        //   if (node) {
+        //     return node.parentNode;
+        //   }
+        //   return document.body;
+        // }}
+        onClose={closeAddModal}
+        open={state.showAddModal}>
+        <div className="gpu_params">
+          {PARAMS_LIST.map((pItem, _idx) =>
+            <div key={_idx}>
+              <div className="gpu_params_item">
+                <div className="gpu_params_label">{pItem.title}</div>
+                <div className="gpu_params_value">
+                  {pItem.key === 'name'
+                    ?
+                    <Input
+                      required
+                      className="number_controls"
+                      value={state.newModel[pItem.key]} onChange={(e: any) => {
+                        setNewModel({
+                          ...state.newModel,
+                          [pItem.key]: e.target.value
+                        });
+                      }} />
+                    :
+                    <InputNumber controls={false}
+                      required
+                      className="number_controls"
+                      value={state.newModel[pItem.key]} onChange={(val: any) => {
+                        setNewModel({
+                          ...state.newModel,
+                          [pItem.key]: val
+                        });
+                      }} />}
+                </div>
+              </div>
+              {_idx < PARAMS_LIST.length - 1 && <Divider />}
+            </div>)}
+        </div>
+        <Button type="primary" onClick={addItemToList}
+          style={{ position: 'absolute', bottom: 30, right: 20, width: 160 }}>
+          ADD
+        </Button>
+      </Drawer>
     </div >
   );
 };

@@ -57,7 +57,7 @@ const Index: FC<IIndexProps> = (props) => {
             <div className="header-history">
               <Button type="primary" ghost icon={<HistoryOutlined />}
                 onClick={() => { setState({ showHistory: true }) }}>
-                HISTORY RECORD
+                COMPARISON
               </Button>
             </div>
           </div>
@@ -71,7 +71,7 @@ const Index: FC<IIndexProps> = (props) => {
           </Content>
         </Layout>
       </Layout>
-      <Drawer title="HISTORY RECORD" placement="right" width={900}
+      <Drawer title="COMPARISON" placement="right" width={900}
         onClose={() => { setState({ showHistory: false }) }}
         open={state.showHistory}>
         <History />

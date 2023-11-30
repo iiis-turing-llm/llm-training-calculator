@@ -25,6 +25,12 @@ export async function getParameterMetrics(params: any) {
   });
 }
 
+export async function getStrategies() {
+  return request(`${service_base_url}/llm_training_calculator/calculator/optimization_strategies`, {
+    method: 'GET',
+  });
+}
+
 export async function getRecommendedTenser(params: any) {
   return request(`${service_base_url}/llm_training_calculator/calculator/recommended_tensor`, {
     data: {

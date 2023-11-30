@@ -18,7 +18,7 @@ import {
 import type { UploadProps } from 'antd';
 import { service_base_url } from '@/utils/constant'
 import styles from './index.less';
-import { debounce } from 'lodash';
+import { debounce, mixin } from 'lodash';
 import LogModel from '@/models/logModel';
 
 const itemData = [
@@ -100,6 +100,10 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     }
     return false
   }
+  const genHistoryTitle = () => {
+    return `${curGpu.name}_${curModel.name}_parallel[${totalConfig.data_parallel_degree}, ${otherConfig.pipeline_parallel_degree}, ${otherConfig.tensor_parallel_degree}]
+    _batch_size[${curModel.minibatch_size}, ${otherConfig.microbatch_size}]`
+  }
   const doCalculate = async () => {
     setProject({
       loading: true
@@ -114,13 +118,12 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       latest_result: autoRecalc ? { ...result } : null,
       result: calcRes
     });
-    pushHistory('guide', calcRes)
+    pushHistory('guide', calcRes, genHistoryTitle())
     setTimeout(() => {
       setProject({
         loading: false
       });
     }, 300)
-
   }
   const doCalculateOrNext = () => {
     if (state.active === 'global') {
@@ -190,6 +193,9 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       FileSaver.saveAs(res, "calculator-template.xlsx");
     })
   }
+  const cleanFileName = (nameStr: string) => {
+    return nameStr.split('.')[0]
+  }
   const upProps: UploadProps = {
     name: 'file',
     action: `${service_base_url}/llm_training_calculator/calculator/upload`,
@@ -210,9 +216,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
             pipeline_parallel_degree: res.pipeline_parallel_degree
           }
         });
-        pushHistory('custom', {
-          timeline: { ...res }
-        })
+        pushHistory('custom', { timeline: { ...res } }, cleanFileName(info.file.name))
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
@@ -271,7 +275,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         setProject({
           bm_result: formatRes
         });
-        pushHistory('benchmark', formatRes)
+        pushHistory('benchmark', formatRes, cleanFileName(info.file.name))
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }

@@ -34,6 +34,7 @@ const COLOR_MAPPING: any = {
 export interface IBaseTLProps {
   result: any,
   latest_result?: any,
+  widthScale?: string,
   curMode: string
 }
 const BaseTL: FC<IBaseTLProps> = (props) => {
@@ -108,7 +109,7 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
 
   return (
     <div>
-      {result.total_time ? <div className={styles.timeline_group_total}>
+      {result.total_time ? <div className={styles.timeline_group_total} style={{ width: props.widthScale || '100%' }}>
         {/* {dataParse(totalTime)}s */}
         <span className={styles.timeline_total_label}>Iteration</span>
         <span className={checkChanged(result.timeline.per_iter_training_time, latest_result?.timeline?.per_iter_training_time)}>
@@ -124,11 +125,12 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
         <span className={checkChanged(result.total_time.total_training_time, latest_result?.total_time?.total_training_time)}>
           {dataParse(result.total_time.total_training_time)}s
         </span>
-      </div> : <div className={styles.timeline_group_total}>
-        {dataParse(totalTime)}s
-      </div>
+      </div> :
+        <div className={styles.timeline_group_total} style={{ width: props.widthScale || '100%' }}>
+          {dataParse(totalTime)}s
+        </div>
       }
-      <div className={styles.timeline_group}>
+      <div className={styles.timeline_group} style={{ width: props.widthScale || '100%' }}>
         <Popover content={renderTip(warmup_time, COLOR_MAPPING['warmup'].label)} title="" trigger="hover">
           <div className={styles.timeline_block} style={{
             width: calcLength(warmup_time),

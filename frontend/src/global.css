@@ -70,7 +70,27 @@
 .ant-drawer-title {
   font-weight: 700;
 }
-
+.gpu_params {
+  background: #f5f7fa;
+  padding: 15px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.gpu_params .gpu_params_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.gpu_params .gpu_params_item .gpu_params_label {
+  width: 70%;
+}
+.gpu_params .gpu_params_item .gpu_params_value {
+  font-weight: bold;
+}
+.gpu_params .gpu_params_item .number_controls {
+  width: 150px;
+}
 ::-webkit-scrollbar {
   width: 4px !important;
 }

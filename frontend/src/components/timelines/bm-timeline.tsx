@@ -40,6 +40,8 @@ const COLOR_MAPPING: any = {
 export interface IBenchMarkTLProps {
   bm_result: any,
   history?: boolean
+  widthScale?: string
+  onIterChange?: Function
 }
 const BenchMarkTL: FC<IBenchMarkTLProps> = (props) => {
   const { bm_result, history } = props;
@@ -99,6 +101,9 @@ const BenchMarkTL: FC<IBenchMarkTLProps> = (props) => {
       setState({
         ite_index: val
       })
+      if (props.onIterChange) {
+        props.onIterChange(val)
+      }
     }
   }
 
@@ -145,10 +150,10 @@ const BenchMarkTL: FC<IBenchMarkTLProps> = (props) => {
   const { warmup_time, cooldown_time, allreduce_time, start_time } = curIteration
   const renderTimeline = () => {
     return <Fragment>
-      <div className={styles.timeline_group_total}>
+      <div className={styles.timeline_group_total} style={{ width: props.widthScale || '100%' }}>
         {dataParse(totalTime)}s
       </div>
-      <div className={styles.timeline_group}>
+      <div className={styles.timeline_group} style={{ width: props.widthScale || '100%' }}>
         <Popover content={renderTip(start_time, COLOR_MAPPING['start'].label)} title="" trigger="hover">
           <div className={styles.timeline_block} style={{
             width: calcLength(start_time),

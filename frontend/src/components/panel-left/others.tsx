@@ -1,5 +1,5 @@
 import {
-  Button,
+  Select,
   InputNumber,
   Slider,
   Popover
@@ -9,20 +9,23 @@ import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import LogModel from '@/models/logModel';
+import { getStrategies } from '@/services';
+import { useImmer } from 'use-immer';
+import { useEffect } from 'react';
 
-const SRATEGY_LIST = [
-  {
-    label: 'No recomputation',
-    value: 'No recomputation'
-  },
-  {
-    label: 'Selective recomputation',
-    value: 'Selective recomputation'
-  },
-  {
-    label: 'Full recomputation',
-    value: 'Full recomputation'
-  },
+const DEFAULT_SRATEGY_LIST: any[] = [
+  // {
+  //   label: 'No recomputation',
+  //   value: 'No recomputation'
+  // },
+  // {
+  //   label: 'Selective recomputation',
+  //   value: 'Selective recomputation'
+  // },
+  // {
+  //   label: 'Full recomputation',
+  //   value: 'Full recomputation'
+  // },
 ];
 
 const PARAMS_LIST = [
@@ -42,20 +45,15 @@ const PARAMS_LIST = [
     precision: 0,
     step: 1
 
-  },
-  // {
-  //   title: 'Per-host network bandwidth(Gb/s)',
-  //   key: 'network_bandwidth',
-  //   min: 1,
-  //   max: 1600,
-  //   precision: 1,
-  //   step: 1
-  // }
+  }
 ]
 const OtherPanel = (props: any) => {
   const { setProject, setOtherConfig, otherConfig, recommendConfig, curModel, curGpu,
     checkSize, checkPipeline } = useModel(ProjectModel);
   const { setChangeLog } = useModel(LogModel);
+  const [state, setState] = useImmer({
+    SRATEGY_LIST: DEFAULT_SRATEGY_LIST
+  })
   const setParamValue = (key: string, val: any, title?: string) => {
     setChangeLog(title, val, otherConfig?.[key])
     setOtherConfig({
@@ -78,19 +76,35 @@ const OtherPanel = (props: any) => {
     }
     return cf.max
   }
+  const loadStrategies = async () => {
+    const strategyRes: any = await getStrategies()
+    const strList = strategyRes.map((item: any) => {
+      return {
+        key: item,
+        label: item,
+        value: item,
+      }
+    })
+    setState({
+      SRATEGY_LIST: strList
+    })
+  }
   const closeErrorMsg = () => {
     setProject({
       errorMsg: null,
       showError: false
     })
   }
+  useEffect(() => {
+    loadStrategies()
+  }, []);
   return (
     <div className={styles.nest}>
       <p className={styles.section_title}>
         Optimization Strategy
       </p>
       <div className={styles['group-content']}>
-        {SRATEGY_LIST.map((m: any) => {
+        {/* {SRATEGY_LIST.map((m: any) => {
           return (
             <Button
               key={m.value}
@@ -105,7 +119,14 @@ const OtherPanel = (props: any) => {
               {m.label}
             </Button>
           );
-        })}
+        })} */}
+        <Select
+          options={state.SRATEGY_LIST}
+          value={otherConfig.optimization_strategy}
+          onChange={val => {
+            setParamValue('optimization_strategy', val, 'Optimization Strategy')
+          }}
+        ></Select>
       </div>
       <div className={styles['group_slider']}>
         {PARAMS_LIST.map((cf: any) => {
