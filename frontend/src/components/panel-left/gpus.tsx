@@ -267,10 +267,14 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
               {_idx < PARAMS_LIST.length - 1 && <Divider />}
             </div>)}
         </div>
-        <Button type="primary" onClick={addItemToList}
-          style={{ position: 'absolute', bottom: 30, right: 20, width: 160 }}>
-          ADD
-        </Button>
+        <div className='add-item-footer'>
+          <Button onClick={closeAddModal}>
+            CANCEL
+          </Button>
+          <Button type="primary" onClick={addItemToList}>
+            ADD
+          </Button>
+        </div>
       </Drawer>
     </div>
   );

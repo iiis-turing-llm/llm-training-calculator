@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { Layout, Divider, Tabs, Button, Drawer } from 'antd'
 const { Header, Sider, Content } = Layout
 import PanelLeft from '@/components/panel-left';
@@ -26,6 +26,7 @@ const items = [
 ];
 export interface IIndexProps { }
 const Index: FC<IIndexProps> = (props) => {
+  const historyRef = useRef()
   const [state, setState] = useImmer({
     showHistory: false,
   });
@@ -72,9 +73,9 @@ const Index: FC<IIndexProps> = (props) => {
         </Layout>
       </Layout>
       <Drawer title="COMPARISON" placement="right" width={900}
-        onClose={() => { setState({ showHistory: false }) }}
+        onClose={() => { (historyRef?.current as any)?.handleClose() }}
         open={state.showHistory}>
-        <History />
+        <History onClose={() => { setState({ showHistory: false }) }} ref={historyRef} />
       </Drawer>
     </React.Fragment>
   );

@@ -91,6 +91,15 @@
 .gpu_params .gpu_params_item .number_controls {
   width: 150px;
 }
+.add-item-footer {
+  position: absolute;
+  bottom: 20px;
+  right: 10px;
+  display: flex;
+}
+.add-item-footer .ant-btn {
+  margin: 0 10px;
+}
 ::-webkit-scrollbar {
   width: 4px !important;
 }

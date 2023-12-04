@@ -1,7 +1,7 @@
-import { FC } from 'react';
+import { FC, forwardRef, useImperativeHandle } from 'react';
 import useModel from 'flooks';
 import LogModel from '@/models/logModel';
-import { Divider } from 'antd'
+import { Divider, Checkbox, Button } from 'antd'
 import BenchMarkTL from '@/components/timelines/bm-timeline';
 import BaseTL from '@/components/timelines/base-timeline';
 import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
@@ -15,20 +15,27 @@ const items = {
   'custom': 'Custom mode',
   'benchmark': 'Benchmark mode'
 } as any
-export interface IIndexProps { }
-const History: FC<IIndexProps> = (props) => {
+export interface IIndexProps {
+  onClose?: Function
+  ref?: any
+}
+const History: FC<IIndexProps> = forwardRef((props, ref) => {
   const { history_results, setHistory } = useModel(LogModel);
   const newHistoryList = lodash.cloneDeep(history_results)
   const [state, setState] = useImmer({
+    step: 0,
     ite_index: 0,
+    selectedIndex: [] as any[],
   })
+  const filteredHistoryList = newHistoryList?.filter((d: any, idx: number) => state.selectedIndex.indexOf(idx) > -1)
+
   const getTotalTime = (res: any) => {
     const { warmup_time, forward_time, backward_time, cooldown_time, allreduce_time, num_microbatches } = res?.timeline || {}
     const totalTime = sum([warmup_time, forward_time * num_microbatches, backward_time * num_microbatches, cooldown_time, allreduce_time])
     return totalTime
   }
   const getMaxTime = () => {
-    return Math.max(...history_results.map((t: any) => {
+    return Math.max(...filteredHistoryList.map((t: any) => {
       if (t.type === 'benchmark') {
         return Number(t.result[state.ite_index].totalTime)
       } else {
@@ -43,6 +50,7 @@ const History: FC<IIndexProps> = (props) => {
         widthScale={`${hitem.result[state.ite_index].totalTime / maxTime * 100}%`}
         onIterChange={(idx: number) => {
           setState({
+            ...state,
             ite_index: idx
           })
         }}
@@ -50,13 +58,50 @@ const History: FC<IIndexProps> = (props) => {
     }
     return <div ><BaseTL result={hitem.result} curMode={hitem.type} widthScale={`${getTotalTime(hitem.result) / maxTime * 100}%`} /></div>
   }
+  const handleClose = () => {
+    if (props.onClose) {
+      setState({
+        ...state,
+        step: 0
+      })
+      props.onClose()
+    }
+  }
   const changeCollapse = (idx: number, collapse: boolean) => {
     history_results[idx].collapse = collapse
     setHistory(history_results)
   }
+  useImperativeHandle(ref, () => ({
+    handleClose: handleClose
+  }));
+  if (state.step === 0) {
+    return <div>
+      {!!newHistoryList?.length && <div className="history-select-tips" >Select records to compare</div>}
+      <Checkbox.Group value={state.selectedIndex} style={{ width: '100%' }} onChange={(checkedValues: any[]) => {
+        setState({
+          ...state,
+          selectedIndex: checkedValues
+        })
+      }}>
+        {newHistoryList.reverse().map((hitem: any, idx: number) => {
+          return <div className="history-select-item" key={idx}>
+            <Checkbox value={history_results.length - idx - 1}> {hitem.type === 'guide' ? hitem.title : `[${hitem.ts}]${hitem.title}`}</Checkbox>
+            {idx !== newHistoryList.length - 1 && <Divider />}
+          </div>
+        })}
+      </Checkbox.Group>
+      {!newHistoryList.length && <Empty></Empty>}
+      <div className='history-footer'>
+        <Button onClick={handleClose}>CANCEL</Button>
+        <Button type="primary" disabled={state.selectedIndex?.length < 1} onClick={() => {
+          setState({ ...state, step: 1 })
+        }}>COMPARE</Button>
+      </div>
+    </div>
+  }
   return (
     <div>
-      {newHistoryList.reverse().map((hitem: any, idx: number) => {
+      {filteredHistoryList.reverse().map((hitem: any, idx: number) => {
         return <div className="history-item" key={`${idx}_${hitem.collapse}`}>
           <div className="history-item-header">
             {/* {items[hitem.type]}({hitem.ts}) */}
@@ -74,9 +119,13 @@ const History: FC<IIndexProps> = (props) => {
           {idx < history_results.length - 1 && <Divider dashed />}
         </div>
       })}
-      {!newHistoryList.length && <Empty></Empty>}
+      <div className='history-footer'>
+        <Button onClick={() => {
+          setState({ ...state, step: 0 })
+        }}>RETURN</Button>
+      </div>
     </div>
   );
-};
+});
 
 export default History;
