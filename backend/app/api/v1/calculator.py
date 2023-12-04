@@ -1,6 +1,6 @@
 import fastapi
 from app.config import settings
-from app.core.calculate_repository import CalculateRepository
+from app.core.calculate_repository import CalculateRepository, OptimizationStrategyType
 from app.models.calculator_input import Cluster, Model, OtherConfig
 from app.models.calculator_input import InputConfig
 from app.models.calculator_result import Parameter, RecommendedConfig, MemoryUsage, \
@@ -81,7 +81,8 @@ def create_calculator(cluster: Cluster,
                       communication: Communication,
                       timeline: Timeline, ):
     cr = CalculateRepository()
-    file = cr.write_result_to_file(cluster, model, other_config, parameter, recommended_config, memory_usage, computation,
+    file = cr.write_result_to_file(cluster, model, other_config, parameter, recommended_config, memory_usage,
+                                   computation,
                                    communication, timeline)
     return FileResponse(file, filename="calculator.xlsx")
 
@@ -97,3 +98,8 @@ async def upload_file(file: UploadFile = File(...)):
 @router.post("/download_result_model")
 def download_template():
     return FileResponse(settings.CALCULATOR_RESULT_TEMPLATE, filename="template.xlsx")
+
+
+@router.get("/optimization_strategies")
+def get_optimization_strategies():
+    return [strategy.value for strategy in OptimizationStrategyType]
