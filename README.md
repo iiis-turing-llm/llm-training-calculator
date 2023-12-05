@@ -133,5 +133,5 @@ LLM training calculator将根据指定iteration的trace信息可视化训练时�
 
 | System Design && Theoretical Analysis                        | UI Design && Development                                     | Testbed                                      |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------- |
-| [Bohan Zhao](https://github.com/ZeBraHack0) <br />[Wei Xu](https://github.com/xuw)<br />[Limin Long](https://github.com/longlimin) | [Huanhuan Xu](https://github.com/tianlaixhh)<br />[Zhen Li]()<br />[Wenpeng Tang]() | [Dong Yang](https://github.com/yangdongtmac) |
+| [Bohan Zhao](https://github.com/ZeBraHack0) <br />[Wei Xu](https://github.com/xuw)<br />[Limin Long](https://github.com/longlimin) | [Huanhuan Xu](https://github.com/tianlaixhh)<br />[Zhen Li]()<br />[Wenpeng Tang](https://github.com/tangwp123) | [Dong Yang](https://github.com/yangdongtmac) |
 
