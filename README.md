@@ -123,8 +123,6 @@ LLM training calculator将根据指定iteration的trace信息可视化训练时�
 
 ![image](https://github.com/iiis-turing-llm/llm-training-calculator/blob/main/pics/UI2.jpg)
 
-
-
 ## FAQ
 
 
