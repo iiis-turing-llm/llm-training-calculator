@@ -82,9 +82,9 @@ b. 如希望以开发模式打开前端服务：
 ### Guide mode
 
 - 选择GPU和模型类型
-- 决定显存优化技术和minibatch、microbatch大小
-- 决定张量并行度
-- 调整张量并行度并选择对应的流水线并行度以避免out of memory
+- 决定优化技术和minibatch、microbatch大小
+- 决定推荐配置流水线并行度、张量并行度、数据并行度
+- 决定训练语料的总数和epoch数
 
 根据应用指引填入所需的参数完成并行训练配置，计算器输出最终的时间开销、显存开销并展示时间轴
 
@@ -117,11 +117,21 @@ bash script/benchmark.sh train
 
 LLM training calculator将根据指定iteration的trace信息可视化训练时间轴
 
+### Comparison
 
+计算器能够保存生成timeline的历史记录，在comparison界面选择任意数量的历史记录可以对已有训练方案进行比较：
+
+![image](https://github.com/iiis-turing-llm/llm-training-calculator/blob/main/pics/UI2.jpg)
 
 ## FAQ
 
 
 
 ## 致谢
+
+本项目由清华大学交叉信息研究院和图灵人工智能研究院共同开发，在此对相关研究开发人员表示感谢。
+
+| System Design && Theoretical Analysis                        | UI Design && Development                                     | Testbed                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------------------------- |
+| [Bohan Zhao](https://github.com/ZeBraHack0) <br />[Wei Xu](https://github.com/xuw)<br />[Limin Long](https://github.com/longlimin) | [Huanhuan Xu](https://github.com/tianlaixhh)<br />[Zhen Li]()<br />[Wenpeng Tang](https://github.com/tangwp123) | [Dong Yang](https://github.com/yangdongtmac) |
 
