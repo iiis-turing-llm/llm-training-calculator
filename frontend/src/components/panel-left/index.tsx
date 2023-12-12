@@ -20,32 +20,11 @@ import { service_base_url } from '@/utils/constant'
 import styles from './index.less';
 import { debounce, mixin } from 'lodash';
 import LogModel from '@/models/logModel';
-
-const itemData = [
-  {
-    id: 'gpu',
-    name: 'Cluster',
-    icon: 'llm-gpu'
-  },
-  {
-    id: 'model',
-    name: 'Models',
-    icon: 'llm-model'
-  },
-  {
-    id: 'others',
-    name: 'Others',
-    icon: 'llm-others'
-  },
-  {
-    id: 'global',
-    name: 'Input',
-    icon: 'llm-global'
-  },
-] as any[];
+import { useTranslation } from 'react-i18next';
 
 export interface IPanelLeftProps { }
 const PanelLeft: FC<IPanelLeftProps> = (props) => {
+  const { t } = useTranslation();
   const [state, setState] = useImmer({
     active: 'gpu',
   });
@@ -53,24 +32,46 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     checkSize, checkPipeline, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
   // const { changeLog, setAutoCalculated } = useModel(LogModel);
   const { history_results, pushHistory } = useModel(LogModel);
+  const itemData = [
+    {
+      id: 'gpu',
+      name: t('cluster'),
+      icon: 'llm-gpu'
+    },
+    {
+      id: 'model',
+      name: t('models'),
+      icon: 'llm-model'
+    },
+    {
+      id: 'others',
+      name: t('others'),
+      icon: 'llm-others'
+    },
+    {
+      id: 'global',
+      name: t('input'),
+      icon: 'llm-global'
+    },
+  ] as any[];
   const handleItemClick = (key: string) => {
     if (key === 'others' && !curGpu) {
-      message.warn('GPU should be set!')
+      message.warn(`GPU ${t('shouldset')}!`)
       setState({ active: 'gpu' });
       return
     }
     if (key === 'others' && !curModel) {
-      message.warn('Model should be set!')
+      message.warn(`Model ${t('shouldset')}!`)
       setState({ active: 'model' });
       return
     }
     if (key === 'others' && !curGpu.network_bandwidth) {
-      message.warn('Per-host network bandwidth should be set!')
+      message.warn(`Per-host network bandwidth ${t('shouldset')}!`)
       setState({ active: 'gpu' });
       return
     }
     if (key === 'others' && !curModel.minibatch_size) {
-      message.warn('Minibatch size should be set!')
+      message.warn(`Minibatch size ${t('shouldset')}!`)
       setState({ active: 'model' });
       return
     }
@@ -305,7 +306,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     return <div className={styles.notice}>
       <div className={styles.notice_panel}>
         <div className={styles.notice_title}>
-          Customize the computation process
+          {t('custom process')}
+          {/* Customize the computation process */}
         </div>
         <div className={styles.notice_content}>
           <CustomSteps />
@@ -313,21 +315,25 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       </div>
       <Upload {...upProps}>
         <Button type="primary" className={styles.gen_btn}>
-          IMPORT
+          {t('import')}
         </Button>
       </Upload>
 
       <Button className={styles.gen_btn}
         onClick={() => {
           exportResultFile()
-        }}>DOWNLOAD TEMPLATE</Button>
+        }}>
+        {/* DOWNLOAD TEMPLATE */}
+        {t('download tem')}
+      </Button>
     </div>
   }
   if (curMode === 'benchmark') {
     return <div className={styles.notice}>
       <div className={styles.bm_notice_panel}>
         <div className={styles.notice_title}>
-          Benchmark your training with our tracing program:
+          {/* Benchmark your training with our tracing program: */}
+          {t('benchmark progress')}
         </div>
         <div className={styles.notice_content}>
           <BenchmarkSteps />
@@ -335,7 +341,8 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       </div>
       <Upload {...upBenchProps}>
         <Button type="primary" className={styles.gen_btn}>
-          IMPORT
+          {/* IMPORT */}
+          {t('import')}
         </Button>
       </Upload>
     </div>
@@ -382,15 +389,15 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
                   autoRecalc: check
                 });
               }}></Switch>
-            <span style={{ color: autoRecalc ? '#1989FA' : '' }}>Automatic Calculation</span>
+            <span style={{ color: autoRecalc ? '#1989FA' : '' }}>
+              {t('autocalc')}</span>
           </div>
           <Button type="primary"
             disabled={!validateInput()}
             className={styles.area_btn_btn}
             onClick={doCalculateOrNext}>
-            {state.active === 'global' ? 'CALCUTATE' : 'NEXT'}
+            {state.active === 'global' ? t('calculate') : t('next')}
           </Button>
-
         </div>
       </div>
     </div>

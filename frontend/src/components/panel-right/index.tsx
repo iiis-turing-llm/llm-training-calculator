@@ -12,7 +12,9 @@ import Steps from '../guide-steps'
 import FileSaver from 'file-saver'
 import { readFile, exportResult, downloadTemplate } from '@/services';
 import LogModel from '@/models/logModel';
+import { useTranslation } from 'react-i18next';
 import BaseTL from '../timelines/base-timeline';
+
 const COLOR_MAPPING: any = {
   warmup: {
     label: 'Warmup time',
@@ -43,6 +45,7 @@ const COLOR_MAPPING: any = {
 
 export interface IPanelRightProps { }
 const PanelRight: FC<IPanelRightProps> = (props) => {
+  const { t } = useTranslation();
   const { result, latest_result, bm_result, loading, curGpu, curMode, curModel, otherConfig,
     setProject, autoRecalc } = useModel(ProjectModel);
   const { changeLog, autoCalculated } = useModel(LogModel);
@@ -158,7 +161,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
       <div className={styles.empty} >
         <div className={styles.empty_icon}></div>
         <div className={styles.empty_tip}>
-          Waiting for calculation...
+          {t('wait calc')}
         </div>
       </div >
     </div>
@@ -426,7 +429,9 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
         </div>
         <BaseTL result={result} latest_result={latest_result} curMode={curMode}></BaseTL>
         {curMode === 'guide' && <div className={styles.export_btn}>
-          <Button type="primary" icon={<ExportOutlined />} onClick={exportResultFile}>EXPORT</Button>
+          <Button type="primary" icon={<ExportOutlined />} onClick={exportResultFile}>
+            {t('export')}
+          </Button>
         </div>}
       </div>
     </div >

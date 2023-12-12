@@ -8,6 +8,7 @@ import ProjectModel from '@/models/projectModel';
 import styles from './index.less';
 import LogModel from '@/models/logModel';
 import { PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next';
 
 const PARAMS_LIST = [
   {
@@ -52,6 +53,7 @@ export interface IGPUSelectionProps { }
 const GpuSelection: FC<IGPUSelectionProps> = (props) => {
   const { setProject, curGpu } = useModel(ProjectModel);
   const { setChangeLog } = useModel(LogModel);
+  const { t } = useTranslation();
 
   const handleItemClick = (key: string, item: any) => {
     setChangeLog('GPU', item?.name, curGpu?.name)
@@ -136,7 +138,7 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
   return (
     <div className={styles.nest}>
       <p className={styles.section_title}>
-        Select GPU
+        {t('select title')} GPU
       </p>
       <div className={styles.section_content}>
         <Select
@@ -150,7 +152,7 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
               <Button type="link" icon={<PlusOutlined />}
                 style={{ padding: '0 10px' }}
                 onClick={showAddModal}>
-                Add item
+                {t('add item')}
               </Button>
             </>
           )}
@@ -226,7 +228,7 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
           );
         })}
       </div>
-      <Drawer title="Add Item" placement="right" width={600}
+      <Drawer title={t('add item')} placement="right" width={600}
         // getPopupContainer={(node: any) => {
         //   if (node) {
         //     return node.parentNode;
@@ -269,10 +271,10 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
         </div>
         <div className='add-item-footer'>
           <Button onClick={closeAddModal}>
-            CANCEL
+            {t('cancel')}
           </Button>
           <Button type="primary" onClick={addItemToList}>
-            ADD
+            {t('add')}
           </Button>
         </div>
       </Drawer>

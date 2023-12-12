@@ -8,6 +8,7 @@ import { getModelList, getParameterMetrics } from '@/services';
 import Empty from '../empty';
 import LogModel from '@/models/logModel';
 import { PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next';
 
 const PARAMS_LIST = [
   {
@@ -62,6 +63,7 @@ export interface IModelSelectionProps { }
 const ModelSelection: FC<IModelSelectionProps> = (props) => {
   const { setProject, curModel, modelMetrics } = useModel(ProjectModel);
   const { setChangeLog } = useModel(LogModel);
+  const { t } = useTranslation();
 
   const handleItemClick = (key: string, item: any) => {
     setChangeLog('Model', item?.name, curModel?.name)
@@ -163,7 +165,7 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
   return (
     <div className={styles.model_wrapper}>
       <p className={styles.section_title}>
-        Select Model
+        {t('select title')} Model
       </p>
       <div className={styles.section_content}>
         <Select options={state.MODEL_LIST} value={curModel?.value}
@@ -175,7 +177,7 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
               <Button type="link" icon={<PlusOutlined />}
                 style={{ padding: '0 10px' }}
                 onClick={showAddModal}>
-                Add item
+                {t('add item')}
               </Button>
             </>
           )}
@@ -244,7 +246,7 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
           </div>
         }
       </div>
-      <Drawer title="Add Item" placement="right" width={600}
+      <Drawer title={t('add item')} placement="right" width={600}
         // getPopupContainer={(node: any) => {
         //   if (node) {
         //     return node.parentNode;

@@ -12,6 +12,7 @@ import LogModel from '@/models/logModel';
 import { getStrategies } from '@/services';
 import { useImmer } from 'use-immer';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const DEFAULT_SRATEGY_LIST: any[] = [
   // {
@@ -50,6 +51,7 @@ const PARAMS_LIST = [
 const OtherPanel = (props: any) => {
   const { setProject, setOtherConfig, otherConfig, recommendConfig, curModel, curGpu,
     checkSize, checkPipeline } = useModel(ProjectModel);
+  const { t } = useTranslation();
   const { setChangeLog } = useModel(LogModel);
   const [state, setState] = useImmer({
     SRATEGY_LIST: DEFAULT_SRATEGY_LIST
@@ -154,13 +156,20 @@ const OtherPanel = (props: any) => {
               </div>
               {cf.key === 'tensor_parallel_degree' &&
                 <div className={styles.slider_tip}>
-                  No larger than recommended value (<b>{recommendConfig?.recomended_tensor_parallel_degree}</b>) to balance GPU communication/computation time.</div>}
+                  {/* No larger than recommended value (<b>{recommendConfig?.recomended_tensor_parallel_degree}</b>) to balance GPU communication/computation time. */}
+                  {t('tensor recommend', { value: recommendConfig?.recomended_tensor_parallel_degree })}
+                </div>}
               {cf.key === 'pipeline_parallel_degree' && otherConfig.tensor_parallel_degree &&
                 <div className={styles.slider_tip}>
                   {recommendConfig.recomended_pipeline_parallel_degree > 0 ?
-                    <span>No smaller than  recommended value (<b>{recommendConfig.recomended_pipeline_parallel_degree}</b>) to avoid OOM</span>
+                    <span>
+                      {/* No smaller than  recommended value (<b>{recommendConfig.recomended_pipeline_parallel_degree}</b>) to avoid OOM */}
+                      {t('pipeline recommend', { value: recommendConfig.recomended_pipeline_parallel_degree })}
+                    </span>
                     :
-                    <span style={{ color: '#ff4d4f' }}>Activation out of memory, try to increase Tensor parallel degree or decrease minibatch size</span>
+                    <span style={{ color: '#ff4d4f' }}>
+                      {t('pipeline tips')}
+                    </span>
                   }</div>}
               <Slider
                 min={cf.min}
@@ -172,7 +181,7 @@ const OtherPanel = (props: any) => {
                 step={cf.step}
               />
               {cf.key === 'pipeline_parallel_degree' && !checkPipeline() && curModel?.minibatch_size && <div className={styles.error_tip}>
-                Need to be able to divide number of model layers({curModel?.num_layers}).
+                {t('pipeline divide tips')}({curModel?.num_layers}).
               </div>}
             </div>
           );
@@ -183,7 +192,9 @@ const OtherPanel = (props: any) => {
       </p>
       <div className={styles.section_content}>
         {recommendConfig.recomended_microbatch && <div className={styles.slider_tip}>
-          No larger than  recommended value (<b>{recommendConfig.recomended_microbatch}</b>) to reduce pipeline bubble time.</div>}
+          {/* No larger than  recommended value (<b>{recommendConfig.recomended_microbatch}</b>) to reduce pipeline bubble time. */}
+          {t('microbatch recommend', { value: recommendConfig.recomended_microbatch })}
+        </div>}
         <InputNumber
           className={styles.number_item}
           precision={0}

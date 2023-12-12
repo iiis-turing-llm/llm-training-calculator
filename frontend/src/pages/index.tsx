@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef } from 'react';
-import { Layout, Divider, Tabs, Button, Drawer } from 'antd'
+import { Layout, Divider, Tabs, Button, Drawer, Switch } from 'antd'
 const { Header, Sider, Content } = Layout
 import PanelLeft from '@/components/panel-left';
 import PanelRight from '@/components/panel-right';
@@ -7,25 +7,15 @@ import { HistoryOutlined } from '@ant-design/icons';
 import { useImmer } from 'use-immer';
 import useModel from 'flooks';
 import ProjectModel from '@/models/projectModel';
-import History from './history'
+import History from './history';
+import i18n from 'i18next';
+import { useTranslation } from 'react-i18next';
+// import '@/i8n/config';
 import './index.less'
 
-const items = [
-  {
-    key: 'guide',
-    label: 'Guide Mode'
-  },
-  {
-    key: 'custom',
-    label: 'Custom Mode'
-  },
-  {
-    key: 'benchmark',
-    label: 'Benchmark Mode'
-  }
-];
 export interface IIndexProps { }
 const Index: FC<IIndexProps> = (props) => {
+  const { t } = useTranslation();
   const historyRef = useRef()
   const [state, setState] = useImmer({
     showHistory: false,
@@ -38,13 +28,30 @@ const Index: FC<IIndexProps> = (props) => {
       // bm_result: null
     })
   }
+  const handleLanChange = (checked: boolean) => {
+    i18n.changeLanguage(checked ? 'cn' : 'en')
+  }
+  const items = [
+    {
+      key: 'guide',
+      label: t('guide mode')
+    },
+    {
+      key: 'custom',
+      label: t('custom mode')
+    },
+    {
+      key: 'benchmark',
+      label: t('benchmark mode')
+    }
+  ];
 
   return (
     <React.Fragment>
       <Layout className="llm-layout-wrapper">
         <Header>
           <div className="header-wrapper">
-            <div className="header-logo">
+            <div className={`${i18n.language === 'cn' ? 'header-logo1' : 'header-logo'}`}>
               <div></div>
             </div>
             <Divider type="vertical" />
@@ -58,8 +65,11 @@ const Index: FC<IIndexProps> = (props) => {
             <div className="header-history">
               <Button type="primary" ghost icon={<HistoryOutlined />}
                 onClick={() => { setState({ showHistory: true }) }}>
-                COMPARISON
+                {t('comparision')}
               </Button>
+            </div>
+            <div className="header-language">
+              <Switch checkedChildren="中文" unCheckedChildren="English" onChange={handleLanChange}></Switch>
             </div>
           </div>
         </Header>
@@ -72,7 +82,7 @@ const Index: FC<IIndexProps> = (props) => {
           </Content>
         </Layout>
       </Layout>
-      <Drawer title="COMPARISON" placement="right" width={900}
+      <Drawer title={t('comparision')} placement="right" width={900}
         onClose={() => { (historyRef?.current as any)?.handleClose() }}
         open={state.showHistory}>
         <History onClose={() => { setState({ showHistory: false }) }} ref={historyRef} />

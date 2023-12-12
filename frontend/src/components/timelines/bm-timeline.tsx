@@ -4,6 +4,7 @@ import { useImmer } from 'use-immer';
 import styles from './index.less';
 import { keys, sum } from 'lodash';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 const COLOR_MAPPING: any = {
   start: {
     label: 'Iteration start time',
@@ -44,6 +45,7 @@ export interface IBenchMarkTLProps {
   onIterChange?: Function
 }
 const BenchMarkTL: FC<IBenchMarkTLProps> = (props) => {
+  const { t } = useTranslation();
   const { bm_result, history } = props;
   const [state, setState] = useImmer({
     ite_index: 0,
@@ -142,7 +144,7 @@ const BenchMarkTL: FC<IBenchMarkTLProps> = (props) => {
       <div className={styles.empty} >
         <div className={styles.empty_icon}></div>
         <div className={styles.empty_tip}>
-          Waiting for calculation...
+          {t('wait calc')}
         </div>
       </div >
     </div>

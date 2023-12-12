@@ -1,16 +1,18 @@
 import AiIcon from '../ai-icons'
 import { Divider } from 'antd'
+import { useTranslation } from 'react-i18next';
 import styles from './index.less'
 
 export default () => {
+  const { t } = useTranslation();
   return <div className={styles.steps}>
     <div className={styles.step_item}>
       <div className={styles.step_title}>
         <AiIcon type='llm-excel' />
         <div className={styles.step_title_text}>
-          Step1.
+          {t('step1')}
           <div className={styles.step_desc_text}>
-            Download our excel template.
+            {t('custom step1')}
           </div>
         </div>
       </div >
@@ -20,9 +22,9 @@ export default () => {
       <div className={styles.step_title}>
         <AiIcon type='llm-edit' />
         <div className={styles.step_title_text}>
-          Step2.
+          {t('step2')}
           <div className={styles.step_desc_text}>
-            Fill in necessary input.
+            {t('custom step2')}
           </div>
         </div>
       </div >
@@ -32,9 +34,9 @@ export default () => {
       <div className={styles.step_title}>
         <AiIcon type='llm-function' />
         <div className={styles.step_title_text}>
-          Step3.
+          {t('step3')}
           <div className={styles.step_desc_text}>
-            Customize intermediate computation formulas.
+            {t('custom step3')}
           </div>
         </div>
       </div >
@@ -44,9 +46,9 @@ export default () => {
       <div className={styles.step_title}>
         <AiIcon type='llm-upload' />
         <div className={styles.step_title_text}>
-          Step4.
+          {t('step4')}
           <div className={styles.step_desc_text}>
-            Upload your template file with required computation results in [Output] Sheet.
+            {t('custom step4')}
           </div>
         </div>
       </div >

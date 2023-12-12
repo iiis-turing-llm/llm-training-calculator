@@ -1,4 +1,5 @@
 import { RequestConfig } from 'umi';
+import '@/i8n/config';
 
 export const request: RequestConfig = {
   errorConfig: {

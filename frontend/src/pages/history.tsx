@@ -9,6 +9,7 @@ import './index.less'
 import lodash, { sum } from 'lodash';
 import Empty from '@/components/empty';
 import { useImmer } from 'use-immer';
+import { useTranslation } from 'react-i18next';
 
 const items = {
   'guide': 'Guide mode',
@@ -20,6 +21,7 @@ export interface IIndexProps {
   ref?: any
 }
 const History: FC<IIndexProps> = forwardRef((props, ref) => {
+  const { t } = useTranslation();
   const { history_results, setHistory } = useModel(LogModel);
   const newHistoryList = lodash.cloneDeep(history_results)
   const [state, setState] = useImmer({
@@ -76,7 +78,9 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
   }));
   if (state.step === 0) {
     return <div>
-      {!!newHistoryList?.length && <div className="history-select-tips" >Select records to compare</div>}
+      {!!newHistoryList?.length && <div className="history-select-tips" >
+        {t('select compare')}
+      </div>}
       <Checkbox.Group value={state.selectedIndex} style={{ width: '100%' }} onChange={(checkedValues: any[]) => {
         setState({
           ...state,
@@ -92,10 +96,14 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
       </Checkbox.Group>
       {!newHistoryList.length && <Empty></Empty>}
       <div className='history-footer'>
-        <Button onClick={handleClose}>CANCEL</Button>
+        <Button onClick={handleClose}>
+          {t('cancel')}
+        </Button>
         <Button type="primary" disabled={state.selectedIndex?.length < 1} onClick={() => {
           setState({ ...state, step: 1 })
-        }}>COMPARE</Button>
+        }}>
+          {t('compare')}
+        </Button>
       </div>
     </div>
   }
@@ -122,7 +130,9 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
       <div className='history-footer'>
         <Button onClick={() => {
           setState({ ...state, step: 0 })
-        }}>RETURN</Button>
+        }}>
+          {t('return ')}
+        </Button>
       </div>
     </div>
   );
