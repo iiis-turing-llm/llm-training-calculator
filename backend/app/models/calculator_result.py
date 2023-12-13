@@ -59,6 +59,7 @@ class Timeline(BaseModel):
     backward_gpu_usage: float = 0
     warmup_time: float = 0
     cooldown_time: float = 0
+    stable_time: float = 0
     allreduce_time: float = 0
     per_iter_training_time: float = 0
 

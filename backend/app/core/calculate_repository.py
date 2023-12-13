@@ -120,10 +120,11 @@ class CalculateRepository:
         tl.warmup_time = (other_config.pipeline_parallel_degree - 1) * tl.forward_time
         tl.cooldown_time = (other_config.pipeline_parallel_degree - 1) * tl.backward_time
         tl.allreduce_time = comm.gradient_allreduce_time + comm.word_embedding_allreduce_time
+        tl.stable_time = (tl.forward_time + tl.backward_time) * comp.num_microbatches
         tl.per_iter_training_time = tl.warmup_time + (
                 tl.forward_time + tl.backward_time) * comp.num_microbatches + tl.cooldown_time + tl.allreduce_time
 
-        tt = self.calculate_total_time(model=model, time_line=tl, input_config=input_config)
+        tt = self.calculate_total_time(model=model, time_line=tl, input_config=input_config, other_config=other_config)
         calculator_result = CalculatorResult(parameter=params,
                                              recommended_config=RecommendedConfig(
                                                  recomended_tensor_parallel_degree=recomended_tensor_parallel_degree,
@@ -248,9 +249,10 @@ class CalculateRepository:
             workbook.save(tmp.name)
         return tmp.name
 
-    def calculate_total_time(self, model: Model, time_line: Timeline, input_config: InputConfig):
+    def calculate_total_time(self, model: Model, time_line: Timeline, input_config: InputConfig, other_config: OtherConfig):
         tt = TotalTime()
         tt.global_minibatch_size = input_config.data_parallel_degree * model.minibatch_size
-        tt.global_number_of_samples = input_config.number_of_input_tokens * 1e6 * input_config.epochs / model.token_length
-        tt.total_training_time = tt.global_number_of_samples / tt.global_minibatch_size * time_line.per_iter_training_time
+        tt.total_number_of_iters = input_config.number_of_input_tokens * 1e6 * input_config.epochs / model.token_length / tt.global_minibatch_size
+        tt.total_training_time = tt.total_number_of_iters * time_line.per_iter_training_time
+        tt.totoal_number_of_gpus = input_config.data_parallel_degree * other_config.pipeline_parallel_degree * other_config.tensor_parallel_degree
         return tt
