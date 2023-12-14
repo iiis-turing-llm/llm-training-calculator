@@ -228,8 +228,8 @@ class CalculateRepository:
         worksheet1["C9"] = cluster.network_bandwidth
         worksheet1["E9"] = other_config.optimization_strategy
 
-        worksheet1["C12"] = 32
-        worksheet1["E12"] = recommended_config.re
+        worksheet1["C12"] = model.minibatch_size
+        worksheet1["E12"] = 32
         worksheet1["C13"] = other_config.tensor_parallel_degree
         worksheet1["E13"] = recommended_config.recomended_tensor_parallel_degree
         worksheet1["C14"] = other_config.pipeline_parallel_degree
