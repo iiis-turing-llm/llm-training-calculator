@@ -14,8 +14,6 @@ class Settings(BaseSettings):
 
     CALCULATOR_RESULT_TEMPLATE: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                                    "template.xlsx")
-    CALCULATOR_RESULT_FILE_MODEL: str = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                                                     "calculator_model.xlsx")
 
     GPU_LIST: List[Cluster] = [
         Cluster(

@@ -1,3 +1,5 @@
+import json
+
 import fastapi
 from app.config import settings
 from app.core.calculate_repository import CalculateRepository, OptimizationStrategyType
@@ -74,16 +76,19 @@ def create_calculator(cluster: Cluster,
 def create_calculator(cluster: Cluster,
                       model: Model,
                       other_config: OtherConfig,
+                      input_config: InputConfig,
                       parameter: Parameter,
                       recommended_config: RecommendedConfig,
                       memory_usage: MemoryUsage,
                       computation: Computation,
                       communication: Communication,
-                      timeline: Timeline, ):
+                      timeline: Timeline,
+                      total_timeline: Timeline):
     cr = CalculateRepository()
-    file = cr.write_result_to_file(cluster, model, other_config, parameter, recommended_config, memory_usage,
+    file = cr.write_result_to_file(cluster, model, other_config, input_config, parameter, recommended_config,
+                                   memory_usage,
                                    computation,
-                                   communication, timeline)
+                                   communication, timeline, total_timeline)
     return FileResponse(file, filename="calculator.xlsx")
 
 
@@ -91,8 +96,11 @@ def create_calculator(cluster: Cluster,
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()  # 读取文件内容
     cr = CalculateRepository()
-    tl = cr.read_file_to_timeline(content)
-    return tl
+    tl, tt = cr.read_file_to_timeline(content)
+    # 将tl和tt合并为一个字典
+    result_dict = {'time_line': tl.dict(), 'total_time': tt.dict()}
+    # 返回JSON格式的结果
+    return result_dict
 
 
 @router.post("/download_result_model")
