@@ -91,7 +91,7 @@ async def upload_file(file: UploadFile = File(...)):
     cr = CalculateRepository()
     tl, tt, other_config = cr.read_file_to_timeline(content)
     # 将tl和tt合并为一个字典
-    result_dict = {"time_line": tl.dict(), "total_time": tt.dict(), "other_config": other_config.dict()}
+    result_dict = {"timeline": tl.dict(), "total_time": tt.dict(), "other_config": other_config.dict()}
     # 返回JSON格式的结果
     return result_dict
 
