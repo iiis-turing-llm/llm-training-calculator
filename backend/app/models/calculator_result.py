@@ -64,12 +64,12 @@ class Timeline(BaseModel):
     per_iter_training_time: float = 0
 
 
-
 class TotalTime(BaseModel):
     global_minibatch_size: float = 0
     total_training_time: float = 0
     total_number_of_iters: float = 0
     totoal_number_of_gpus: int = 0
+
 
 class CalculatorResult(BaseModel):
     parameter: Parameter

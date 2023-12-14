@@ -23,13 +23,6 @@ def model_list():
     return settings.MODEL_LIST
 
 
-@router.get("/read_file")
-def read_file():
-    cr = CalculateRepository()
-    tl = cr.read_file_to_timeline()
-    return tl
-
-
 @router.post("/parameter_metrics")
 def calculate_params(model: Model):
     cr = CalculateRepository()
@@ -96,9 +89,9 @@ def create_calculator(cluster: Cluster,
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()  # 读取文件内容
     cr = CalculateRepository()
-    tl, tt = cr.read_file_to_timeline(content)
+    tl, tt, other_config = cr.read_file_to_timeline(content)
     # 将tl和tt合并为一个字典
-    result_dict = {'time_line': tl.dict(), 'total_time': tt.dict()}
+    result_dict = {"time_line": tl.dict(), "total_time": tt.dict(), "other_config": other_config.dict()}
     # 返回JSON格式的结果
     return result_dict
 

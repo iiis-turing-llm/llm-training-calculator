@@ -145,28 +145,34 @@ class CalculateRepository:
         worksheet = workbook["Output"]
 
         tl = Timeline()
-        tl.per_device_layers = worksheet['C1'].value
-        tl.num_microbatches = worksheet['E1'].value
-        tl.per_loop_forward_computation_time = worksheet['I3'].value
-        tl.per_loop_backward_computation_time = worksheet['K4'].value
-        tl.per_loop_forward_allgather_time = worksheet['I2'].value
-        tl.per_loop_backward_allgather_time = worksheet['K2'].value
-        tl.per_loop_backward_reduce_scatter_time = worksheet['K3'].value
-        tl.forward_time = worksheet['I1'].value
-        tl.forward_gpu_usage = worksheet['I4'].value
-        tl.backward_time = worksheet['K1'].value
-        tl.backward_gpu_usage = worksheet['K5'].value
-        tl.warmup_time = worksheet['G1'].value
-        tl.cooldown_time = worksheet['O1'].value
-        tl.allreduce_time = worksheet['Q1'].value
-        tl.per_iter_training_time = worksheet['S1'].value
-        tl.stable_time = worksheet['M1'].value
+        tl.per_device_layers = worksheet["C1"].value
+        tl.num_microbatches = worksheet["E1"].value
+        tl.per_loop_forward_computation_time = worksheet["I3"].value
+        tl.per_loop_backward_computation_time = worksheet["K4"].value
+        tl.per_loop_forward_allgather_time = worksheet["I2"].value
+        tl.per_loop_backward_allgather_time = worksheet["K2"].value
+        tl.per_loop_backward_reduce_scatter_time = worksheet["K3"].value
+        tl.forward_time = worksheet["I1"].value
+        tl.forward_gpu_usage = worksheet["I4"].value
+        tl.backward_time = worksheet["K1"].value
+        tl.backward_gpu_usage = worksheet["K5"].value
+        tl.warmup_time = worksheet["G1"].value
+        tl.cooldown_time = worksheet["O1"].value
+        tl.allreduce_time = worksheet["Q1"].value
+        tl.per_iter_training_time = worksheet["S1"].value
+        tl.stable_time = worksheet["M1"].value
         tt = TotalTime()
-        tt.total_number_of_iters = worksheet['W1'].value
-        tt.totoal_number_of_gpus = worksheet['U1'].value
-        tt.total_training_time = worksheet['Y1'].value
+        tt.total_number_of_iters = worksheet["W1"].value
+        tt.totoal_number_of_gpus = worksheet["U1"].value
+        tt.total_training_time = worksheet["Y1"].value
 
-        return tl, tt
+        worksheet1 = workbook["Input"]
+        other_config = OtherConfig()
+        other_config.tensor_parallel_degree = worksheet1["C13"].value
+        other_config.pipeline_parallel_degree = worksheet1["C14"].value
+        other_config.optimization_strategy = worksheet1["E9"].value
+        other_config.microbatch_size = worksheet1["C15"].value
+        return tl, tt, other_config
 
     def write_result_to_file(self, cluster: Cluster,
                              model: Model,
