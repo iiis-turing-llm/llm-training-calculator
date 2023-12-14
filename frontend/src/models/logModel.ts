@@ -30,12 +30,13 @@ const LogModel = ({ set, get }: any = {}) => ({
       return state
     });
   },
-  pushHistory: (type: string, result: any, title?: string) => {
+  pushHistory: (type: string, result: any, title?: string, input?: any) => {
     set((state: any) => {
       state.history_results = [...state.history_results, {
         type,
         result,
         title,
+        input,
         ts: dayjs(new Date()).format('HH:mm:ss')
       }]
       return state

@@ -104,7 +104,7 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
     </div>
   }
   const renderDetail = () => {
-    return <PopPanel />
+    return <PopPanel result={result} otherConfig={result.other_config} />
   }
 
   return (
@@ -113,12 +113,12 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
         {/* {dataParse(totalTime)}s */}
         <span className={styles.timeline_total_label}>Iteration</span>
         <span className={checkChanged(result.timeline.per_iter_training_time, latest_result?.timeline?.per_iter_training_time)}>
-          {dataParse(totalTime)}s
+          {dataParse(result.timeline.per_iter_training_time)}s
         </span>
         <Divider type="vertical" />
         <span className={styles.timeline_total_label}> Number of iterations</span>
-        <span className={checkChanged(result.total_time.global_number_of_samples, latest_result?.total_time?.global_number_of_samples)}>
-          {Math.floor(result.total_time.global_number_of_samples)}
+        <span className={checkChanged(result.total_time.total_number_of_iters, latest_result?.total_time?.total_number_of_iters)}>
+          {Math.floor(result.total_time.total_number_of_iters)}
         </span>
         <Divider type="vertical" />
         <span className={styles.timeline_total_label}> Total duration</span>
@@ -127,7 +127,7 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
         </span>
       </div> :
         <div className={styles.timeline_group_total} style={{ width: props.widthScale || '100%' }}>
-          {dataParse(totalTime)}s
+          {dataParse(result.timeline.per_iter_training_time)}s
         </div>
       }
       <div className={styles.timeline_group} style={{ width: props.widthScale || '100%' }}>

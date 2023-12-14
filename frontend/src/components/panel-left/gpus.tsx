@@ -160,7 +160,8 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
         </Select>
       </div>
       <p className={styles.section_title}>
-        Parameters
+        {/* Parameters */}
+        {t('parameters')}
       </p>
       <div>
         {curGpu?.value ?

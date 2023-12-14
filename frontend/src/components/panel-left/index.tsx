@@ -21,6 +21,7 @@ import styles from './index.less';
 import { debounce, mixin } from 'lodash';
 import LogModel from '@/models/logModel';
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 
 export interface IPanelLeftProps { }
 const PanelLeft: FC<IPanelLeftProps> = (props) => {
@@ -102,24 +103,32 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     return false
   }
   const genHistoryTitle = () => {
-    return `${curGpu.name}_${curModel.name}_parallel[${totalConfig.data_parallel_degree}, ${otherConfig.pipeline_parallel_degree}, ${otherConfig.tensor_parallel_degree}]
-    _batch_size[${curModel.minibatch_size}, ${otherConfig.microbatch_size}]`
+    // return `${curGpu.name}_${curModel.name}_parallel[${totalConfig.data_parallel_degree}, ${otherConfig.pipeline_parallel_degree}, ${otherConfig.tensor_parallel_degree}]
+    // _batch_size[${curModel.minibatch_size}, ${otherConfig.microbatch_size}]`
+    return `${curGpu.name}_${curModel.name}`
   }
   const doCalculate = async () => {
     setProject({
       loading: true
     });
-    const calcRes = await calculate({
+    const params = {
       cluster: curGpu,
       model: curModel,
       other_config: otherConfig,
       input_config: totalConfig
+    }
+    const calcRes: any = await calculate({
+      ...params
     })
     setProject({
       latest_result: autoRecalc ? { ...result } : null,
       result: calcRes
     });
-    pushHistory('guide', calcRes, genHistoryTitle())
+    pushHistory('guide', { ...calcRes, other_config: otherConfig }, genHistoryTitle(),
+      {
+        ...params
+      }
+    )
     setTimeout(() => {
       setProject({
         loading: false
@@ -210,14 +219,16 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         const res = info.file.response
         setProject({
           result: {
-            timeline: { ...res }
+            ...res
           },
-          otherConfig: {
-            tensor_parallel_degree: res.tensor_parallel_degree,
-            pipeline_parallel_degree: res.pipeline_parallel_degree
-          }
+          // otherConfig: {
+          //   tensor_parallel_degree: res.tensor_parallel_degree,
+          //   pipeline_parallel_degree: res.pipeline_parallel_degree
+          // }
         });
-        pushHistory('custom', { timeline: { ...res } }, cleanFileName(info.file.name))
+        pushHistory('custom', {
+          ...res
+        }, cleanFileName(info.file.name))
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }

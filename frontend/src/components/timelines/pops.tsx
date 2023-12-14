@@ -30,10 +30,13 @@ const DETAIL_COLOR_MAPPING: any = {
     color: '#9A60B4'
   },
 }
-export interface IPanelRightPopProps { }
+export interface IPanelRightPopProps {
+  result: any,
+  otherConfig?: any
+}
 const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
-  const { result, otherConfig } = useModel(ProjectModel);
-
+  // const { result, otherConfig } = useModel(ProjectModel);
+  const { result, otherConfig } = props
   const dataParse = (d: number) => {
     if (!d) return d
     // 整数
@@ -56,7 +59,7 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
   const { forward_time, backward_time, num_microbatches, forward_gpu_usage, backward_gpu_usage,
     per_loop_forward_computation_time, per_loop_backward_computation_time,
     per_loop_forward_allgather_time, per_loop_backward_allgather_time,
-    per_loop_backward_reduce_scatter_time } = result?.timeline || {}
+    per_loop_backward_reduce_scatter_time, stable_time } = result?.timeline || {}
 
   const maxTime = Math.max(
     per_loop_forward_computation_time + per_loop_forward_allgather_time,
@@ -71,7 +74,8 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
   }
   return <div className={styles.pop_wrapper}>
     <div className={styles.timeline_group_total}>
-      {dataParse(maxTime * 2)}s
+      {/* {dataParse(maxTime * 2)}s */}
+      {dataParse(stable_time)}s
     </div>
     {/* Forward Detail */}
     <div className={styles.pop_info}>

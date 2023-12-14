@@ -103,7 +103,8 @@ const OtherPanel = (props: any) => {
   return (
     <div className={styles.nest}>
       <p className={styles.section_title}>
-        Optimization Strategy
+        {/* Optimization Strategy */}
+        {t('optimization strategy')}
       </p>
       <div className={styles['group-content']}>
         {/* {SRATEGY_LIST.map((m: any) => {
@@ -188,7 +189,8 @@ const OtherPanel = (props: any) => {
         })}
       </div>
       <p className={styles.section_title}>
-        Microbatch size
+        {/* Microbatch size */}
+        {t('microbatch')}
       </p>
       <div className={styles.section_content}>
         {recommendConfig.recomended_microbatch && <div className={styles.slider_tip}>

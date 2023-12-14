@@ -1,10 +1,10 @@
 import { FC, forwardRef, useImperativeHandle } from 'react';
 import useModel from 'flooks';
 import LogModel from '@/models/logModel';
-import { Divider, Checkbox, Button } from 'antd'
+import { Divider, Checkbox, Button, Popover } from 'antd'
 import BenchMarkTL from '@/components/timelines/bm-timeline';
 import BaseTL from '@/components/timelines/base-timeline';
-import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons';
+import { CaretDownOutlined, CaretRightOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import './index.less'
 import lodash, { sum } from 'lodash';
 import Empty from '@/components/empty';
@@ -58,7 +58,10 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
         }}
       /></div>
     }
-    return <div ><BaseTL result={hitem.result} curMode={hitem.type} widthScale={`${getTotalTime(hitem.result) / maxTime * 100}%`} /></div>
+    return <div>
+      <BaseTL result={{ ...hitem.result }} curMode={hitem.type}
+        widthScale={`${getTotalTime(hitem.result) / maxTime * 100}%`} />
+    </div>
   }
   const handleClose = () => {
     if (props.onClose) {
@@ -72,6 +75,63 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
   const changeCollapse = (idx: number, collapse: boolean) => {
     history_results[idx].collapse = collapse
     setHistory(history_results)
+  }
+  const genHistoryParams = (data: any) => {
+    if (!data) return
+    const { cluster, model, other_config, input_config } = data
+    return <div className="history-params">
+      <div className="history-params-item">
+        <div className="history-params-item-title">GPU name</div>
+        <div className="history-params-item-value">{cluster?.name}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Bus Bandwidth</div>
+        <div className="history-params-item-value">{cluster?.bus_bandwidth}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Per-host network bandwidth</div>
+        <div className="history-params-item-value">{cluster?.network_bandwidth}</div>
+      </div>
+      <Divider />
+      <div className="history-params-item">
+        <div className="history-params-item-title">Model name</div>
+        <div className="history-params-item-value">{model.name}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Minibatch size</div>
+        <div className="history-params-item-value">{model.minibatch_size}</div>
+      </div>
+      <Divider />
+      <div className="history-params-item">
+        <div className="history-params-item-title">Optimization strategy</div>
+        <div className="history-params-item-value">{other_config.optimization_strategy}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Tensor parallel degree</div>
+        <div className="history-params-item-value">{other_config.tensor_parallel_degree}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Pipeline parallel degree</div>
+        <div className="history-params-item-value">{other_config.pipeline_parallel_degree}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Microbatch size</div>
+        <div className="history-params-item-value">{other_config.microbatch_size}</div>
+      </div>
+      <Divider />
+      <div className="history-params-item">
+        <div className="history-params-item-title">Total number of tokens</div>
+        <div className="history-params-item-value">{input_config.number_of_input_tokens}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Data parallel degree</div>
+        <div className="history-params-item-value">{input_config.data_parallel_degree}</div>
+      </div>
+      <div className="history-params-item">
+        <div className="history-params-item-title">Number of epochs</div>
+        <div className="history-params-item-value">{input_config.epochs}</div>
+      </div>
+    </div>
   }
   useImperativeHandle(ref, () => ({
     handleClose: handleClose
@@ -89,7 +149,15 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
       }}>
         {newHistoryList.reverse().map((hitem: any, idx: number) => {
           return <div className="history-select-item" key={idx}>
-            <Checkbox value={history_results.length - idx - 1}> {hitem.type === 'guide' ? hitem.title : `[${hitem.ts}]${hitem.title}`}</Checkbox>
+            <Checkbox value={history_results.length - idx - 1}>
+              {`${hitem.title}_${hitem.ts}`}
+              {hitem.type === 'guide' && <Popover showArrow={true}
+                placement="right"
+                title={`${hitem.title}_${hitem.ts}`}
+                content={genHistoryParams(hitem.input)}>
+                <span style={{ marginLeft: 10 }}><QuestionCircleOutlined /></span>
+              </Popover>}
+            </Checkbox>
             {idx !== newHistoryList.length - 1 && <Divider />}
           </div>
         })}
@@ -131,7 +199,7 @@ const History: FC<IIndexProps> = forwardRef((props, ref) => {
         <Button onClick={() => {
           setState({ ...state, step: 0 })
         }}>
-          {t('return ')}
+          {t('return')}
         </Button>
       </div>
     </div>

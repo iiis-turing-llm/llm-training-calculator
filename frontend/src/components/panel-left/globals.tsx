@@ -6,8 +6,10 @@ import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import LogModel from '@/models/logModel';
+import { useTranslation } from 'react-i18next';
 
 const GlobalPanel = (props: any) => {
+  const { t } = useTranslation();
   const { totalConfig, setProject } = useModel(ProjectModel);
   const { setChangeLog } = useModel(LogModel);
   const onChangeItem = (key: string, val: number, title?: string) => {
@@ -26,7 +28,8 @@ const GlobalPanel = (props: any) => {
   return (
     <div className={styles.nest}>
       <p className={styles.section_title}>
-        Total number of tokens
+        {/* Total number of tokens */}
+        {t('token number')}
       </p>
       <div className={styles.section_content}>
         <InputNumber
@@ -53,7 +56,8 @@ const GlobalPanel = (props: any) => {
         />
       </div>
       <p className={styles.section_title}>
-        Data parallel degree
+        {/* Data parallel degree */}
+        {t('data parallel')}
       </p>
       <div className={styles.section_content}>
         <InputNumber
@@ -76,7 +80,8 @@ const GlobalPanel = (props: any) => {
         />
       </div>
       <p className={styles.section_title}>
-        Number of epochs
+        {/* Number of epochs */}
+        {t('epochs')}
       </p>
       <div className={styles.section_content}>
         <InputNumber

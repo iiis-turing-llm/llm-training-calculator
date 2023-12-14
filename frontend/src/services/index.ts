@@ -1,5 +1,6 @@
 import request from '@/utils/request';
 import { service_base_url } from '@/utils/constant'
+// 废弃
 export async function readFile() {
   return request(`${service_base_url}/llm_training_calculator/calculator/read_file`, {
     method: 'GET',

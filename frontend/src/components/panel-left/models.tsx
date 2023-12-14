@@ -185,7 +185,8 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
         </Select>
       </div>
       <p className={styles.section_title}>
-        Minibatch size
+        {/* Minibatch size */}
+        {t('minibatch')}
       </p>
       <div className={styles.section_content}>
         <InputNumber
@@ -205,7 +206,8 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
         </InputNumber >
       </div >
       <p className={styles.section_title}>
-        Parameters
+        {/* Parameters */}
+        {t('parameters')}
       </p>
       <div>
         {curModel?.value ?
@@ -226,7 +228,8 @@ const ModelSelection: FC<IModelSelectionProps> = (props) => {
         }
       </div>
       <p className={styles.section_title}>
-        The number of parameters of models
+        {/* The number of parameters of models */}
+        {t('model params number')}
       </p>
       <div>
         {curModel?.value && modelMetrics ?

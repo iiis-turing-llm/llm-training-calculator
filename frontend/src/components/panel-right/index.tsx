@@ -4,13 +4,12 @@ import { useImmer } from 'use-immer';
 import useModel from 'flooks';
 import styles from './index.less';
 import ProjectModel from '@/models/projectModel';
-import PopPanel from './pops'
 import BenchPanel from './benchmark'
 import { LoadingOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
-import { keys, sum } from 'lodash';
+import { sum } from 'lodash';
 import Steps from '../guide-steps'
 import FileSaver from 'file-saver'
-import { readFile, exportResult, downloadTemplate } from '@/services';
+import { exportResult } from '@/services';
 import LogModel from '@/models/logModel';
 import { useTranslation } from 'react-i18next';
 import BaseTL from '../timelines/base-timeline';
@@ -46,7 +45,7 @@ const COLOR_MAPPING: any = {
 export interface IPanelRightProps { }
 const PanelRight: FC<IPanelRightProps> = (props) => {
   const { t } = useTranslation();
-  const { result, latest_result, bm_result, loading, curGpu, curMode, curModel, otherConfig,
+  const { result, latest_result, bm_result, loading, curGpu, curMode, curModel, otherConfig, totalConfig,
     setProject, autoRecalc } = useModel(ProjectModel);
   const { changeLog, autoCalculated } = useModel(LogModel);
   const [state, setState] = useImmer({
@@ -55,17 +54,17 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
     communicationCollapse: true,
     timelineCollapse: false
   });
-  const readExcelFile = async () => {
-    setProject({
-      result: null
-    })
-    const readRes = await readFile()
-    setProject({
-      result: {
-        timeline: readRes
-      }
-    });
-  }
+  // const readExcelFile = async () => {
+  //   setProject({
+  //     result: null
+  //   })
+  //   const readRes = await readFile()
+  //   setProject({
+  //     result: {
+  //       timeline: readRes
+  //     }
+  //   });
+  // }
   const dataParse = (d: number, toGB?: boolean) => {
     if (!d) return d
     if (toGB) {
@@ -130,21 +129,21 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
   }
   const exportResultFile = () => {
     exportResult({
-      ...result, cluster: curGpu, model: curModel, other_config: otherConfig
+      ...result, cluster: curGpu, model: curModel, other_config: otherConfig, input_config: totalConfig
     }).then((res: any) => {
       FileSaver.saveAs(res, "llm-training-calculator.xlsx");
     })
   }
-  const renderTip = (time: number, title: string) => {
-    return <div className={styles.pop_tip}>
-      <div>{title}(GPU usage)</div>
-      {/* <div>{dataParse(time)} ({((time / totalTime) * 100).toFixed(2)}%)</div> */}
-      <div>{dataParse(time)} (0%)</div>
-    </div>
-  }
-  const renderDetail = () => {
-    return <PopPanel />
-  }
+  // const renderTip = (time: number, title: string) => {
+  //   return <div className={styles.pop_tip}>
+  //     <div>{title}(GPU usage)</div>
+  //     {/* <div>{dataParse(time)} ({((time / totalTime) * 100).toFixed(2)}%)</div> */}
+  //     <div>{dataParse(time)} (0%)</div>
+  //   </div>
+  // }
+  // const renderDetail = () => {
+  //   return <PopPanel />
+  // }
   if (loading) {
     return <div className={styles.loading}><LoadingOutlined /></div>
   }
@@ -232,6 +231,12 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
                   </div>
                   <div className={checkMemoryOverall() ? styles.warning : checkChanged(result.memory_usage.overall_usage, latest_result?.memory_usage?.overall_usage)}>
                     {dataParse(result.memory_usage.overall_usage, true)}</div>
+                </div>
+                <div className={styles.result_item}>
+                  <div>Totoal number of gpus
+                  </div>
+                  <div className={checkMemoryOverall() ? styles.warning : checkChanged(result.total_time.totoal_number_of_gpus, latest_result?.total_time?.totoal_number_of_gpus)}>
+                    {result.total_time.totoal_number_of_gpus}</div>
                 </div>
               </Space>
             </div>}
@@ -377,7 +382,12 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
           <div className={styles.result_group_header}>
             <div className={styles.result_group_title}>
               Timeline
-              {curMode === 'custom' ? <div>
+              {curMode === 'custom' ? <div className={styles.result_group_more}>
+                <div style={{ paddingRight: 10 }}>
+                  Totoal number of gpus:
+                </div>
+                <div>
+                  {result.total_time.totoal_number_of_gpus}</div>
                 {/* <SyncOutlined className={styles.fresh_icon} onClick={readExcelFile} /> */}
               </div> :
                 <div className={styles.result_group_collapse}>{!state.timelineCollapse ?
@@ -427,7 +437,7 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
             </Space>
           </div>}
         </div>
-        <BaseTL result={result} latest_result={latest_result} curMode={curMode}></BaseTL>
+        <BaseTL result={{ ...result, other_config: curMode === 'guide' ? otherConfig : result.other_config }} latest_result={latest_result} curMode={curMode}></BaseTL>
         {curMode === 'guide' && <div className={styles.export_btn}>
           <Button type="primary" icon={<ExportOutlined />} onClick={exportResultFile}>
             {t('export')}

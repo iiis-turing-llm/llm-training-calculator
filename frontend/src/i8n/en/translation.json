@@ -50,5 +50,13 @@
   "return": "RETURN",
   "compare": "COMPARE",
   "add item": "Add item",
-  "add": "ADD"
+  "add": "ADD",
+  "model": "Model",
+  "minibatch": "Minibatch size",
+  "model params number": "The number of parameters of models",
+  "microbatch": "Microbatch size",
+  "token number": "Total number of tokens",
+  "data parallel": "Data parallel degree",
+  "epochs": "Number of epochs",
+  "optimization strategy": "Optimization strategy"
 }
