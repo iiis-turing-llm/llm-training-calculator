@@ -6,7 +6,7 @@ from app.core.calculate_repository import CalculateRepository, OptimizationStrat
 from app.models.calculator_input import Cluster, Model, OtherConfig
 from app.models.calculator_input import InputConfig
 from app.models.calculator_result import Parameter, RecommendedConfig, MemoryUsage, \
-    Computation, Communication, Timeline
+    Computation, Communication, Timeline, TotalTime
 from fastapi import Body, UploadFile, File
 from fastapi.responses import FileResponse
 
@@ -76,12 +76,12 @@ def create_calculator(cluster: Cluster,
                       computation: Computation,
                       communication: Communication,
                       timeline: Timeline,
-                      total_timeline: Timeline):
+                      total_time: TotalTime):
     cr = CalculateRepository()
     file = cr.write_result_to_file(cluster, model, other_config, input_config, parameter, recommended_config,
                                    memory_usage,
                                    computation,
-                                   communication, timeline, total_timeline)
+                                   communication, timeline, total_time)
     return FileResponse(file, filename="calculator.xlsx")
 
 
