@@ -58,5 +58,6 @@
   "token number": "数据集词元数量(Total number of tokens)",
   "data parallel": "数据并行度(Data parallel degree)",
   "epochs": "轮次(Number of epochs)",
-  "optimization strategy": "优化策略"
+  "optimization strategy": "优化策略",
+  "doc": "帮助文档"
 }

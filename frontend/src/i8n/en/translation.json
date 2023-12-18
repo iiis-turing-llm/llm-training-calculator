@@ -58,5 +58,6 @@
   "token number": "Total number of tokens",
   "data parallel": "Data parallel degree",
   "epochs": "Number of epochs",
-  "optimization strategy": "Optimization strategy"
+  "optimization strategy": "Optimization strategy",
+  "doc": "Documentation"
 }

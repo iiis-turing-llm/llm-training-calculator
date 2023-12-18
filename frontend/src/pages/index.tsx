@@ -1,14 +1,15 @@
-import React, { FC, useEffect, useRef } from 'react';
-import { Layout, Divider, Tabs, Button, Drawer, Switch } from 'antd'
+import React, { FC, useRef } from 'react';
+import { Layout, Divider, Tabs, Button, Drawer, Switch, Tooltip } from 'antd'
 const { Header, Sider, Content } = Layout
 import PanelLeft from '@/components/panel-left';
 import PanelRight from '@/components/panel-right';
-import { HistoryOutlined } from '@ant-design/icons';
+import { HistoryOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useImmer } from 'use-immer';
 import useModel from 'flooks';
 import ProjectModel from '@/models/projectModel';
 import History from './history';
 import i18n from 'i18next';
+import { help_doc_url } from '@/utils/constant';
 import { useTranslation } from 'react-i18next';
 // import '@/i8n/config';
 import './index.less'
@@ -67,6 +68,11 @@ const Index: FC<IIndexProps> = (props) => {
                 onClick={() => { setState({ showHistory: true }) }}>
                 {t('comparision')}
               </Button>
+            </div>
+            <div className="header-help">
+              <Tooltip title={t('doc')}>
+                <QuestionCircleOutlined onClick={() => { window.open(help_doc_url) }} />
+              </Tooltip>
             </div>
             <div className="header-language">
               <Switch checkedChildren="中文" unCheckedChildren="English" onChange={handleLanChange}></Switch>
