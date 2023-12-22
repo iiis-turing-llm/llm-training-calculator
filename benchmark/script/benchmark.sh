@@ -62,6 +62,8 @@ install_v4.0() {
     echo_back "mkdir Megatron"
     echo_back "mv script/Megatron-LM-core_v0.4.0/*  Megatron"
     echo_back "rm -r script/Megatron-LM-core_v0.4.0/"
+    echo_info "install nltk"
+    echo_back "pip install nltk"
     echo_info "install tracer"
     local _sw_list=(__init__.py global_vars.py training.py)
     for _item in ${_sw_list[@]}
@@ -91,7 +93,7 @@ setup() {
 train() {
     echo_back "cd ${SHELL_FOLDER}"
     echo_info "adjust parameters in the pretrain bash before training"
-    echo_back "cd ../megatron"
+    echo_back "cd ../Megatron"
     echo_info "clear checkpoint"
     rmdir_if_exist ngc_models/release_gpt_base
     echo_back "bash examples/pretrain_gpt_distributed_small.sh"
