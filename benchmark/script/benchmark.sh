@@ -82,7 +82,7 @@ setup() {
         prefix_dir="megatron4.0"
     fi
     echo_back "cd ${SHELL_FOLDER}"
-    echo_back "cd ../megatron"
+    echo_back "cd ../Megatron"
     echo_info "we only provide a small dataset for correctness validation"
     echo_back "cp -r ../datasets ./"
     echo_back "cp ../examples/${prefix_dir}/* examples/"
