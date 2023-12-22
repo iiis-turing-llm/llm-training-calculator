@@ -99,15 +99,19 @@ LLM training calculator将可视化训练时间轴
 
 ### Benchmark mode
 
-- 下载并安装分布式训练框架（本项目使用Megatron进行benchmark测量）
+- 下载并安装分布式训练框架（本项目使用Megatron进行benchmark测量），注意需要根据当前环境配置来确定需要安装的版本：
+-- cuda11+pytorch1.0+：请安装megatron v3.0
+-- cuda12+pytorch2.0+：请安装megatron v4.0
+
+下面以安装megatron v3.0为例
 ```
 cd benchmark
-bash script/benchmark.sh install
+bash script/benchmark.sh install v3
 ```
 - 修改examples下脚本参数以支持分布式训练
 - 预处理数据集
 ```
-bash script/benchmark.sh setup
+bash script/benchmark.sh setup v3
 ```
 - 开始测量
 ```
