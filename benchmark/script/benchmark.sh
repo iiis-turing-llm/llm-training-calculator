@@ -13,9 +13,9 @@ source ../include/YCOS.sh
 
 show_usage() {
     appname=$0
-    echo_info "Usage: ${appname} [command], e.g., ${appname} install"
-    echo_info "  -- install"
-    echo_info "  -- setup"
+    echo_info "Usage: ${appname} [command], e.g., ${appname} install v3"
+    echo_info "  -- install [v3|v4]"
+    echo_info "  -- setup [v3|v4]"
     echo_info "  -- train"
     echo_info "  -- help                          show help message"
 }
@@ -38,7 +38,7 @@ install(){
 
 install_v3.0() {
     echo_back "cd ${SHELL_FOLDER}"
-    echo_info "install megatron v3.02"
+    echo_info "install megatron v3.02, v3.02 requires cuda11+torch1.0, please check your dependency"
     echo_back "wget --no-check-certificate --content-disposition https://github.com/NVIDIA/Megatron-LM/archive/refs/tags/v3.0.2.zip"
     echo_back "unzip Megatron-LM-3.0.2.zip"
     echo_back  "cd ../"
@@ -55,7 +55,7 @@ install_v3.0() {
 
 install_v4.0() {
     echo_back "cd ${SHELL_FOLDER}"
-    echo_info "install megatron v4.0"
+    echo_info "install megatron v4.0, v3.02 requires cuda12+torch2.1, please check your dependency"
     echo_back "wget --no-check-certificate --content-disposition https://github.com/NVIDIA/Megatron-LM/archive/refs/tags/core_v0.4.0.zip"
     echo_back "unzip Megatron-LM-core_v0.4.0.zip"
     echo_back  "cd ../"
