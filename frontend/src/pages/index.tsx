@@ -71,7 +71,7 @@ const Index: FC<IIndexProps> = (props) => {
             </div>
             <div className="header-help">
               <Tooltip title={t('doc')}>
-                <QuestionCircleOutlined onClick={() => { window.open(help_doc_url) }} />
+                <QuestionCircleOutlined onClick={() => { window.open('/calculator/#/help') }} />
               </Tooltip>
             </div>
             <div className="header-language">

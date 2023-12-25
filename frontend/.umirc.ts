@@ -12,6 +12,7 @@ export default defineConfig({
   publicPath: '/',
   hash: true,
   routes: [
+    { path: '/help', component: '@/pages/help/index' },
     { path: '/', component: '@/pages/index' },
   ],
   fastRefresh: {},
