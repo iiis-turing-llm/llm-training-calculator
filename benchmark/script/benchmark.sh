@@ -49,7 +49,7 @@ install_v3.0() {
     local _sw_list=(__init__.py schedules.py global_vars.py training.py)
     for _item in ${_sw_list[@]}
     do
-        echo_back "cp script/megatron4.0/${_item} Megatron/megatron/"
+        echo_back "cp script/megatron3.0/${_item} Megatron/megatron/"
     done
 }
 
@@ -76,7 +76,7 @@ install_v4.0() {
 setup() {
     local version=${1} 
     local prefix_dir=""
-    if [${version} == "v3"]; then 
+    if [[ ${version} == "v3" ]]; then 
         prefix_dir="megatron3.0"
     else
         prefix_dir="megatron4.0"
