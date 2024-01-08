@@ -20,7 +20,7 @@
 
 ## Demo试用
 
-现在可直接访问我们的[线上demo版](https://lx.ainanjing.org.cn:12340/calculator/)
+现在可直接访问我们的[线上demo版](https://lx.ainanjing.org.cn/calculator/)
 
 
 
