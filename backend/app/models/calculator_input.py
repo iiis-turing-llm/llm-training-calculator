@@ -11,6 +11,7 @@ class Cluster(BaseModel):
     delay: int = None
     launch_msrp: int = None
     network_bandwidth: int = None
+    support_p2p: bool = True
 
 
 class Model(BaseModel):

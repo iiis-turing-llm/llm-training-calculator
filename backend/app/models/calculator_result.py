@@ -71,6 +71,52 @@ class TotalTime(BaseModel):
     totoal_number_of_gpus: int = 0
 
 
+class InferMemoryUsage(BaseModel):
+    weights: float = 0
+    kvcache: float = 0
+    overall_usage: float = 0
+
+
+class InferComputation(BaseModel):
+    per_device_layers: float = 0
+    num_microbatches: float = 0
+    total_forward_computation_time: float = 0
+    total_forward_memory_access_time: float = 0
+    total_forward_gpu_time: float = 0
+    per_loop_forward_computation_time: float = 0
+
+
+class InferCommunication(BaseModel):
+    total_forward_allgather_time: float = 0
+    per_loop_forward_allgather_time: float = 0
+    total_forward_reduce_scatter_time: float = 0
+    per_loop_forward_reduce_scatter_time: float = 0
+    total_cpu_delay: float = 0
+    per_loop_cpu_delay: float = 0
+    total_p2p_time: float = 0
+    per_loop_p2p_time: float = 0
+
+
+class InferTimeline(BaseModel):
+    per_device_layers: int = 0
+    num_microbatches: int = 0
+    per_loop_forward_computation_time: float = 0
+    per_loop_forward_allgather_time: float = 0
+    per_loop_forward_reduce_scatter_time: float = 0
+    forward_time: float = 0
+    forward_gpu_usage: float = 0
+    per_token_delay: float = 0
+    first_token_delay: float = 0
+    per_request_throughput: float = 0
+    system_throughput: float = 0
+
+
+class InferTotalTime(BaseModel):
+    global_minibatch_size: float = 0
+    total_inference_time: float = 0
+    totoal_number_of_gpus: int = 0
+
+
 class CalculatorResult(BaseModel):
     parameter: Parameter
     recommended_config: RecommendedConfig
@@ -79,3 +125,8 @@ class CalculatorResult(BaseModel):
     communication: Communication
     timeline: Timeline
     total_time: TotalTime
+    infer_memory_usage: InferMemoryUsage
+    infer_computation: InferComputation
+    infer_communication: InferCommunication
+    infer_timeline: InferTimeline
+    infer_total_time: InferTotalTime

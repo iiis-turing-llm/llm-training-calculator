@@ -8,7 +8,7 @@ from app.config import settings
 from app.models.calculator_input import Cluster, Model, OtherConfig
 from app.models.calculator_input import InputConfig
 from app.models.calculator_result import MemoryUsage, Computation, Communication, Timeline, TotalTime, CalculatorResult, \
-    Parameter, RecommendedConfig
+    Parameter, RecommendedConfig, InferMemoryUsage, InferComputation, InferCommunication, InferTimeline, InferTotalTime
 
 
 class OptimizationStrategyType(Enum):
@@ -70,6 +70,11 @@ class CalculateRepository:
             memory.activation = model.num_layers * model.token_length * model.minibatch_size * model.hidden_layer_size * 34 / other_config.tensor_parallel_degree
         memory.overall_usage = memory.optimizer_states + memory.weights + memory.activation + memory.gradients
 
+        infer_memory = InferMemoryUsage()
+        infer_memory.weights = 2 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree
+        infer_memory.kvcache = 2 * 2 * model.hidden_layer_size / other_config.tensor_parallel_degree * other_config.microbatch_size * model.token_length * (model.num_layers / other_config.pipeline_parallel_degree)
+        infer_memory.overall_usage = infer_memory.weights + infer_memory.kvcache
+
         comp = Computation()
         comp.per_device_layers = model.num_layers / other_config.pipeline_parallel_degree
         comp.num_microbatches = model.minibatch_size / other_config.microbatch_size
@@ -77,6 +82,14 @@ class CalculateRepository:
         comp.per_loop_forward_computation_time = comp.total_forward_computation_time / comp.per_device_layers / comp.num_microbatches
         comp.total_backward_computation_time = 4 * model.token_length * model.minibatch_size * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.fp32_processing_power / 1e12
         comp.per_loop_backward_computation_time = comp.total_backward_computation_time / comp.per_device_layers / comp.num_microbatches
+
+        infer_comp = InferComputation()
+        infer_comp.per_device_layers = model.num_layers / other_config.pipeline_parallel_degree
+        infer_comp.num_microbatches = model.minibatch_size / other_config.microbatch_size
+        infer_comp.total_forward_computation_time = 2 * model.token_length * model.minibatch_size * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.fp32_processing_power / 1e12
+        infer_comp.total_forward_memory_access_time = 2 * model.token_length * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.memory_bandwidth / 1e9
+        infer_comp.total_forward_gpu_time = max(infer_comp.total_forward_computation_time, infer_comp.total_forward_memory_access_time)
+        infer_comp.per_loop_forward_computation_time = infer_comp.total_forward_computation_time / infer_comp.per_device_layers / infer_comp.num_microbatches
 
         comm = Communication()
         comm.total_forward_allgather_time = 4 * 2 * 2 * 2 * model.hidden_layer_size * model.hidden_layer_size * model.minibatch_size * model.num_layers / other_config.pipeline_parallel_degree / cluster.bus_bandwidth / 1e9
@@ -99,6 +112,30 @@ class CalculateRepository:
             comm.per_loop_p2p_time = 0
         comm.word_embedding_allreduce_time = params.word_embedding * 2 * 8 / 1e9 / other_config.tensor_parallel_degree / cluster.network_bandwidth
         comm.gradient_allreduce_time = 8 * 2 * 8 / 1e9 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.network_bandwidth
+
+        infer_comm = InferCommunication()
+        infer_comm.total_forward_allgather_time = 2 * 2 * 2 * model.hidden_layer_size * model.token_length * model.minibatch_size * model.num_layers / other_config.pipeline_parallel_degree / cluster.bus_bandwidth / 1e9
+        infer_comm.per_loop_forward_allgather_time = infer_comm.total_forward_allgather_time / infer_comp.per_device_layers / infer_comp.num_microbatches
+        infer_comm.total_forward_reduce_scatter_time = infer_comm.total_forward_allgather_time
+        infer_comm.per_loop_forward_reduce_scatter_time = infer_comm.total_forward_reduce_scatter_time / infer_comp.per_device_layers / infer_comp.num_microbatches
+        infer_comm.total_p2p_time = 2 * model.hidden_layer_size * model.token_length * model.minibatch_size / other_config.tensor_parallel_degree / cluster.network_bandwidth * 8 * 8 / 1e9
+        infer_comm.per_loop_p2p_time = infer_comm.total_p2p_time / infer_comp.num_microbatches
+        infer_comm.total_cpu_delay = 2 * model.num_layers * model.token_length * 30 / 1e6 # CPU delay on shared-memory-based communication is 30 us
+        infer_comm.per_loop_cpu_delay = infer_comm.total_cpu_delay / infer_comp.num_microbatches
+        if other_config.tensor_parallel_degree == 1:
+            infer_comm.total_forward_allgather_time = 0
+            infer_comm.per_loop_forward_allgather_time = 0
+            infer_comm.total_forward_reduce_scatter_time = 0
+            infer_comm.per_loop_forward_reduce_scatter_time = 0
+            infer_comm.total_cpu_delay = 0
+            infer_comm.per_loop_cpu_delay = 0
+        if other_config.pipeline_parallel_degree == 1:
+            infer_comm.total_p2p_time = 0
+            infer_comm.per_loop_p2p_time = 0
+        if cluster.support_p2p == True:
+            infer_comm.total_cpu_delay = 0
+            infer_comm.per_loop_cpu_delay = 0
+
 
         tl = Timeline()
         tl.per_device_layers = comp.per_device_layers
@@ -123,8 +160,36 @@ class CalculateRepository:
         tl.stable_time = (tl.forward_time + tl.backward_time) * comp.num_microbatches
         tl.per_iter_training_time = tl.warmup_time + (
                 tl.forward_time + tl.backward_time) * comp.num_microbatches + tl.cooldown_time + tl.allreduce_time
+        
+        infer_tl = InferTimeline()
+        infer_tl.per_device_layers = infer_comp.per_device_layers
+        infer_tl.num_microbatches = infer_comp.num_microbatches
+        infer_tl.per_loop_forward_computation_time = infer_comp.per_loop_forward_computation_time
+        infer_tl.per_loop_forward_allgather_time = infer_comm.per_loop_forward_allgather_time
+        infer_tl.per_loop_forward_reduce_scatter_time = infer_comm.per_loop_forward_reduce_scatter_time
 
-        tt = self.calculate_total_time(model=model, time_line=tl, input_config=input_config, other_config=other_config)
+        infer_tl.forward_time = (infer_comp.total_forward_gpu_time + infer_comm.total_forward_allgather_time + infer_comm.total_forward_reduce_scatter_time + infer_comm.total_cpu_delay + infer_comm.total_p2p_time) / infer_comp.num_microbatches
+        infer_tl.forward_gpu_usage = infer_comp.total_forward_computation_time / (
+                infer_comp.total_forward_gpu_time + infer_comm.total_forward_allgather_time + infer_comm.total_forward_reduce_scatter_time)
+        infer_tl.per_token_delay = infer_tl.forward_time / model.token_length
+        infer_tl.first_token_delay = infer_tl.per_token_delay * other_config.pipeline_parallel_degree
+        infer_tl.per_request_throughput = model.token_length / infer_tl.forward_time
+        infer_tl.system_throughput = other_config.microbatch_size * infer_tl.per_request_throughput
+
+
+
+        tt = TotalTime()
+        tt.global_minibatch_size = input_config.data_parallel_degree * model.minibatch_size
+        tt.total_number_of_iters = input_config.number_of_input_tokens * 1e6 * input_config.epochs / model.token_length / tt.global_minibatch_size
+        tt.total_training_time = tt.total_number_of_iters * tl.per_iter_training_time
+        tt.totoal_number_of_gpus = input_config.data_parallel_degree * other_config.pipeline_parallel_degree * other_config.tensor_parallel_degree
+
+        infer_tt = InferTotalTime()
+        infer_tt.global_minibatch_size = input_config.data_parallel_degree * model.minibatch_size
+        infer_tt.totoal_number_of_gpus = input_config.data_parallel_degree * other_config.pipeline_parallel_degree * other_config.tensor_parallel_degree
+        infer_tt.total_inference_time = input_config.number_of_input_tokens * 1e6 / infer_tl.per_request_throughput # here is the per-request inference time
+
+
         calculator_result = CalculatorResult(parameter=params,
                                              recommended_config=RecommendedConfig(
                                                  recomended_tensor_parallel_degree=recomended_tensor_parallel_degree,
@@ -134,7 +199,12 @@ class CalculateRepository:
                                              computation=comp,
                                              communication=comm,
                                              timeline=tl,
-                                             total_time=tt)
+                                             total_time=tt,
+                                             infer_communication=infer_comm,
+                                             infer_computation=infer_comp,
+                                             infer_memory_usage=infer_memory,
+                                             infer_timeline=infer_tl,
+                                             infer_total_time=infer_tt)
 
         return calculator_result
 
