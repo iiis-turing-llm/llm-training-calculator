@@ -8,6 +8,8 @@ import GpuSelection from './gpus';
 import ModelSelection from './models';
 import OtherSetting from './others';
 import GlobalSetting from './globals'
+import OtherSettingInference from './othersInference';
+import GlobalSettingInference from './globalsInference'
 import FileSaver from 'file-saver'
 import CustomSteps from './../custom-steps'
 import BenchmarkSteps from './../benchmark-steps'
@@ -21,7 +23,6 @@ import styles from './index.less';
 import { debounce, mixin } from 'lodash';
 import LogModel from '@/models/logModel';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 
 export interface IPanelLeftProps { }
 const PanelLeft: FC<IPanelLeftProps> = (props) => {
@@ -103,32 +104,24 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     return false
   }
   const genHistoryTitle = () => {
-    // return `${curGpu.name}_${curModel.name}_parallel[${totalConfig.data_parallel_degree}, ${otherConfig.pipeline_parallel_degree}, ${otherConfig.tensor_parallel_degree}]
-    // _batch_size[${curModel.minibatch_size}, ${otherConfig.microbatch_size}]`
-    return `${curGpu.name}_${curModel.name}`
+    return `${curGpu.name}_${curModel.name}_parallel[${totalConfig.data_parallel_degree}, ${otherConfig.pipeline_parallel_degree}, ${otherConfig.tensor_parallel_degree}]
+    _batch_size[${curModel.minibatch_size}, ${otherConfig.microbatch_size}]`
   }
   const doCalculate = async () => {
     setProject({
       loading: true
     });
-    const params = {
+    const calcRes = await calculate({
       cluster: curGpu,
       model: curModel,
       other_config: otherConfig,
       input_config: totalConfig
-    }
-    const calcRes: any = await calculate({
-      ...params
     })
     setProject({
       latest_result: autoRecalc ? { ...result } : null,
       result: calcRes
     });
-    pushHistory('guide', { ...calcRes, other_config: otherConfig }, genHistoryTitle(),
-      {
-        ...params
-      }
-    )
+    pushHistory('guide', calcRes, genHistoryTitle())
     setTimeout(() => {
       setProject({
         loading: false
@@ -219,16 +212,14 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         const res = info.file.response
         setProject({
           result: {
-            ...res
+            timeline: { ...res }
           },
-          // otherConfig: {
-          //   tensor_parallel_degree: res.tensor_parallel_degree,
-          //   pipeline_parallel_degree: res.pipeline_parallel_degree
-          // }
+          otherConfig: {
+            tensor_parallel_degree: res.tensor_parallel_degree,
+            pipeline_parallel_degree: res.pipeline_parallel_degree
+          }
         });
-        pushHistory('custom', {
-          ...res
-        }, cleanFileName(info.file.name))
+        pushHistory('custom', { timeline: { ...res } }, cleanFileName(info.file.name))
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
@@ -357,6 +348,64 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
         </Button>
       </Upload>
     </div>
+  }
+
+  if (curMode === 'inference') {
+    return (
+      <div className={styles.slider}>
+        <div className={styles.toolbar}>
+          {itemData.map((item) => {
+            return (
+              <Tooltip key={item.id} placement="right" title={item.name}>
+                <div
+                  onClick={() => handleItemClick(item.id)}
+                  className={`${styles.item} ${state.active === item.id ? styles.active : ''
+                    }`}
+                >
+                  <div>
+                    <AiIcon type={item.icon} style={{
+                      fontSize: 16,
+                      padding: 10,
+                      // color: state.active === item.id ? '#3893FF' : '#303133;',
+                      background: state.active === item.id ? 'rgba(5,130,255,0.1)' : '#E1E2E6',
+                      borderRadius: 20,
+                    }} />
+                  </div>
+                  <div>{item.name}</div>
+                </div>
+              </Tooltip>
+            );
+          })}
+        </div>
+        <div className={styles.area}>
+          <div className={styles.area_params}>
+            {state.active === 'gpu' && <GpuSelection />}
+            {state.active === 'model' && <ModelSelection />}
+            {/* 下面的两个组件（其他和输入）需要改 */}
+            {state.active === 'others' && <OtherSettingInference />}
+            {state.active === 'global' && <GlobalSettingInference />}
+          </div>
+          <div className={styles.area_btn}>
+            <div className={styles.area_switch}>
+              <Switch checked={autoRecalc}
+                onChange={(check: boolean) => {
+                  setProject({
+                    autoRecalc: check
+                  });
+                }}></Switch>
+              <span style={{ color: autoRecalc ? '#1989FA' : '' }}>
+                {t('autocalc')}</span>
+            </div>
+            <Button type="primary"
+              disabled={!validateInput()}
+              className={styles.area_btn_btn}
+              onClick={doCalculateOrNext}>
+              {state.active === 'global' ? t('calculate') : t('next')}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

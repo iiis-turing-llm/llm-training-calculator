@@ -46,11 +46,17 @@ const ProjectModel = ({ set, get }: any = {}) => ({
     return true
   },
   checkTotalConfig: () => {
-    const { totalConfig } = get();
+    const { totalConfig, curMode } = get();
     const { data_parallel_degree, number_of_input_tokens, epochs } = totalConfig || {}
     if (data_parallel_degree && number_of_input_tokens && epochs) {
       return true
     }
+    //新的表单检查需要在mode等于inference的时候不检查策略和轮次
+    if (curMode == 'inference' && data_parallel_degree && number_of_input_tokens) {
+      return true
+    }
+    console.log('checkTotalConfig', curMode, data_parallel_degree, number_of_input_tokens, epochs);
+
     return false
   },
   setProject: (pro: any) => {

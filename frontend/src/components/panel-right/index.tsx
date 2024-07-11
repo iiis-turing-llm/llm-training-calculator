@@ -8,6 +8,7 @@ import BenchPanel from './benchmark'
 import { LoadingOutlined, CaretDownOutlined, CaretRightOutlined, ExportOutlined } from '@ant-design/icons';
 import { sum } from 'lodash';
 import Steps from '../guide-steps'
+import InferenceStep from '../inference-steps'
 import FileSaver from 'file-saver'
 import { exportResult } from '@/services';
 import LogModel from '@/models/logModel';
@@ -154,6 +155,15 @@ const PanelRight: FC<IPanelRightProps> = (props) => {
         </div>
       </div>
     </div>
+  }
+  if (!result && curMode === 'inference') {
+    return <div className={styles.content}>
+      <div className={styles.empty_steps} >
+        <div><InferenceStep />
+        </div>
+      </div>
+    </div>
+    // return <div>原神启动</div>
   }
   if ((!result && curMode === 'custom') || (!bm_result && curMode === 'benchmark')) {
     return <div className={styles.content}>

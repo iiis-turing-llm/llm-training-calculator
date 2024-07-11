@@ -44,6 +44,10 @@ const Index: FC<IIndexProps> = (props) => {
     {
       key: 'benchmark',
       label: t('benchmark mode')
+    },
+    {
+      key: 'inference',
+      label: t('inference mode')
     }
   ];
 
@@ -80,7 +84,7 @@ const Index: FC<IIndexProps> = (props) => {
           </div>
         </Header>
         <Layout className="llm-inner-layout-wrapper">
-          <Sider width={curMode === 'guide' ? 430 : 400} theme='light'>
+          <Sider width={["inference", "guide"].includes(curMode) ? 430 : 400} theme='light'>
             <PanelLeft></PanelLeft>
           </Sider>
           <Content>
