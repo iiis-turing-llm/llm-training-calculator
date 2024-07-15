@@ -115,13 +115,13 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       cluster: curGpu,
       model: curModel,
       other_config: otherConfig,
-      input_config: totalConfig
+      input_config: curMode === "inference" ? { ...totalConfig, epochs: 0 } : totalConfig
     })
     setProject({
       latest_result: autoRecalc ? { ...result } : null,
       result: calcRes
     });
-    pushHistory('guide', calcRes, genHistoryTitle())
+    pushHistory(curMode, calcRes, genHistoryTitle())
     setTimeout(() => {
       setProject({
         loading: false

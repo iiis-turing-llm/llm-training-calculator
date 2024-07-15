@@ -55,8 +55,6 @@ const ProjectModel = ({ set, get }: any = {}) => ({
     if (curMode == 'inference' && data_parallel_degree && number_of_input_tokens) {
       return true
     }
-    console.log('checkTotalConfig', curMode, data_parallel_degree, number_of_input_tokens, epochs);
-
     return false
   },
   setProject: (pro: any) => {

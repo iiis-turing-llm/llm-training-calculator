@@ -80,7 +80,7 @@ export default () => {
       </div >
       <div className={styles.step_desc}>
         <div className={styles.step_desc_text_other}>
-          {t('step input  inference')}
+          {t('step input inference')}
         </div>
       </div>
     </div>
