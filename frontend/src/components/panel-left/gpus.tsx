@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react';
 import { useImmer } from 'use-immer';
-import { Select, Divider, Input, InputNumber, Slider, Button, Drawer, message } from 'antd'
+import { Select, Divider, Input, InputNumber, Slider, Button, Drawer, message, Radio } from 'antd'
 import Empty from '../empty';
 import useModel from 'flooks';
 import { getGpuList } from '@/services'
@@ -39,6 +39,9 @@ const PARAMS_LIST = [
   }, {
     title: 'Launch MSRP (USD)',
     key: 'launch_msrp'
+  }, {
+    title: 'support p2p',
+    key: 'support_p2p'
   }
 ]
 const SLIDER_LIST = [{
@@ -106,7 +109,12 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
     })
   }
   const addItemToList = () => {
-    const isNotComplete = PARAMS_LIST.find((p => !state.newGpu[p.key]))
+    const isNotComplete = PARAMS_LIST.find((p => {
+      if (p.key === "support_p2p")
+        return typeof state.newGpu[p.key] !== 'boolean'//检查是布尔值是否存在
+      return !state.newGpu[p.key]//检查数字和是否存在并且数字不为0且字符串不为空串
+    }))
+    console.log(state.newGpu)
     if (isNotComplete) {
       message.warn('Please fill it out completely!')
       return
@@ -184,7 +192,7 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
                         }} />
                     </div>
                     :
-                    <div className={styles.gpu_params_value}>{curGpu[pItem.key]}
+                    <div className={styles.gpu_params_value}>{String(curGpu[pItem.key])}
                     </div>}
                 </div>
                 {_idx < PARAMS_LIST.length - 1 && <Divider />}
@@ -255,16 +263,27 @@ const GpuSelection: FC<IGPUSelectionProps> = (props) => {
                           [pItem.key]: e.target.value
                         });
                       }} />
-                    :
-                    <InputNumber controls={false}
-                      required
-                      className="number_controls"
-                      value={state.newGpu[pItem.key]} onChange={(val: any) => {
+                    : pItem.key === 'support_p2p'
+                      ?
+                      <Radio.Group value={state.newGpu[pItem.key]} onChange={(e: any) => {
                         setNewGpu({
                           ...state.newGpu,
-                          [pItem.key]: val
+                          [pItem.key]: e.target.value
                         });
-                      }} />}
+                      }}>
+                        <Radio value={true}>YES</Radio>
+                        <Radio value={false}>NO</Radio>
+                      </Radio.Group>
+                      :
+                      <InputNumber controls={false}
+                        required
+                        className="number_controls"
+                        value={state.newGpu[pItem.key]} onChange={(val: any) => {
+                          setNewGpu({
+                            ...state.newGpu,
+                            [pItem.key]: val
+                          });
+                        }} />}
                 </div>
               </div>
               {_idx < PARAMS_LIST.length - 1 && <Divider />}
