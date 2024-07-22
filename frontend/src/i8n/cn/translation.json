@@ -25,7 +25,7 @@
   "step other1 inference": "确定张量并行度(tensor parallel degree).",
   "step other2 inference": "确定流水线并行度(pipeline parallel degree).",
   "step other3 inference": "确定小批量大小(microbatch size).",
-  "step input  inference": "输入训练数据集的词元(token)数量、数据并行度(data parallel degree).",
+  "step input inference": "输入训练数据集的词元(token)数量、数据并行度(data parallel degree).",
   "import": "导入",
   "download tem": "下载模板",
   "step1": "第一步.",

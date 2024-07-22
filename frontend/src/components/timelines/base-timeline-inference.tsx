@@ -138,7 +138,8 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
                 </Popover> */}
                 {/* forward和backward Time */}
                 <Popover content={renderDetail()} title="" trigger="hover">
-                    <div className={styles.timeline_block_loop} style={{ width: calcLength(loopTotalTime) }}>
+                    {/* <div className={styles.timeline_block_loop} style={{ width: calcLength(loopTotalTime) }}> */}
+                    <div className={styles.timeline_block_loop} style={{ width: '100%' }}>
                         {renderMultiLoopTime()}
                     </div>
                 </Popover>

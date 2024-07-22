@@ -108,7 +108,7 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
                 <div className={styles.pop_chart_block} style={{
                     backgroundColor: DETAIL_COLOR_MAPPING['forward_reduce'].color,
                     width: calcLength(per_loop_forward_reduce_scatter_time),
-                    left: `calc(${calcPositionLeft(per_loop_forward_allgather_time)} + 1px)`
+                    left: `calc(${calcPositionLeft(per_loop_forward_allgather_time + per_loop_forward_computation_time)} + 1px)`
                 }}></div>
             </div>
             <div className={styles.pop_chart_arrow}></div>
