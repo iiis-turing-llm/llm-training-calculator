@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react';
+import React, { FC, useRef, useEffect } from 'react';
 import { Layout, Divider, Tabs, Button, Drawer, Switch, Tooltip } from 'antd'
 const { Header, Sider, Content } = Layout
 import PanelLeft from '@/components/panel-left';
@@ -21,7 +21,10 @@ const Index: FC<IIndexProps> = (props) => {
   const [state, setState] = useImmer({
     showHistory: false,
   });
-  const { setProject, curMode } = useModel(ProjectModel);
+  const { setProject, curMode, clearFields } = useModel(ProjectModel);
+  useEffect(() => {
+    clearFields()
+  }, [curMode])
   const onChangeMode = (mode: string) => {
     setProject({
       curMode: mode,

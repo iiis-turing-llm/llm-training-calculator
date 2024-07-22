@@ -25,6 +25,7 @@ class Settings(BaseSettings):
             bus_bandwidth=900,
             delay=1,
             launch_msrp=0,
+            support_p2p= True,
         ),
         Cluster(
             name="H100",
@@ -35,6 +36,7 @@ class Settings(BaseSettings):
             bus_bandwidth=900,
             delay=1,
             launch_msrp=0,
+            support_p2p= True,
         ),
         Cluster(
             name="A100",
@@ -45,6 +47,7 @@ class Settings(BaseSettings):
             bus_bandwidth=900,
             delay=1,
             launch_msrp=0,
+            support_p2p= True,
         ),
         Cluster(
             name="4090",
@@ -55,6 +58,7 @@ class Settings(BaseSettings):
             bus_bandwidth=64,
             delay=10,
             launch_msrp=0,
+            support_p2p= False
         ),
         Cluster(
             name="3090",
@@ -65,6 +69,7 @@ class Settings(BaseSettings):
             bus_bandwidth=64,
             delay=10,
             launch_msrp=0,
+            support_p2p= False
         ),
     ]
 

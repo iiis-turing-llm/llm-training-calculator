@@ -87,6 +87,15 @@ const ProjectModel = ({ set, get }: any = {}) => ({
       return state
     });
   },
+  clearFields: () => {
+    set((state: any) => {
+      state.curGpu = null;
+      state.curModel = null;
+      state.otherConfig = { optimization_strategy: 'No recomputation' };
+      state.totalConfig = {};
+      return state;
+    });
+  }
 });
 
 export default ProjectModel;
