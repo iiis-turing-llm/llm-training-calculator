@@ -4,31 +4,21 @@ import styles from './index.less';
 import PopPanel from './pops-inference'
 import { keys, sum } from 'lodash';
 const COLOR_MAPPING: any = {
-    warmup: {
-        label: 'Warmup time',
-        color: '#3793FF',
-        key: 'warmup_time'
-    },
     forward: {
         label: 'Forward time',
         color: '#92CC76',
         key: 'forward_time'
     },
-    backward: {
-        label: 'Backward time',
-        color: '#AAE7FF',
-        key: 'backward_time'
-    },
-    cooldown: {
-        label: 'Cooldown time',
+    p2p: {
+        label: 'P2P Time ',
         color: '#FAC858',
-        key: 'cooldown_time'
+        key: 'total_p2p_time'
     },
-    allReduce: {
-        label: 'All Reduce time',
-        color: '#EF6666',
-        key: 'allreduce_time'
-    }
+    cpu: {
+        label: 'Cpu Delay',
+        color: '#AAE7FF',
+        key: 'total_cpu_delay'
+    },
 }
 
 export interface IBaseTLProps {
@@ -37,7 +27,7 @@ export interface IBaseTLProps {
     widthScale?: string,
     curMode: string
 }
-const BaseTL: FC<IBaseTLProps> = (props) => {
+const BaseTLInference: FC<IBaseTLProps> = (props) => {
     const { result, latest_result, curMode } = props;
 
     const dataParse = (d: number, toGB?: boolean) => {
@@ -56,14 +46,14 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
         // 小于1的浮点数，保留6位
         return d.toFixed(6)
     }
-    const { warmup_time, forward_time, backward_time, cooldown_time, allreduce_time, num_microbatches } = result?.timeline || {}
-    const totalTime = sum([warmup_time, forward_time * num_microbatches, backward_time * num_microbatches, cooldown_time, allreduce_time])
-    const loopTotalTime = (forward_time + backward_time) * num_microbatches
-    const calcLength = (time: number, isMulti?: boolean) => {
-        if (isMulti) {
-            return `${(time / loopTotalTime) * (100 - Math.ceil(num_microbatches / 10))}%`
-        }
-        return `${(time / totalTime) * 98}%`
+    const { forward_time, num_microbatches } = result?.infer_timeline || {}
+
+    const { total_forward_allgather_time, total_forward_reduce_scatter_time, total_cpu_delay, total_p2p_time } = result?.infer_communication || {}
+    const { total_forward_gpu_time } = result?.infer_computation || {}
+
+    const calcL = (time: number) => {
+        const oneLength = 100 / num_microbatches;
+        return `${(time / (forward_time * num_microbatches) * oneLength)}%`
     }
     const checkChanged = (val: any, preVal: any) => {
         if (curMode !== 'inference') {
@@ -77,15 +67,21 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
     const renderLoopTime = (index: number) => {
         return <Fragment key={index}>
             <div key={index} className={styles.timeline_inner_block} style={{
-                width: calcLength(forward_time, true),
+                width: calcL(total_forward_gpu_time + total_forward_allgather_time + total_forward_reduce_scatter_time),
                 backgroundColor: COLOR_MAPPING['forward'].color
             }}>
             </div>
-            {/* <div key={`${index}_1`} className={styles.timeline_inner_block} style={{
-                width: calcLength(backward_time, true),
-                backgroundColor: COLOR_MAPPING['backward'].color
+            <div key={`${index}_1`} className={styles.timeline_inner_block} style={{
+                width: calcL(total_p2p_time),
+                backgroundColor: COLOR_MAPPING['p2p'].color
             }}>
-            </div> */}
+            </div>
+            <div key={`${index}_2`} className={styles.timeline_inner_block} style={{
+                width: calcL(total_cpu_delay),
+                backgroundColor: COLOR_MAPPING['cpu'].color
+            }}>
+            </div>
+
         </Fragment>
     }
     const renderMultiLoopTime = () => {
@@ -99,9 +95,11 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
     }
     const renderTip = (time: number, title: string) => {
         return <div className={styles.pop_tip}>
-            <div>{title}(GPU usage)</div>
+            {/* <div>{title}(GPU usage)</div> */}
             {/* <div>{dataParse(time)} ({((time / totalTime) * 100).toFixed(2)}%)</div> */}
-            <div>{dataParse(time)} (0%)</div>
+            {/* <div>{dataParse(time)} (0%)</div> */}
+            <div>{title}</div>
+            <div>{dataParse(time)}s</div>
         </div>
     }
     const renderDetail = () => {
@@ -165,21 +163,28 @@ const BaseTL: FC<IBaseTLProps> = (props) => {
             {/* 下面的是图例 */}
             <div className={styles.timeline_group_legend}>
                 {keys(COLOR_MAPPING).map((key: string) => {
-                    const item: any = COLOR_MAPPING[key]
-                    if (!result.infer_timeline[item.key]) {
-                        return
-                    }
-                    return <Popover content={['forward', 'backward'].indexOf(key) > -1 ? renderDetail() : renderTip(result.infer_timeline[item.key], item.label)
+                    const item = COLOR_MAPPING[key]
+                    // if (!result.infer_timeline[item.key]) {
+                    //     return
+                    // }
+                    return <Popover content={key === "forward" ? renderDetail() : renderTip(result.infer_communication[item.key], item.label)
                     } title="" trigger="hover" key={key}>
                         <div key={key}>
                             <div className={styles.timeline_legend_item} style={{ backgroundColor: item.color }}></div>
                             <span>{item.label}</span>
                         </div>
                     </Popover>
+                    // return <Popover content={['forward', 'backward'].indexOf(key) > -1 ? renderDetail() : renderTip(result.infer_timeline[item.key], item.label)
+                    // } title="" trigger="hover" key={key}>
+                    //     <div key={key}>
+                    //         <div className={styles.timeline_legend_item} style={{ backgroundColor: item.color }}></div>
+                    //         <span>{item.label}</span>
+                    //     </div>
+                    // </Popover>
                 })}
             </div>
         </div>
     );
 };
 
-export default BaseTL;
+export default BaseTLInference;

@@ -169,7 +169,7 @@ class CalculateRepository:
         infer_tl.per_loop_forward_reduce_scatter_time = infer_comm.per_loop_forward_reduce_scatter_time
 
         infer_tl.forward_time = (infer_comp.total_forward_gpu_time + infer_comm.total_forward_allgather_time + infer_comm.total_forward_reduce_scatter_time + infer_comm.total_cpu_delay + infer_comm.total_p2p_time) / infer_comp.num_microbatches
-        infer_tl.forward_gpu_usage = infer_comp.total_forward_computation_time / (
+        infer_tl.forward_gpu_usage = infer_comp.total_forward_gpu_time / (
                 infer_comp.total_forward_gpu_time + infer_comm.total_forward_allgather_time + infer_comm.total_forward_reduce_scatter_time)
         infer_tl.per_token_delay = infer_tl.forward_time / model.token_length
         infer_tl.first_token_delay = infer_tl.per_token_delay * other_config.pipeline_parallel_degree

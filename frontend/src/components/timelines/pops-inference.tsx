@@ -65,13 +65,10 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
         per_loop_forward_computation_time,
         per_loop_forward_allgather_time,
         per_loop_forward_reduce_scatter_time } = result?.infer_timeline || {}
+    const { total_forward_allgather_time, total_forward_reduce_scatter_time } = result?.infer_communication || {}
+    const { total_forward_computation_time, total_forward_gpu_time } = result?.infer_computation || {}
 
-    // const maxTime = Math.max(
-    //     per_loop_forward_computation_time + per_loop_forward_allgather_time,
-    //     per_loop_backward_computation_time,
-    //     per_loop_backward_allgather_time + per_loop_backward_reduce_scatter_time
-    // )
-    const maxTime = per_loop_forward_computation_time + per_loop_forward_allgather_time + per_loop_forward_reduce_scatter_time
+    const maxTime = total_forward_gpu_time + total_forward_allgather_time + total_forward_reduce_scatter_time;
     const calcLength = (time: number) => {
         return `${(time / maxTime) * 50}%`
     }
@@ -92,8 +89,8 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
             <div className={styles.pop_chart_label}>GPU</div>
             <div className={styles.pop_chart_block} style={{
                 backgroundColor: DETAIL_COLOR_MAPPING['forward'].color,
-                width: calcLength(per_loop_forward_computation_time),
-                left: calcPositionLeft(per_loop_forward_allgather_time)
+                width: calcLength(total_forward_gpu_time),
+                left: calcPositionLeft(total_forward_allgather_time)
             }}></div>
         </div>
         <div className={styles.pop_chart_arrow}></div>
@@ -102,13 +99,13 @@ const PanelRightPop: FC<IPanelRightPopProps> = (props) => {
                 <div className={styles.pop_chart_label}>PCIE</div>
                 <div className={styles.pop_chart_block} style={{
                     backgroundColor: DETAIL_COLOR_MAPPING['forward_alltogether'].color,
-                    width: calcLength(per_loop_forward_allgather_time),
+                    width: calcLength(total_forward_allgather_time),
                     left: calcPositionLeft(0)
                 }}></div>
                 <div className={styles.pop_chart_block} style={{
                     backgroundColor: DETAIL_COLOR_MAPPING['forward_reduce'].color,
-                    width: calcLength(per_loop_forward_reduce_scatter_time),
-                    left: `calc(${calcPositionLeft(per_loop_forward_allgather_time + per_loop_forward_computation_time)} + 1px)`
+                    width: calcLength(total_forward_reduce_scatter_time),
+                    left: `calc(${calcPositionLeft(total_forward_allgather_time + total_forward_gpu_time)} + 1px)`
                 }}></div>
             </div>
             <div className={styles.pop_chart_arrow}></div>
