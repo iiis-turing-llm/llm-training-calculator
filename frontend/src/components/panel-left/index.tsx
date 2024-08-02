@@ -81,27 +81,60 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   };
 
   // && otherConfig.per_host_network_bandwidth
-  const validateInput = () => {
-    if (state.active == 'gpu') {
-      return curGpu && curGpu?.network_bandwidth ? true : false
+  // const validateInput = () => {
+  //   if (state.active == 'gpu') {
+  //     return curGpu && curGpu?.network_bandwidth ? true : false
+  //   }
+  //   if (state.active == 'model') {
+  //     return curModel && curModel.minibatch_size ? true : false
+  //   }
+  //   if (state.active == 'others') {
+  //     if (otherConfig && otherConfig.microbatch_size
+  //       && otherConfig.optimization_strategy
+  //       && otherConfig.tensor_parallel_degree
+  //       && otherConfig.pipeline_parallel_degree) {
+  //       if (checkSize() && checkPipeline()) {
+  //         return true
+  //       }
+  //     }
+  //   }
+  //   if (state.active == 'global' && checkTotalConfig()) {
+  //     return true
+  //   }
+  //   return false
+  // }
+  // 上面那个旧的校验方法会报错，现在需要校验所有表单都填写完整了才会发出请求
+  const validateGpu = () => !!curGpu?.value && !!curGpu?.network_bandwidth;
+  const validateModel = () => !!curModel?.key && !!curModel?.minibatch_size;
+  const validateOthers = (mode: string) => {
+    let check = false;
+    if (mode === "inference") {//推理模式
+      if (otherConfig && otherConfig.microbatch_size
+        && otherConfig.tensor_parallel_degree
+        && otherConfig.pipeline_parallel_degree)
+        check = checkSize() && checkPipeline();//推理模式会有一个新加的字段，所以会改变一下校验规则，这里暂时先这样
     }
-    if (state.active == 'model') {
-      return curModel && curModel.minibatch_size ? true : false
-    }
-    if (state.active == 'others') {
+    else {//指引模式
       if (otherConfig && otherConfig.microbatch_size
         && otherConfig.optimization_strategy
         && otherConfig.tensor_parallel_degree
-        && otherConfig.pipeline_parallel_degree) {
-        if (checkSize() && checkPipeline()) {
-          return true
-        }
-      }
+        && otherConfig.pipeline_parallel_degree)
+        check = checkSize() && checkPipeline();
     }
-    if (state.active == 'global' && checkTotalConfig()) {
-      return true
-    }
-    return false
+    return check;
+  }
+  const validateInput = () => {
+    let checkGpu = validateGpu();
+    let checkModel = validateModel();
+    let checkOthers = validateOthers(curMode);
+    let checkGlobal = checkTotalConfig();
+    return checkGpu && checkModel && checkOthers && checkGlobal;
+  }
+  const isButtonNotDisabled = (active: string): boolean => {
+    if (active === "gpu") return validateGpu();
+    else if (active === "model") return validateModel();
+    else if (active === "others") return validateOthers(curMode);
+    else return validateInput();
   }
   const genHistoryTitle = () => {
     return `${curGpu.name}_${curModel.name}_parallel[${totalConfig.data_parallel_degree}, ${otherConfig.pipeline_parallel_degree}, ${otherConfig.tensor_parallel_degree}]
@@ -298,7 +331,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
   }, [otherConfig?.pipeline_parallel_degree]);
 
   useEffect(() => {
-    if (validateInput() && autoRecalc) {
+    if (autoRecalc && validateInput()) {
       debounce(doCalculate, 200)()//消抖
       // setAutoCalculated()
       // message.success(`${changeLog.field} changed!`)
@@ -397,7 +430,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
                 {t('autocalc')}</span>
             </div>
             <Button type="primary"
-              disabled={!validateInput()}
+              disabled={!isButtonNotDisabled(state.active)}
               className={styles.area_btn_btn}
               onClick={doCalculateOrNext}>
               {state.active === 'global' ? t('calculate') : t('next')}
@@ -453,7 +486,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
               {t('autocalc')}</span>
           </div>
           <Button type="primary"
-            disabled={!validateInput()}
+            disabled={!isButtonNotDisabled(state.active)}
             className={styles.area_btn_btn}
             onClick={doCalculateOrNext}>
             {state.active === 'global' ? t('calculate') : t('next')}
