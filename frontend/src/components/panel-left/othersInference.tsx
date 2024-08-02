@@ -31,6 +31,14 @@ const DEFAULT_SRATEGY_LIST: any[] = [
 
 const PARAMS_LIST = [
     {
+        title: 'Gpu per node',
+        key: 'gpu_per_node',
+        min: 1,
+        max: 8,// gpu_per_node >=  tensor_parallel_degree and % tensor_parallel_degree === 0
+        precision: 0,
+        step: 1
+    },
+    {
         title: 'Tensor parallel degree',
         key: 'tensor_parallel_degree',
         min: 1,
@@ -50,7 +58,7 @@ const PARAMS_LIST = [
 ]
 const OtherPanel = (props: any) => {
     const { setProject, setOtherConfig, otherConfig, recommendConfig, curModel, curGpu,
-        checkSize, checkPipeline } = useModel(ProjectModel);
+        checkSize, checkPipeline, checkGpuPerNode } = useModel(ProjectModel);
     const { t } = useTranslation();
     const { setChangeLog } = useModel(LogModel);
     // const [state, setState] = useImmer({
@@ -184,6 +192,9 @@ const OtherPanel = (props: any) => {
                             {cf.key === 'pipeline_parallel_degree' && !checkPipeline() && curModel?.minibatch_size && <div className={styles.error_tip}>
                                 {t('pipeline divide tips')}({curModel?.num_layers}).
                             </div>}
+                            {
+                                cf.key === 'tensor_parallel_degree' && otherConfig?.tensor_parallel_degree && otherConfig?.gpu_per_node && !checkGpuPerNode() && <div className={styles.error_tip}>Need to be able to divide Gpu per node</div>
+                            }
                         </div>
                     );
                 })}

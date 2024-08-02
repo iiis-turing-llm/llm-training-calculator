@@ -45,6 +45,16 @@ const ProjectModel = ({ set, get }: any = {}) => ({
     }
     return true
   },
+  checkGpuPerNode: () => {
+    //这个检查是为了检查是否 gpu_per_node >=tensor_parallel_degree and gpu_per_node % tensor_parallel_degree === 0
+    //两种情况下的调用都在 inference 模式下
+    const { otherConfig } = get();
+    const { gpu_per_node, tensor_parallel_degree } = otherConfig;
+    // if (!Boolean(gpu_per_node && tensor_parallel_degree)) return false;
+    if (gpu_per_node < tensor_parallel_degree) return false;
+    if (gpu_per_node % tensor_parallel_degree !== 0) return false;
+    return true;
+  },
   checkTotalConfig: () => {
     const { totalConfig, curMode } = get();
     const { data_parallel_degree, number_of_input_tokens, epochs } = totalConfig || {}

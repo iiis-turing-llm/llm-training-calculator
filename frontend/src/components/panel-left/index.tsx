@@ -31,7 +31,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
     active: 'gpu',
   });
   const { curMode, curGpu, curModel, autoRecalc, otherConfig, totalConfig, result, setProject,
-    checkSize, checkPipeline, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
+    checkSize, checkPipeline, checkGpuPerNode, checkTotalConfig, setRecommendConfig } = useModel(ProjectModel);
   // const { changeLog, setAutoCalculated } = useModel(LogModel);
   const { history_results, pushHistory } = useModel(LogModel);
   const itemData = [
@@ -112,7 +112,7 @@ const PanelLeft: FC<IPanelLeftProps> = (props) => {
       if (otherConfig && otherConfig.microbatch_size
         && otherConfig.tensor_parallel_degree
         && otherConfig.pipeline_parallel_degree)
-        check = checkSize() && checkPipeline();//推理模式会有一个新加的字段，所以会改变一下校验规则，这里暂时先这样
+        check = checkSize() && checkPipeline() && checkGpuPerNode();//推理模式会有一个新加的字段，所以会改变一下校验规则，这里暂时先这样
     }
     else {//指引模式
       if (otherConfig && otherConfig.microbatch_size
