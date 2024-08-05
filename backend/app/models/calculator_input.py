@@ -27,6 +27,7 @@ class Model(BaseModel):
 class OtherConfig(BaseModel):
     tensor_parallel_degree: int = None
     pipeline_parallel_degree: int = None
+    gpu_per_node: int = None
     microbatch_size: int = None
     optimization_strategy: str = None
 

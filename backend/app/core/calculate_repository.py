@@ -110,6 +110,9 @@ class CalculateRepository:
         if other_config.pipeline_parallel_degree == 1:
             comm.total_p2p_time = 0
             comm.per_loop_p2p_time = 0
+        if other_config.gpu_per_node != other_config.tensor_parallel_degree:
+            comm.total_p2p_time = 0
+            comm.per_loop_p2p_time = 0
         comm.word_embedding_allreduce_time = params.word_embedding * 2 * 8 / 1e9 / other_config.tensor_parallel_degree / cluster.network_bandwidth
         comm.gradient_allreduce_time = 8 * 2 * 8 / 1e9 * params.total_parameters / other_config.tensor_parallel_degree / other_config.pipeline_parallel_degree / cluster.network_bandwidth
 
