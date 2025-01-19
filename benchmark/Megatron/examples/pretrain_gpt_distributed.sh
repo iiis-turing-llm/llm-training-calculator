@@ -11,14 +11,11 @@ MASTER_PORT=6000
 NNODES=1
 NODE_RANK=0
 WORLD_SIZE=$(($GPUS_PER_NODE*$NNODES))
-TENSOR_MP_SIZE=1
-PIPELINE_MP_SIZE=4
-VIRTUAL_STAGE_LAYER=4
 
-CHECKPOINT_PATH=ngc_models/release_gpt_base
-VOCAB_FILE=datasets/vocab.json
-MERGE_FILE=datasets/merges.txt
-DATA_PATH=datasets/gpt-large-cased-vocab-small_text_document
+CHECKPOINT_PATH=<Specify path>
+VOCAB_FILE=<Specify path to file>/gpt2-vocab.json
+MERGE_FILE=<Specify path to file>/gpt2-merges.txt
+DATA_PATH=<Specify path and file prefix>_text_document
 
 DISTRIBUTED_ARGS="
     --nproc_per_node $GPUS_PER_NODE \
@@ -29,30 +26,22 @@ DISTRIBUTED_ARGS="
 "
 
 GPT_ARGS="
-    --num-layers 32 \
-    --hidden-size 2048 \
-    --num-attention-heads 32 \
-    --seq-length 2048 \
-    --max-position-embeddings 2048 \
-    --micro-batch-size 2 \
-    --global-batch-size 32 \
+    --num-layers 24 \
+    --hidden-size 1024 \
+    --num-attention-heads 16 \
+    --seq-length 1024 \
+    --max-position-embeddings 1024 \
+    --micro-batch-size 8 \
+    --global-batch-size 64 \
     --lr 0.00015 \
-    --train-iters 20 \
+    --train-iters 500000 \
     --lr-decay-iters 320000 \
     --lr-decay-style cosine \
     --min-lr 1.0e-5 \
     --weight-decay 1e-2 \
     --lr-warmup-fraction .01 \
     --clip-grad 1.0 \
-    --fp16 \
-    --use-distributed-optimizer \
-    --overlap-grad-reduce \
-    --recompute-granularity full \
-    --recompute-method uniform \
-    --recompute-num-layers 1 \
-    --pipeline-model-parallel-size $PIPELINE_MP_SIZE \
-    --tensor-model-parallel-size $TENSOR_MP_SIZE \
-    --num-layers-per-virtual-pipeline-stage $VIRTUAL_STAGE_LAYER \
+    --fp16
 "
 
 DATA_ARGS="
@@ -63,9 +52,9 @@ DATA_ARGS="
 "
 
 OUTPUT_ARGS="
-    --log-interval 1 \
-    --save-interval 50 \
-    --eval-interval 20 \
+    --log-interval 100 \
+    --save-interval 10000 \
+    --eval-interval 1000 \
     --eval-iters 10
 "
 

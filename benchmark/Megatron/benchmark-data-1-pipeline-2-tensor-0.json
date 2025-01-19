@@ -1,0 +1,242 @@
+[
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 0
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 4604312500,
+    "duration_wall": 4604487786,
+    "duration_cuda": 4604312500
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 26094545
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 3076526123,
+    "duration_wall": 3076656567,
+    "duration_cuda": 3076526123
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 24394058
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 3310811035,
+    "duration_wall": 3310839062,
+    "duration_cuda": 3310811035
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 18412488
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2926790771,
+    "duration_wall": 2926831320,
+    "duration_cuda": 2926790771
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 21226732
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2937837646,
+    "duration_wall": 2938020072,
+    "duration_cuda": 2937837646
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 26468243
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 3028860839,
+    "duration_wall": 3028899536,
+    "duration_cuda": 3028860839
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 35458024
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2909564941,
+    "duration_wall": 2909601174,
+    "duration_cuda": 2909564941
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15836681
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2905397216,
+    "duration_wall": 2905429622,
+    "duration_cuda": 2905397216
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15458011
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2906050537,
+    "duration_wall": 2906193250,
+    "duration_cuda": 2906050537
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15565205
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2909645751,
+    "duration_wall": 2909659783,
+    "duration_cuda": 2909645751
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15543601
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2940175292,
+    "duration_wall": 2940209455,
+    "duration_cuda": 2940175292
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15940212
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2910759033,
+    "duration_wall": 2910793232,
+    "duration_cuda": 2910759033
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15457881
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2920987548,
+    "duration_wall": 2921010234,
+    "duration_cuda": 2920987548
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 16496866
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2906534912,
+    "duration_wall": 2906678539,
+    "duration_cuda": 2906534912
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 16248603
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2920447998,
+    "duration_wall": 2920476913,
+    "duration_cuda": 2920447998
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15745378
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2906896484,
+    "duration_wall": 2906918049,
+    "duration_cuda": 2906896484
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15881632
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2921463867,
+    "duration_wall": 2921503020,
+    "duration_cuda": 2921463867
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15108022
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2909499511,
+    "duration_wall": 2909520761,
+    "duration_cuda": 2909499511
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 17205288
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2911753173,
+    "duration_wall": 2911901503,
+    "duration_cuda": 2911753173
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 15315706
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2940922851,
+    "duration_wall": 2940950065,
+    "duration_cuda": 2940922851
+  }
+]

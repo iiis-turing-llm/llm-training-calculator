@@ -1,0 +1,242 @@
+[
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 0
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 4605634765,
+    "duration_wall": 4605807242,
+    "duration_cuda": 4605634765
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 24447860
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 3074966552,
+    "duration_wall": 3075111197,
+    "duration_cuda": 3074966552
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 26226522
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 3305960449,
+    "duration_wall": 3305964826,
+    "duration_cuda": 3305960449
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 23332550
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2927693847,
+    "duration_wall": 2927729070,
+    "duration_cuda": 2927693847
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 20263644
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2935718994,
+    "duration_wall": 2935739526,
+    "duration_cuda": 2935718994
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 27393795
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 3031028808,
+    "duration_wall": 3031173591,
+    "duration_cuda": 3031028808
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 34582692
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2906205078,
+    "duration_wall": 2906193817,
+    "duration_cuda": 2906205078
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 19279615
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2902158447,
+    "duration_wall": 2902297620,
+    "duration_cuda": 2902158447
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 18567008
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2900164550,
+    "duration_wall": 2900189512,
+    "duration_cuda": 2900164550
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 21518264
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2908121093,
+    "duration_wall": 2908143359,
+    "duration_cuda": 2908121093
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 17078489
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2937869384,
+    "duration_wall": 2938006521,
+    "duration_cuda": 2937869384
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 18202095
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2903044189,
+    "duration_wall": 2903081754,
+    "duration_cuda": 2903044189
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 22967987
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2919508056,
+    "duration_wall": 2919543512,
+    "duration_cuda": 2919508056
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 18126775
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2902909912,
+    "duration_wall": 2902913445,
+    "duration_cuda": 2902909912
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 20024548
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2914540527,
+    "duration_wall": 2914570195,
+    "duration_cuda": 2914540527
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 21656262
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2904936523,
+    "duration_wall": 2904965047,
+    "duration_cuda": 2904936523
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 17798425
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2916093017,
+    "duration_wall": 2916131022,
+    "duration_cuda": 2916093017
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 20620203
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2908200927,
+    "duration_wall": 2908239667,
+    "duration_cuda": 2908200927
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 18344741
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2905627685,
+    "duration_wall": 2905663556,
+    "duration_cuda": 2905627685
+  },
+  {
+    "name": "iteration",
+    "ph": "B",
+    "pad_before": 21552928
+  },
+  {
+    "name": "iteration",
+    "ph": "E",
+    "rel_ts": 2941747314,
+    "duration_wall": 2941774795,
+    "duration_cuda": 2941747314
+  }
+]
